@@ -137,7 +137,7 @@ Vercel es la opción recomendada para proyectos React.
 4. Vercel detecta automáticamente que es un proyecto React
 5. Configuración de build:
    - **Build command:** `npm run build`
-   - **Output Directory:** `dist`
+   - **Output Directory:** `build`
    - **Install Command:** `npm install`
 5. **Antes de hacer clic en Deploy**, ve a **Environment Variables** y agrega:
    - `REACT_APP_SUPABASE_URL` → tu URL de Supabase
