@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { YARN_COLORS, DIFICULTADES, ESTADOS, COLORS } from '../lib/constants';
+import { YARN_COLORS, DIFICULTADES, ESTADOS } from '../lib/constants';
 
 const BLANK = {
   nombre: '', emoji: '🧶', dificultad: 'Principiante', estado: 'En progreso',

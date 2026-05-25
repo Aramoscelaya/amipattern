@@ -135,9 +135,14 @@ Vercel es la opción recomendada para proyectos React.
 2. Ve a [https://vercel.com](https://vercel.com) → **Add New Project**
 3. Importa tu repositorio de GitHub
 4. Vercel detecta automáticamente que es un proyecto React
+5. Configuración de build:
+   - **Build command:** `npm run build`
+   - **Output Directory:** `dist`
+   - **Install Command:** `npm install`
 5. **Antes de hacer clic en Deploy**, ve a **Environment Variables** y agrega:
    - `REACT_APP_SUPABASE_URL` → tu URL de Supabase
    - `REACT_APP_SUPABASE_ANON_KEY` → tu clave anon
+   **En la seccion Build and Output Settings**
 6. Clic en **Deploy** 🚀
 
 **¡Listo!** Vercel te da una URL como `https://amipattern-web.vercel.app`
