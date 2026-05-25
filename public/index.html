@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1A1A2E" />
+    <meta name="description" content="AmiPattern — Tu catálogo de patrones de amigurumi" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AmiPattern" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>🧶 AmiPattern</title>
+    <style>
+      /* Evita flash de fondo blanco antes que React monte */
+      body { margin: 0; background-color: #F5F0EB; }
+    </style>
+  </head>
+  <body>
+    <noscript>Necesitas JavaScript para usar AmiPattern.</noscript>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+  </body>
+</html>
