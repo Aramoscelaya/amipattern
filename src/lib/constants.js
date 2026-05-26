@@ -10,7 +10,7 @@ export const ESTADOS = ['En progreso', 'Completado'];
 export const COLORS = {
   bg: '#F5F0EB',
   card: '#FFFFFF',
-  header: '#1A1A2E',
+  header: '#b98d6f',
   accent: '#FAD2E1',
   teal: '#2A9D8F',
   orange: '#F4A261',

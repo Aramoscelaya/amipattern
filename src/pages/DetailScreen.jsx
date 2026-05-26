@@ -200,10 +200,10 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         title="Contador de vueltas"
         style={{
           position: 'fixed',
-          bottom: 'max(24px, env(safe-area-inset-bottom, 24px))',
+          bottom: 'max(50px, env(safe-area-inset-bottom, 24px))',
           right: 24, zIndex: 300,
           width: 56, height: 56, borderRadius: 28,
-          backgroundColor: COLORS.header, border: 'none',
+          backgroundColor: "#687c8f", border: 'none',
           boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
           cursor: 'pointer', fontSize: 22,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -230,7 +230,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
             fontSize: 11, fontWeight: 800, color: COLORS.textMuted,
             textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 14,
           }}>
-            🧶 Contador de vueltas
+            🧶 Contador de puntos
           </div>
           <div style={{
             fontSize: 64, fontWeight: 900, color: COLORS.header,
@@ -254,7 +254,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
               onClick={() => setCounter(c => c + 1)}
               style={{
                 flex: 1, height: 48, borderRadius: 14,
-                border: 'none', backgroundColor: COLORS.header,
+                border: 'none', backgroundColor: '#aa798b',
                 fontSize: 24, fontWeight: 900, cursor: 'pointer',
                 color: '#fff', fontFamily: 'inherit',
               }}
@@ -272,7 +272,28 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
             }}
           >↺ Reiniciar</button>
         </div>
+        
       )}
+      <div
+        style={{
+          fontSize: 11,
+          marginTop: 1,
+          display:"inline-block",
+          background:"#f6f1ee",
+          padding:"6px 12px",
+          borderRadius:20,
+          color:"#7a6d66",
+          position: 'fixed',
+          bottom: 'max(20px, env(safe-area-inset-bottom, 24px))',
+          right: 24, zIndex: 300,
+          width: 160, height: 20,
+          //display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'transform 0.2s ease'
+        }}>
+            Creado por Minué Crochet
+      </div>
 
       <style>{`
         @keyframes slideUpCounter {

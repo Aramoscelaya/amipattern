@@ -31,14 +31,14 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
         position: 'sticky', top: 0, zIndex: 100,
       }}>
         <div>
-          <div style={{ color: '#FAD2E1', fontSize: 20, fontWeight: 900 }}>🧶 AmiPattern</div>
-          <div style={{ color: '#4B5563', fontSize: 11, marginTop: 1 }}>Hola, {displayName} 👋</div>
+          <div style={{ color: '#364253', fontSize: 20, fontWeight: 900 }}>🧶 AmiPattern</div>
+          <div style={{ color: '#405066', fontSize: 11, marginTop: 1 }}>Hola, {displayName} 👋</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button onClick={onNew} style={{
             backgroundColor: '#FAD2E1', borderRadius: 12,
             padding: '9px 16px', border: 'none',
-            color: '#1A1A2E', fontWeight: 900, fontSize: 14,
+            color: '#2e271a', fontWeight: 900, fontSize: 14,
             cursor: 'pointer', fontFamily: 'inherit',
           }}>+ Nuevo</button>
 
@@ -65,8 +65,8 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
                   boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
                   minWidth: 180, padding: 8, overflow: 'hidden',
                 }}>
-                  <div style={{ padding: '8px 14px 10px', borderBottom: '1px solid #F3F4F6' }}>
-                    <div style={{ fontWeight: 800, fontSize: 13, color: '#1A1A2E' }}>
+                  <div style={{ padding: '8px 14px 10px', borderBottom: '1px solid #e4e4e7ad' }}>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: '#421f06' }}>
                       {user?.user_metadata?.full_name || 'Usuario'}
                     </div>
                     <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{user?.email}</div>
@@ -170,6 +170,27 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
             ))}
           </div>
         )}
+      </div>
+      {/* Creacion flotannnte */}
+      <div
+        style={{
+          fontSize: 11,
+          marginTop: 1,
+          display:"inline-block",
+          background:"#f6f1ee",
+          padding:"6px 12px",
+          borderRadius:20,
+          color:"#7a6d66",
+          position: 'fixed',
+          bottom: 'max(20px, env(safe-area-inset-bottom, 24px))',
+          right: 24, zIndex: 300,
+          width: 160, height: 20,
+          //display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'transform 0.2s ease'
+        }}>
+            Creado por Minué Crochet
       </div>
     </div>
   );
