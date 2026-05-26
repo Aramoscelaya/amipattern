@@ -6,7 +6,10 @@ const progress = p =>
   !p.pasos?.length ? 0 : Math.round(p.pasos.filter(s => s.hecho).length / p.pasos.length * 100);
 
 export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onToggleStep }) {
-  const [confirmDel, setConfirmDel] = useState(false);
+  const [confirmDel,   setConfirmDel]   = useState(false);
+  const [counter,      setCounter]      = useState(0);
+  const [showCounter,  setShowCounter]  = useState(false);
+
   const pct      = progress(pattern);
   const barColor = pct === 100 ? COLORS.teal : COLORS.orange;
 
@@ -94,8 +97,8 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
           }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
               {[
-                { l: '📏 Talla',   v: pattern.talla || '—' },
-                { l: '🪝 Aguja',  v: pattern.aguja || '—' },
+                { l: '📏 Talla',  v: pattern.talla || '—' },
+                { l: '🪝 Aguja', v: pattern.aguja || '—' },
                 { l: '📅 Inicio', v: pattern.fecha || '—' },
                 { l: '🧵 Hilos',  v: pattern.hilos?.length ? pattern.hilos.join(', ') : '—' },
               ].map(x => (
@@ -130,7 +133,6 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
                   {pattern.pasos.filter(s => s.hecho).length}/{pattern.pasos.length}
                 </span>
               </div>
-              {/* Progress bar */}
               <div style={{ height: 6, backgroundColor: '#F3F4F6', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
                 <div style={{ height: '100%', width: `${pct}%`, backgroundColor: barColor, borderRadius: 99, transition: 'width 0.4s ease' }} />
               </div>
@@ -180,9 +182,116 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
             </div>
           )}
 
-          <div style={{ height: 40 }} />
+          <div style={{ height: 100 }} />
         </div>
       </div>
+
+      {/* ── CONTADOR FLOTANTE ─────────────────────────────────────── */}
+
+      {/* Botón toggle para abrir/cerrar el contador */}
+      <button
+        onClick={() => setShowCounter(s => !s)}
+        title="Contador de vueltas"
+        style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 300,
+          width: 56, height: 56, borderRadius: 28,
+          backgroundColor: COLORS.header, border: 'none',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+          cursor: 'pointer', fontSize: 22,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'transform 0.2s ease',
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        🔢
+      </button>
+
+      {/* Panel del contador */}
+      {showCounter && (
+        <div style={{
+          position: 'fixed', bottom: 90, right: 24, zIndex: 300,
+          backgroundColor: '#fff',
+          borderRadius: 20,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+          padding: '20px 24px',
+          minWidth: 200,
+          textAlign: 'center',
+          animation: 'slideUpCounter 0.2s ease',
+        }}>
+          {/* Título */}
+          <div style={{
+            fontSize: 11, fontWeight: 800, color: COLORS.textMuted,
+            textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 14,
+          }}>
+            🧶 Contador de vueltas
+          </div>
+
+          {/* Número */}
+          <div style={{
+            fontSize: 64, fontWeight: 900, color: COLORS.header,
+            lineHeight: 1, marginBottom: 16,
+            fontVariantNumeric: 'tabular-nums',
+          }}>
+            {counter}
+          </div>
+
+          {/* Botones + y - */}
+          <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+            <button
+              onClick={() => setCounter(c => Math.max(0, c - 1))}
+              style={{
+                flex: 1, height: 48, borderRadius: 14,
+                border: '2px solid #E5E7EB', backgroundColor: '#F9FAFB',
+                fontSize: 24, fontWeight: 900, cursor: 'pointer',
+                color: counter === 0 ? '#D1D5DB' : '#1A1A2E',
+                fontFamily: 'inherit',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => { if (counter > 0) e.currentTarget.style.backgroundColor = '#F3F4F6'; }}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#F9FAFB'}
+            >
+              −
+            </button>
+            <button
+              onClick={() => setCounter(c => c + 1)}
+              style={{
+                flex: 1, height: 48, borderRadius: 14,
+                border: 'none', backgroundColor: COLORS.header,
+                fontSize: 24, fontWeight: 900, cursor: 'pointer',
+                color: '#fff', fontFamily: 'inherit',
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#2D2D4E'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = COLORS.header}
+            >
+              +
+            </button>
+          </div>
+
+          {/* Botón reiniciar */}
+          <button
+            onClick={() => setCounter(0)}
+            style={{
+              width: '100%', padding: '8px 0', borderRadius: 10,
+              border: 'none', backgroundColor: 'transparent',
+              color: '#EF4444', fontWeight: 700, fontSize: 13,
+              cursor: 'pointer', fontFamily: 'inherit',
+              opacity: counter === 0 ? 0.4 : 1,
+            }}
+            disabled={counter === 0}
+          >
+            ↺ Reiniciar
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideUpCounter {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
