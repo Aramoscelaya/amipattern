@@ -6,9 +6,9 @@ const progress = p =>
   !p.pasos?.length ? 0 : Math.round(p.pasos.filter(s => s.hecho).length / p.pasos.length * 100);
 
 export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onToggleStep }) {
-  const [confirmDel,   setConfirmDel]   = useState(false);
-  const [counter,      setCounter]      = useState(0);
-  const [showCounter,  setShowCounter]  = useState(false);
+  const [confirmDel,  setConfirmDel]  = useState(false);
+  const [counter,     setCounter]     = useState(0);
+  const [showCounter, setShowCounter] = useState(false);
 
   const pct      = progress(pattern);
   const barColor = pct === 100 ? COLORS.teal : COLORS.orange;
@@ -16,26 +16,34 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg }}>
 
-      {/* Sticky top bar */}
+      {/* Sticky top bar — con safe area para móvil */}
       <div style={{
-        backgroundColor: pattern.color, padding: '10px 16px',
+        backgroundColor: pattern.color,
+        paddingTop: 'max(12px, env(safe-area-inset-top))',
+        paddingBottom: 10,
+        paddingLeft: 16,
+        paddingRight: 16,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 100,
       }}>
         <button onClick={onBack} style={{
           backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-          padding: '6px 12px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+          padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
           color: '#1A1A2E', fontFamily: 'inherit',
+          minHeight: 40, minWidth: 80,           // área táctil mínima
         }}>← Volver</button>
+
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={onEdit} style={{
             backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-            padding: '6px 12px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+            padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
             color: '#1A1A2E', fontFamily: 'inherit',
+            minHeight: 40,
           }}>✏️ Editar</button>
           <button onClick={() => setConfirmDel(true)} style={{
             backgroundColor: 'rgba(239,68,68,0.15)', border: 'none', borderRadius: 10,
-            padding: '6px 10px', cursor: 'pointer', fontSize: 16,
+            padding: '8px 12px', cursor: 'pointer', fontSize: 18,
+            minHeight: 40, minWidth: 44,
           }}>🗑</button>
         </div>
       </div>
@@ -187,13 +195,13 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
       </div>
 
       {/* ── CONTADOR FLOTANTE ─────────────────────────────────────── */}
-
-      {/* Botón toggle para abrir/cerrar el contador */}
       <button
         onClick={() => setShowCounter(s => !s)}
         title="Contador de vueltas"
         style={{
-          position: 'fixed', bottom: 24, right: 24, zIndex: 300,
+          position: 'fixed',
+          bottom: 'max(24px, env(safe-area-inset-bottom, 24px))',
+          right: 24, zIndex: 300,
           width: 56, height: 56, borderRadius: 28,
           backgroundColor: COLORS.header, border: 'none',
           boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
@@ -201,16 +209,15 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'transform 0.2s ease',
         }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
       >
         🔢
       </button>
 
-      {/* Panel del contador */}
       {showCounter && (
         <div style={{
-          position: 'fixed', bottom: 90, right: 24, zIndex: 300,
+          position: 'fixed',
+          bottom: 'max(90px, calc(env(safe-area-inset-bottom, 0px) + 90px))',
+          right: 24, zIndex: 300,
           backgroundColor: '#fff',
           borderRadius: 20,
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
@@ -219,15 +226,12 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
           textAlign: 'center',
           animation: 'slideUpCounter 0.2s ease',
         }}>
-          {/* Título */}
           <div style={{
             fontSize: 11, fontWeight: 800, color: COLORS.textMuted,
             textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 14,
           }}>
             🧶 Contador de vueltas
           </div>
-
-          {/* Número */}
           <div style={{
             fontSize: 64, fontWeight: 900, color: COLORS.header,
             lineHeight: 1, marginBottom: 16,
@@ -235,8 +239,6 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
           }}>
             {counter}
           </div>
-
-          {/* Botones + y - */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
             <button
               onClick={() => setCounter(c => Math.max(0, c - 1))}
@@ -246,13 +248,8 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
                 fontSize: 24, fontWeight: 900, cursor: 'pointer',
                 color: counter === 0 ? '#D1D5DB' : '#1A1A2E',
                 fontFamily: 'inherit',
-                transition: 'all 0.15s ease',
               }}
-              onMouseEnter={e => { if (counter > 0) e.currentTarget.style.backgroundColor = '#F3F4F6'; }}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#F9FAFB'}
-            >
-              −
-            </button>
+            >−</button>
             <button
               onClick={() => setCounter(c => c + 1)}
               style={{
@@ -260,29 +257,20 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
                 border: 'none', backgroundColor: COLORS.header,
                 fontSize: 24, fontWeight: 900, cursor: 'pointer',
                 color: '#fff', fontFamily: 'inherit',
-                transition: 'all 0.15s ease',
               }}
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#2D2D4E'}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = COLORS.header}
-            >
-              +
-            </button>
+            >+</button>
           </div>
-
-          {/* Botón reiniciar */}
           <button
             onClick={() => setCounter(0)}
+            disabled={counter === 0}
             style={{
               width: '100%', padding: '8px 0', borderRadius: 10,
               border: 'none', backgroundColor: 'transparent',
               color: '#EF4444', fontWeight: 700, fontSize: 13,
-              cursor: 'pointer', fontFamily: 'inherit',
-              opacity: counter === 0 ? 0.4 : 1,
+              cursor: counter === 0 ? 'default' : 'pointer',
+              fontFamily: 'inherit', opacity: counter === 0 ? 0.4 : 1,
             }}
-            disabled={counter === 0}
-          >
-            ↺ Reiniciar
-          </button>
+          >↺ Reiniciar</button>
         </div>
       )}
 

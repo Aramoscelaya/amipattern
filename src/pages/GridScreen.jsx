@@ -26,7 +26,7 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg }}>
       {/* Header */}
       <div style={{
-        backgroundColor: COLORS.header, padding: '12px 20px',
+        backgroundColor: COLORS.header, paddingTop: 'max(12px, env(safe-area-inset-top))', paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 100,
       }}>
