@@ -51,14 +51,14 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
         </div>
 
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          {headerBtn?.label && headerBtn?.action && (
+          {/*headerBtn?.label && headerBtn?.action && (
             <button onClick={headerBtn.action} style={{
               backgroundColor:'#FAD2E1', borderRadius:12,
               padding:'9px 16px', border:'none',
               color:'#1A1A2E', fontWeight:900, fontSize:14,
               cursor:'pointer', fontFamily:'inherit',
             }}>{headerBtn.label}</button>
-          )}
+          )*/}
 
           {/* Avatar + menú */}
           <div style={{ position:'relative' }}>
@@ -185,6 +185,46 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
           )}
         </div>
       )}
+
+      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          {headerBtn?.label && headerBtn?.action && (
+            <button
+              id="newPattern"
+              //onClick={() => { setEditing(null); setModal(true); }}
+              onClick={headerBtn.action}
+              style={{
+                position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 90px))',
+                right:24, zIndex:300,
+                width:54, height:54, borderRadius:27,
+                backgroundColor:'#FAD2E1', border:'none',
+                boxShadow:'0 4px 20px #a8a8ca',
+                cursor:'pointer', fontSize:24,
+                display:'flex', alignItems:'center', justifyContent:'center',
+              }}
+            >➕</button>
+          )}
+      </div>
+
+      <div
+        style={{
+          fontSize: 11,
+          marginTop: 1,
+          display:"inline-block",
+          background:"#f6f1ee",
+          padding:"6px 12px",
+          borderRadius:20,
+          color:"#7a6d66",
+          position: 'fixed',
+          bottom: 'max(62px, env(safe-area-inset-bottom, 24px))',
+          right: 24, zIndex: 300,
+          width: 160, height: 20,
+          //display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'transform 0.2s ease'
+        }}>
+            Creado por Minué Crochet
+      </div>
 
       <BottomNav active={activeTab} onChange={setActiveTab}/>
     </div>
