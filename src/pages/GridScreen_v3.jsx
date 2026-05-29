@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PatternCard from '../components/PatternCard';
 import BottomNav from '../components/BottomNav';
 import ComingSoonScreen from './ComingSoonScreen';
-import BusinessScreen from './BusinessScreen';
 import InventoryScreen from './InventoryScreen';
 import { COLORS, ESTADOS } from '../lib/constants';
 
@@ -102,7 +101,7 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
 
       {/* ── Contenido por tab ── */}
       {activeTab === 'inventario' && <InventoryScreen user={user} />}
-      {activeTab === 'negocio'    && <BusinessScreen user={user} />}
+      {activeTab === 'negocio'    && <ComingSoonScreen section="negocio" />}
       {activeTab === 'organizar'  && <ComingSoonScreen section="organizar" />}
 
       {activeTab === 'patrones' && (
