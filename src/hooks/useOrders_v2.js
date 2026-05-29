@@ -121,7 +121,9 @@ export function useOrders(userId) {
   }, [userId]);
 
   const saveOrder = useCallback(async (form) => {
-    const estadoNuevo = form.estado || 'pendiente';
+    const esNuevo        = !form.id;
+    const estadoAnterior = esNuevo ? null : orders.find(o => o.id === form.id)?.estado;
+    const estadoNuevo    = form.estado || 'pendiente';
 
     const payload = {
       user_id:          userId,
@@ -170,7 +172,7 @@ export function useOrders(userId) {
       setOrders(prev => [data, ...prev]);
       return data;
     }
-  }, [userId, _descontarInventario]);
+  }, [userId, orders, _descontarInventario]);
 
   const deleteOrder = useCallback(async (id) => {
     const { error: err } = await supabase.from('orders').delete().eq('id', id);
