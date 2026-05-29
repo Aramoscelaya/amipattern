@@ -200,7 +200,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         title="Contador de vueltas"
         style={{
           position: 'fixed',
-          bottom: 'max(50px, env(safe-area-inset-bottom, 24px))',
+          bottom: 'max(55px, env(safe-area-inset-bottom, 24px))',
           right: 24, zIndex: 300,
           width: 56, height: 56, borderRadius: 28,
           backgroundColor: "#687c8f", border: 'none',
@@ -284,7 +284,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
           borderRadius:20,
           color:"#7a6d66",
           position: 'fixed',
-          bottom: 'max(20px, env(safe-area-inset-bottom, 24px))',
+          bottom: 'max(22px, env(safe-area-inset-bottom, 24px))',
           right: 24, zIndex: 300,
           width: 160, height: 20,
           //display: 'flex',

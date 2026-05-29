@@ -193,7 +193,7 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
               //onClick={() => { setEditing(null); setModal(true); }}
               onClick={headerBtn.action}
               style={{
-                position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 90px))',
+                position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 92px))',
                 right:24, zIndex:300,
                 width:54, height:54, borderRadius:27,
                 backgroundColor:'#FAD2E1', border:'none',
@@ -215,7 +215,7 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
           borderRadius:20,
           color:"#7a6d66",
           position: 'fixed',
-          bottom: 'max(62px, env(safe-area-inset-bottom, 24px))',
+          bottom: 'max(70px, env(safe-area-inset-bottom, 24px))',
           right: 24, zIndex: 300,
           width: 160, height: 20,
           //display: 'flex',

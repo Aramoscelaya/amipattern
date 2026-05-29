@@ -246,7 +246,7 @@ export default function InventoryScreen({ user }) {
         id="newInventory"
         onClick={() => { setEditing(null); setModal(true); }}
         style={{
-          position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 90px))',
+          position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 92px))',
           right:24, zIndex:300,
           width:54, height:54, borderRadius:27,
           backgroundColor:'#FAD2E1', border:'none',
