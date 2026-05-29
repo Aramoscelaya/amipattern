@@ -22,7 +22,6 @@ import { supabase } from '../lib/supabase';
     precio_venta     numeric,            -- calculado o manual
     precio_manual    boolean default false,
     estado           text not null default 'pendiente',  -- pendiente|en_proceso|listo|entregado|cancelado
-    inventario_descontado boolean not null default false, -- ✅ NUEVO: evita doble descuento
     fecha_pedido     date not null default now(),
     fecha_entrega    date,
     notas            text,
@@ -30,10 +29,6 @@ import { supabase } from '../lib/supabase';
     created_at       timestamptz default now(),
     updated_at       timestamptz default now()
   );
-
-  -- ⚠️ Si ya tienes la tabla, agrega la columna nueva:
-  alter table orders
-    add column if not exists inventario_descontado boolean not null default false;
 
   alter table orders enable row level security;
   create policy "Ver mis pedidos"    on orders for select using (auth.uid() = user_id);
@@ -80,51 +75,7 @@ export function useOrders(userId) {
 
   useEffect(() => { load(); }, [load]);
 
-  // ── Descuenta materiales del inventario ──────────────────────
-  // Se llama solo cuando el pedido pasa a "en_proceso" por primera vez.
-  // Usa directamente supabase para no depender de useInventory.
-  const _descontarInventario = useCallback(async (materiales = []) => {
-    if (!materiales.length) return;
-
-    // Traer todos los items del inventario de una sola vez
-    const ids = materiales.map(m => m.inv_id);
-    const { data: invItems, error: fetchErr } = await supabase
-      .from('inventory')
-      .select('id, stock_inicial, entradas, stock_usado')
-      .in('id', ids)
-      .eq('user_id', userId);
-
-    if (fetchErr) throw new Error('Error al leer inventario: ' + fetchErr.message);
-
-    // Preparar los updates: stock_usado += cantidad (sin pasar del disponible)
-    const updates = materiales.map(mat => {
-      const item = invItems.find(i => i.id === mat.inv_id);
-      if (!item) return null;
-      const disponible = item.stock_inicial + item.entradas - item.stock_usado;
-      const descuento  = Math.min(Number(mat.cantidad), Math.max(0, disponible));
-      return {
-        id:          item.id,
-        stock_usado: item.stock_usado + descuento,
-        updated_at:  new Date().toISOString(),
-      };
-    }).filter(Boolean);
-
-    // Ejecutar todos los updates en paralelo
-    await Promise.all(
-      updates.map(u =>
-        supabase
-          .from('inventory')
-          .update({ stock_usado: u.stock_usado, updated_at: u.updated_at })
-          .eq('id', u.id)
-      )
-    );
-  }, [userId]);
-
   const saveOrder = useCallback(async (form) => {
-    const esNuevo        = !form.id;
-    const estadoAnterior = esNuevo ? null : orders.find(o => o.id === form.id)?.estado;
-    const estadoNuevo    = form.estado || 'pendiente';
-
     const payload = {
       user_id:          userId,
       cliente_nombre:   form.cliente_nombre,
@@ -139,25 +90,13 @@ export function useOrders(userId) {
       margen_pct:       Number(form.margen_pct)   || 30,
       precio_venta:     Number(form.precio_venta) || 0,
       precio_manual:    form.precio_manual     || false,
-      estado:           estadoNuevo,
+      estado:           form.estado            || 'pendiente',
       fecha_pedido:     form.fecha_pedido      || new Date().toISOString().slice(0, 10),
       fecha_entrega:    form.fecha_entrega     || null,
       notas:            form.notas             || null,
       anticipo:         Number(form.anticipo)  || 0,
       updated_at:       new Date().toISOString(),
     };
-
-    // ── ¿Hay que descontar inventario? ──────────────────────────
-    // Condición: el estado cambia A "en_proceso" y aún no se descontó.
-    const debeDesco = estadoNuevo === 'en_proceso' && !form.inventario_descontado;
-
-    if (debeDesco) {
-      await _descontarInventario(form.materiales || []);
-      payload.inventario_descontado = true;
-    } else {
-      // Conservar el flag actual para no perderlo en actualizaciones futuras
-      payload.inventario_descontado = form.inventario_descontado || false;
-    }
 
     if (form.id) {
       const { data, error: err } = await supabase
@@ -172,7 +111,7 @@ export function useOrders(userId) {
       setOrders(prev => [data, ...prev]);
       return data;
     }
-  }, [userId, orders, _descontarInventario]);
+  }, [userId]);
 
   const deleteOrder = useCallback(async (id) => {
     const { error: err } = await supabase.from('orders').delete().eq('id', id);
@@ -180,27 +119,14 @@ export function useOrders(userId) {
     setOrders(prev => prev.filter(o => o.id !== id));
   }, []);
 
-  // updateEstado: también dispara descuento si cambia a "en_proceso"
   const updateEstado = useCallback(async (id, estado) => {
-    const pedido = orders.find(o => o.id === id);
-    const debeDesco = estado === 'en_proceso' && pedido && !pedido.inventario_descontado;
-
-    if (debeDesco) {
-      await _descontarInventario(pedido.materiales || []);
-    }
-
     const { data, error: err } = await supabase
-      .from('orders')
-      .update({
-        estado,
-        inventario_descontado: debeDesco ? true : (pedido?.inventario_descontado || false),
-        updated_at: new Date().toISOString(),
-      })
+      .from('orders').update({ estado, updated_at: new Date().toISOString() })
       .eq('id', id).select().single();
     if (err) throw new Error(err.message);
     setOrders(prev => prev.map(o => o.id === id ? data : o));
     return data;
-  }, [orders, _descontarInventario]);
+  }, []);
 
   // Pedidos que vencen en ≤ 2 días
   const proximosVencer = orders.filter(o => {
