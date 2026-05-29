@@ -15,7 +15,7 @@ const FILTROS = [
 ];
 
 export default function BusinessScreen({ user }) {
-  const { orders, loading, error, saveOrder, deleteOrder, updateEstado, proximosVencer, stats, reload }
+  const { orders, loading, error, saveOrder, deleteOrder, updateEstado, proximosVencer, stats }
     = useOrders(user?.id);
   const { items: invItems } = useInventory(user?.id);
 
