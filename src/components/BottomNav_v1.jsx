@@ -4,7 +4,7 @@ const TABS = [
   { id: 'patrones',   emoji: '🧶', label: 'Patrones'   },
   { id: 'inventario', emoji: '🧵', label: 'Inventario'  },
   { id: 'negocio',    emoji: '💼', label: 'Negocio'     },
-  { id: 'tienda',     emoji: '🏪', label: 'Tienda'      },
+  { id: 'organizar',  emoji: '🏷️', label: 'Organizar'  },
 ];
 
 export default function BottomNav({ active, onChange }) {

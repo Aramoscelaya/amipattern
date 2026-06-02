@@ -4,7 +4,6 @@ import BottomNav from '../components/BottomNav';
 import ComingSoonScreen from './ComingSoonScreen';
 import BusinessScreen from './BusinessScreen';
 import InventoryScreen from './InventoryScreen';
-import StoreScreen from './StoreScreen';
 import { COLORS, ESTADOS } from '../lib/constants';
 
 export default function GridScreen({ patterns, onSelect, onNew, loading, error, user, onSignOut }) {
@@ -30,9 +29,9 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
 
   const HEADER_BTN = {
     patrones:  { label:'+ Nuevo',    action: onNew },
-    inventario:{ label:'+ Agregar',  action: null  },
+    inventario:{ label:'+ Agregar',  action: null  }, // el FAB lo maneja InventoryScreen
     negocio:   { label:null },
-    tienda:    { label:null },
+    organizar: { label:null },
   };
   const headerBtn = HEADER_BTN[activeTab];
 
@@ -104,7 +103,7 @@ export default function GridScreen({ patterns, onSelect, onNew, loading, error, 
       {/* ── Contenido por tab ── */}
       {activeTab === 'inventario' && <InventoryScreen user={user} />}
       {activeTab === 'negocio'    && <BusinessScreen user={user} />}
-      {activeTab === 'tienda'     && <StoreScreen user={user} patterns={patterns} />}
+      {activeTab === 'organizar'  && <ComingSoonScreen section="organizar" />}
 
       {activeTab === 'patrones' && (
         <div style={{ padding:'20px 16px', maxWidth:960, margin:'0 auto' }}>
