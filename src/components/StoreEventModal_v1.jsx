@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { TIPOS_EVENTO } from '../hooks/useStore';
 import { COLORS } from '../lib/constants';
 
-const BLANK_EVENT = { nombre: '', tipo: 'bazar', fecha_inicio: '', fecha_fin: '', notas: '', activo: true };
-
 export default function StoreEventModal({ visible, initial, onClose, onSave }) {
-  const [form,   setForm]   = useState(BLANK_EVENT);
+  const blank = { nombre: '', tipo: 'bazar', fecha_inicio: '', fecha_fin: '', notas: '', activo: true };
+  const [form,   setForm]   = useState(blank);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (visible) setForm(initial ? { ...initial } : BLANK_EVENT);
+    if (visible) setForm(initial ? { ...initial } : blank);
   }, [visible, initial]);
 
   if (!visible) return null;

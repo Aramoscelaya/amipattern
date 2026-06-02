@@ -5,19 +5,19 @@ import { COLORS } from '../lib/constants';
 const EMOJIS = ['🧸','🌸','🔑','🐣','🐧','🐸','🦊','🐰','🐻','🦄','🌻','🍄','⭐','🎀','🌈','🐙','🦋','🐝','🐠','🎃'];
 const COLORES = ['#FAD2E1','#B5EAD7','#FFDAC1','#C7CEEA','#A8DADC','#F4A261','#E9C46A','#2A9D8F','#264653','#E76F51'];
 
-const BLANK_PRODUCT = {
-  nombre: '', emoji: '🧸', categoria: 'amigurumi',
-  descripcion: '', precio_venta: '', stock_inicial: '',
-  stock_vendido: 0, patron_id: '', color_hex: '#FAD2E1',
-};
-
 export default function StoreProductModal({ visible, initial, patterns = [], onClose, onSave }) {
-  const [form,    setForm]    = useState(BLANK_PRODUCT);
+  const blank = {
+    nombre: '', emoji: '🧸', categoria: 'amigurumi',
+    descripcion: '', precio_venta: '', stock_inicial: '',
+    stock_vendido: 0, patron_id: '', color_hex: '#FAD2E1',
+  };
+
+  const [form,    setForm]    = useState(blank);
   const [saving,  setSaving]  = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
 
   useEffect(() => {
-    if (visible) setForm(initial ? { ...initial } : BLANK_PRODUCT);
+    if (visible) setForm(initial ? { ...initial } : blank);
   }, [visible, initial]);
 
   if (!visible) return null;
