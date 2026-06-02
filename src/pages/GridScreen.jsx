@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PatternCard from '../components/PatternCard';
 import BottomNav from '../components/BottomNav';
-import ComingSoonScreen from './ComingSoonScreen';
+//import ComingSoonScreen from './ComingSoonScreen';
 import BusinessScreen from './BusinessScreen';
 import InventoryScreen from './InventoryScreen';
 import StoreScreen from './StoreScreen';
