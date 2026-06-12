@@ -1,5 +1,9 @@
 # 🧶 AmiPattern Web
 
+
+<img width="952" height="531" alt="image" src="https://github.com/user-attachments/assets/044e289b-b21c-4984-a364-ef7272aae1d8" />
+
+
 Catálogo de patrones de amigurumi — versión web construida con React + Supabase.
 
 ---
