@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useStore, useStoreCostings, CATEGORIAS } from '../hooks/useStore';
+import { useStore, CATEGORIAS } from '../hooks/useStore';
 import StoreProductModal from '../components/StoreProductModal';
 import SaleModal         from '../components/SaleModal';
 import StoreEventModal   from '../components/StoreEventModal';
 import EventsPanel       from '../components/EventsPanel';
-import CostingModal      from '../components/CostingModal';
 import { COLORS }        from '../lib/constants';
 
 const FILTROS = [
@@ -34,6 +33,7 @@ function StockBar({ inicial, vendido }) {
 function ProductCard({ product, onSell, onEdit, onAddStock }) {
   const disponible = (product.stock_inicial || 0) - (product.stock_vendido || 0);
   const agotado    = disponible <= 0;
+
   return (
     <div style={{
       backgroundColor: agotado ? '#FEF2F2' : '#fff',
@@ -42,6 +42,7 @@ function ProductCard({ product, onSell, onEdit, onAddStock }) {
       boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
       display: 'flex', flexDirection: 'column', gap: 6,
     }}>
+      {/* Cabecera */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
           <div style={{
@@ -58,41 +59,60 @@ function ProductCard({ product, onSell, onEdit, onAddStock }) {
             </div>
           </div>
         </div>
-        <button onClick={() => onEdit(product)} style={{ background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', color: COLORS.textMuted, padding: 4, flexShrink: 0 }}>✏️</button>
+        <button onClick={() => onEdit(product)} style={{
+          background: 'none', border: 'none', fontSize: 15,
+          cursor: 'pointer', color: COLORS.textMuted, padding: 4, flexShrink: 0,
+        }}>✏️</button>
       </div>
+
+      {/* Precio */}
       <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>
         ${Number(product.precio_venta || 0).toFixed(0)}
         <span style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted }}> c/u</span>
       </div>
+
+      {/* Barra de stock */}
       <StockBar inicial={product.stock_inicial || 0} vendido={product.stock_vendido || 0} />
+
+      {/* Botones acción */}
       <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
         <button onClick={() => onAddStock(product)} style={{
           flex: 1, padding: '7px 0', borderRadius: 10,
           border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
-          fontWeight: 700, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', color: COLORS.textSecondary,
+          fontWeight: 700, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+          color: COLORS.textSecondary,
         }}>📦 +Stock</button>
-        <button onClick={() => !agotado && onSell(product)} disabled={agotado} style={{
-          flex: 2, padding: '7px 0', borderRadius: 10, border: 'none',
-          backgroundColor: agotado ? '#E5E7EB' : '#1A1A2E',
-          fontWeight: 800, fontSize: 12, cursor: agotado ? 'not-allowed' : 'pointer',
-          fontFamily: 'inherit', color: agotado ? '#9CA3AF' : '#FAD2E1',
-        }}>{agotado ? 'Agotado' : '💸 Vender'}</button>
+        <button
+          onClick={() => !agotado && onSell(product)}
+          disabled={agotado}
+          style={{
+            flex: 2, padding: '7px 0', borderRadius: 10,
+            border: 'none',
+            backgroundColor: agotado ? '#E5E7EB' : '#1A1A2E',
+            fontWeight: 800, fontSize: 12, cursor: agotado ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit', color: agotado ? '#9CA3AF' : '#FAD2E1',
+          }}>{agotado ? 'Agotado' : '💸 Vender'}</button>
       </div>
     </div>
   );
 }
 
+// Modal simple para agregar stock
 function AddStockModal({ visible, product, onClose, onSave }) {
   const [cantidad, setCantidad] = useState('');
-  const [saving,   setSaving]   = useState(false);
+  const [saving, setSaving]     = useState(false);
+
   React.useEffect(() => { if (visible) setCantidad(''); }, [visible]);
   if (!visible || !product) return null;
+
   const handle = async () => {
     const n = Number(cantidad);
     if (!n || n <= 0) return alert('Ingresa una cantidad válida');
     setSaving(true);
-    try { await onSave(product.id, n); } finally { setSaving(false); }
+    try { await onSave(product.id, n); }
+    finally { setSaving(false); }
   };
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 800, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: 24, maxWidth: 320, width: '100%' }}>
@@ -100,9 +120,16 @@ function AddStockModal({ visible, product, onClose, onSave }) {
         <div style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 16 }}>
           {product.emoji} {product.nombre} · actualmente {(product.stock_inicial || 0) - (product.stock_vendido || 0)} disponibles
         </div>
-        <input type="number" inputMode="numeric" value={cantidad} onChange={e => setCantidad(e.target.value)}
-          placeholder="¿Cuántas piezas nuevas?" autoFocus
-          style={{ width: '100%', boxSizing: 'border-box', padding: '11px 14px', borderRadius: 10, border: '1.5px solid #E5E7EB', fontSize: 15, fontFamily: 'inherit', outline: 'none', marginBottom: 16 }}
+        <input
+          type="number" inputMode="numeric" value={cantidad}
+          onChange={e => setCantidad(e.target.value)}
+          placeholder="¿Cuántas piezas nuevas?"
+          autoFocus
+          style={{
+            width: '100%', boxSizing: 'border-box', padding: '11px 14px',
+            borderRadius: 10, border: '1.5px solid #E5E7EB',
+            fontSize: 15, fontFamily: 'inherit', outline: 'none', marginBottom: 16,
+          }}
         />
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 12, border: '2px solid #E5E7EB', background: 'transparent', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
@@ -126,27 +153,25 @@ export default function StoreScreen({ user, patterns = [] }) {
     statsGlobal, eventStats,
   } = useStore(user?.id);
 
-  const { saveCosting } = useStoreCostings(user?.id);
+  const [filtro,       setFiltro]       = useState('todos');
+  const [search,       setSearch]       = useState('');
+  const [toast,        setToast]        = useState(null);
 
-  const [filtro, setFiltro] = useState('todos');
-  const [search, setSearch] = useState('');
-  const [toast,  setToast]  = useState(null);
-
-  const [productModal,  setProductModal]  = useState(false);
-  const [editingProd,   setEditingProd]   = useState(null);
-  const [saleModal,     setSaleModal]     = useState(false);
-  const [sellingProd,   setSellingProd]   = useState(null);
-  const [eventModal,    setEventModal]    = useState(false);
-  const [editingEvt,    setEditingEvt]    = useState(null);
-  const [eventsPanel,   setEventsPanel]   = useState(false);
-  const [costingModal,  setCostingModal]  = useState(false);
-  const [editingCost,   setEditingCost]   = useState(null);
-  const [addStockModal, setAddStockModal] = useState(false);
-  const [addStockProd,  setAddStockProd]  = useState(null);
-  const [confirmId,     setConfirmId]     = useState(null);
+  // Modals
+  const [productModal, setProductModal] = useState(false);
+  const [editingProd,  setEditingProd]  = useState(null);
+  const [saleModal,    setSaleModal]    = useState(false);
+  const [sellingProd,  setSellingProd]  = useState(null);
+  const [eventModal,   setEventModal]   = useState(false);
+  const [editingEvt,   setEditingEvt]   = useState(null);
+  const [eventsPanel,  setEventsPanel]  = useState(false);
+  const [addStockModal,setAddStockModal]= useState(false);
+  const [addStockProd, setAddStockProd] = useState(null);
+  const [confirmId,    setConfirmId]    = useState(null);
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2200); };
 
+  // Filtrado
   const filtered = products.filter(p => {
     if (filtro === 'con_stock' && (p.stock_inicial - p.stock_vendido) <= 0) return false;
     if (filtro === 'sin_stock' && (p.stock_inicial - p.stock_vendido) >  0) return false;
@@ -155,6 +180,7 @@ export default function StoreScreen({ user, patterns = [] }) {
     return true;
   });
 
+  // Handlers
   const handleSaveProduct = async (form) => {
     try {
       await saveProduct(form);
@@ -199,26 +225,21 @@ export default function StoreScreen({ user, patterns = [] }) {
     } catch (e) { alert('Error: ' + e.message); }
   };
 
-  const handleSaveCosting = async (form) => {
-    try {
-      await saveCosting(form, saveProduct);
-      showToast('🧮 Desglose guardado y producto creado');
-      setCostingModal(false); setEditingCost(null);
-    } catch (e) { alert('Error: ' + e.message); }
-  };
-
   return (
     <div style={{ minHeight: '80vh', backgroundColor: COLORS.bg, fontFamily: 'inherit' }}>
 
+      {/* Toast */}
       {toast && (
         <div style={{
           position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
           backgroundColor: '#1A1A2E', color: '#fff',
           padding: '10px 20px', borderRadius: 99, fontWeight: 700, fontSize: 14,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: 9999, whiteSpace: 'nowrap',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: 9999,
+          whiteSpace: 'nowrap', animation: 'fadeInDown 0.2s ease',
         }}>{toast}</div>
       )}
 
+      {/* Confirm delete producto */}
       {confirmId && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 900, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: 24, maxWidth: 320, width: '100%', textAlign: 'center' }}>
@@ -235,7 +256,7 @@ export default function StoreScreen({ user, patterns = [] }) {
 
       <div style={{ padding: '16px 16px', maxWidth: 960, margin: '0 auto' }}>
 
-        {/* Stats */}
+        {/* ── Stats row ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto' }}>
           {[
             { emoji: '🧸', val: statsGlobal.totalProductos, label: 'Productos'  },
@@ -243,30 +264,53 @@ export default function StoreScreen({ user, patterns = [] }) {
             { emoji: '💸', val: statsGlobal.totalVendidas,  label: 'Vendidas'   },
             { emoji: '💰', val: `$${statsGlobal.totalIngresos.toFixed(0)}`, label: 'Ingresos', green: true },
           ].map(s => (
-            <div key={s.label} style={{ flex: '0 0 auto', minWidth: 72, backgroundColor: '#fff', borderRadius: 14, padding: '10px 8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+            <div key={s.label} style={{
+              flex: '0 0 auto', minWidth: 72,
+              backgroundColor: '#fff', borderRadius: 14,
+              padding: '10px 8px', textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            }}>
               <div style={{ fontSize: 18 }}>{s.emoji}</div>
               <div style={{ fontWeight: 900, fontSize: 16, color: s.green ? '#059669' : COLORS.textPrimary, marginTop: 2 }}>{s.val}</div>
               <div style={{ fontSize: 9, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>{s.label}</div>
             </div>
           ))}
-          <div onClick={() => setEventsPanel(true)} style={{ flex: '0 0 auto', minWidth: 72, backgroundColor: '#1A1A2E', borderRadius: 14, padding: '10px 8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
+          {/* Botón ver eventos */}
+          <div
+            onClick={() => setEventsPanel(true)}
+            style={{
+              flex: '0 0 auto', minWidth: 72,
+              backgroundColor: '#1A1A2E', borderRadius: 14,
+              padding: '10px 8px', textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              cursor: 'pointer',
+            }}>
             <div style={{ fontSize: 18 }}>🏪</div>
             <div style={{ fontWeight: 900, fontSize: 12, color: '#FAD2E1', marginTop: 2 }}>{events.length}</div>
             <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 800, textTransform: 'uppercase' }}>Eventos</div>
           </div>
         </div>
 
-        {/* Buscador */}
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Buscar producto…"
-          style={{ width: '100%', boxSizing: 'border-box', backgroundColor: '#fff', borderRadius: 12, border: '1.5px solid #E5E7EB', padding: '10px 14px', fontSize: 14, color: COLORS.textPrimary, marginBottom: 10, outline: 'none', fontFamily: 'inherit' }}
+        {/* ── Buscador ── */}
+        <input
+          value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="🔍 Buscar producto…"
+          style={{
+            width: '100%', boxSizing: 'border-box',
+            backgroundColor: '#fff', borderRadius: 12,
+            border: '1.5px solid #E5E7EB',
+            padding: '10px 14px', fontSize: 14, color: COLORS.textPrimary,
+            marginBottom: 10, outline: 'none', fontFamily: 'inherit',
+          }}
         />
 
-        {/* Filtros */}
+        {/* ── Filtros ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
           {FILTROS.map(f => (
             <button key={f.id} onClick={() => setFiltro(f.id)} style={{
               padding: '7px 14px', borderRadius: 99, whiteSpace: 'nowrap',
-              border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 12,
+              border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
+              fontWeight: 700, fontSize: 12,
               backgroundColor: filtro === f.id ? COLORS.header : '#fff',
               borderColor:     filtro === f.id ? COLORS.header : '#E5E7EB',
               color:           filtro === f.id ? '#fff' : COLORS.textSecondary,
@@ -275,9 +319,12 @@ export default function StoreScreen({ user, patterns = [] }) {
         </div>
 
         {error && (
-          <div style={{ backgroundColor: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 12, padding: 14, marginBottom: 14, color: '#991B1B', fontSize: 14 }}>⚠️ {error}</div>
+          <div style={{ backgroundColor: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 12, padding: 14, marginBottom: 14, color: '#991B1B', fontSize: 14 }}>
+            ⚠️ {error}
+          </div>
         )}
 
+        {/* ── Grid de productos ── */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: COLORS.textMuted }}>
             <div style={{ fontSize: 48 }}>🧸</div>
@@ -290,13 +337,19 @@ export default function StoreScreen({ user, patterns = [] }) {
               {products.length === 0 ? '¡Agrega tu primer producto!' : 'Sin resultados'}
             </div>
             {products.length === 0 && (
-              <button onClick={() => { setEditingProd(null); setProductModal(true); }} style={{ marginTop: 16, backgroundColor: '#1A1A2E', color: '#fff', border: 'none', borderRadius: 12, padding: '12px 24px', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>+ Agregar producto</button>
+              <button onClick={() => { setEditingProd(null); setProductModal(true); }} style={{
+                marginTop: 16, backgroundColor: '#1A1A2E', color: '#fff',
+                border: 'none', borderRadius: 12, padding: '12px 24px',
+                fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+              }}>+ Agregar producto</button>
             )}
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 12 }}>
             {filtered.map(p => (
-              <ProductCard key={p.id} product={p}
+              <ProductCard
+                key={p.id}
+                product={p}
                 onSell={prod => { setSellingProd(prod); setSaleModal(true); }}
                 onEdit={prod => { setEditingProd(prod); setProductModal(true); }}
                 onAddStock={prod => { setAddStockProd(prod); setAddStockModal(true); }}
@@ -306,54 +359,93 @@ export default function StoreScreen({ user, patterns = [] }) {
         )}
       </div>
 
-      {/* FABs apilados */}
-      <div style={{ position: 'fixed', bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 92px))', right: 24, zIndex: 300, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12 }}>
-
-        {/* FAB 🧮 Calcular costo */}
+      {/* ── FABs apilados ── */}
+      <div style={{
+        position: 'fixed',
+        bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 92px))',
+        right: 24, zIndex: 300,
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12,
+      }}>
+        {/* FAB secundario: nuevo lugar de venta */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ backgroundColor: '#1A1A2E', color: '#FAD2E1', padding: '5px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Calcular costo</div>
-          <button onClick={() => { setEditingCost(null); setCostingModal(true); }} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: '#1A1A2E', border: '2px solid #E9C46A', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🧮</button>
+          <div style={{
+            backgroundColor: '#1A1A2E', color: '#FAD2E1',
+            padding: '5px 10px', borderRadius: 99,
+            fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+          }}>Nuevo lugar</div>
+          <button
+            onClick={() => { setEditingEvt(null); setEventModal(true); }}
+            title="Nuevo lugar de venta"
+            style={{
+              width: 46, height: 46, borderRadius: 23,
+              backgroundColor: '#1A1A2E', border: '2px solid #FAD2E1',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+              cursor: 'pointer', fontSize: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>🏪</button>
         </div>
 
-        {/* FAB 🏪 Nuevo lugar */}
+        {/* FAB principal: nuevo producto */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ backgroundColor: '#1A1A2E', color: '#FAD2E1', padding: '5px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Nuevo lugar</div>
-          <button onClick={() => { setEditingEvt(null); setEventModal(true); }} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: '#1A1A2E', border: '2px solid #FAD2E1', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏪</button>
-        </div>
-
-        {/* FAB 🧸 Nuevo producto */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ backgroundColor: '#1A1A2E', color: '#FAD2E1', padding: '5px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Nuevo producto</div>
-          <button onClick={() => { setEditingProd(null); setProductModal(true); }} style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#FAD2E1', border: 'none', boxShadow: '0 4px 20px #a8a8ca', cursor: 'pointer', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🧸</button>
+          <div style={{
+            backgroundColor: '#1A1A2E', color: '#FAD2E1',
+            padding: '5px 10px', borderRadius: 99,
+            fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+          }}>Nuevo producto</div>
+          <button
+            onClick={() => { setEditingProd(null); setProductModal(true); }}
+            title="Agregar producto"
+            style={{
+              width: 54, height: 54, borderRadius: 27,
+              backgroundColor: '#FAD2E1', border: 'none',
+              boxShadow: '0 4px 20px #a8a8ca',
+              cursor: 'pointer', fontSize: 24,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>🧸</button>
         </div>
       </div>
 
-      {/* Modals */}
-      <StoreProductModal visible={productModal} initial={editingProd} patterns={patterns}
+      {/* ── Modals ── */}
+      <StoreProductModal
+        visible={productModal}
+        initial={editingProd}
+        patterns={patterns}
         onClose={() => { setProductModal(false); setEditingProd(null); }}
         onSave={handleSaveProduct}
       />
-      <SaleModal visible={saleModal} product={sellingProd} events={events}
+
+      <SaleModal
+        visible={saleModal}
+        product={sellingProd}
+        events={events}
         onClose={() => { setSaleModal(false); setSellingProd(null); }}
         onSave={handleSale}
       />
-      <AddStockModal visible={addStockModal} product={addStockProd}
+
+      <AddStockModal
+        visible={addStockModal}
+        product={addStockProd}
         onClose={() => { setAddStockModal(false); setAddStockProd(null); }}
         onSave={handleAddStock}
       />
-      <EventsPanel visible={eventsPanel} events={events} eventStats={eventStats}
+
+      <EventsPanel
+        visible={eventsPanel}
+        events={events}
+        eventStats={eventStats}
         onClose={() => setEventsPanel(false)}
         onNew={() => { setEditingEvt(null); setEventModal(true); }}
         onEdit={ev => { setEditingEvt(ev); setEventModal(true); }}
         onDelete={handleDeleteEvent}
       />
-      <StoreEventModal visible={eventModal} initial={editingEvt}
+
+      <StoreEventModal
+        visible={eventModal}
+        initial={editingEvt}
         onClose={() => { setEventModal(false); setEditingEvt(null); }}
         onSave={handleSaveEvent}
-      />
-      <CostingModal visible={costingModal} initial={editingCost} patterns={patterns}
-        onClose={() => { setCostingModal(false); setEditingCost(null); }}
-        onSave={handleSaveCosting}
       />
     </div>
   );
