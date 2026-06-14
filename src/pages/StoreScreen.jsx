@@ -126,7 +126,7 @@ export default function StoreScreen({ user, patterns = [] }) {
     statsGlobal, eventStats,
   } = useStore(user?.id);
 
-  const { saveCosting } = useStoreCostings(user?.id);
+  const { costings, saveCosting } = useStoreCostings(user?.id);
 
   const [filtro, setFiltro] = useState('todos');
   const [search, setSearch] = useState('');
@@ -298,7 +298,11 @@ export default function StoreScreen({ user, patterns = [] }) {
             {filtered.map(p => (
               <ProductCard key={p.id} product={p}
                 onSell={prod => { setSellingProd(prod); setSaleModal(true); }}
-                onEdit={prod => { setEditingProd(prod); setProductModal(true); }}
+                onEdit={prod => {
+                  const linked = costings.find(co => co.product_id === prod.id);
+                  if (linked) { setEditingCost({ ...linked, emoji: prod.emoji, color_hex: prod.color_hex, stock_inicial: prod.stock_inicial }); setCostingModal(true); }
+                  else { setEditingProd(prod); setProductModal(true); }
+                }}
                 onAddStock={prod => { setAddStockProd(prod); setAddStockModal(true); }}
               />
             ))}
