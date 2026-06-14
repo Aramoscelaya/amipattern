@@ -1,5 +1,17 @@
 # 🧶 AmiPattern Web
 
+## 🧶 Biblioteca de patrones
+<img width="950" height="505" alt="image" src="https://github.com/user-attachments/assets/02d98ab8-c7ee-49cc-b623-2ca6c9f3d4ec" />
+
+## 🧵 Inventario de materiales
+<img width="589" height="338" alt="image" src="https://github.com/user-attachments/assets/c51f8197-992a-4cd1-a7fe-3b113d87e6ee" />
+
+## 💼 Solicitudes de clientes (llaveros, amigurumis, etc)
+<img width="589" height="336" alt="image" src="https://github.com/user-attachments/assets/f03a8b8c-eda6-4be2-afef-8e2b26a45177" />
+
+## 🏷️ Stock de productos e historial de ventas en locaciones
+<img width="600" height="338" alt="image" src="https://github.com/user-attachments/assets/ade65e87-c861-49a9-9483-ebe681c64574" />
+
 Catálogo de patrones de amigurumi — versión web construida con React + Supabase.
 
 ---
