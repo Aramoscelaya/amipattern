@@ -235,25 +235,6 @@ export default function StoreScreen({ user, patterns = [] }) {
 
       <div style={{ padding: '16px 16px', maxWidth: 960, margin: '0 auto' }}>
 
-        {/* Acciones rápidas */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto', paddingBottom: 2 }}>
-          {[
-            { id: 'costo',    emoji: '🧮', label: 'Calcular costo', onClick: () => { setEditingCost(null); setCostingModal(true); } },
-            { id: 'lugar',    emoji: '🏪', label: 'Nuevo lugar',    onClick: () => { setEditingEvt(null); setEventModal(true); } },
-            { id: 'producto', emoji: '🧸', label: 'Nuevo producto', onClick: () => { setEditingProd(null); setProductModal(true); } },
-          ].map(a => (
-            <button key={a.id} onClick={a.onClick} style={{
-              flex: '1 1 0', minWidth: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              backgroundColor: '#1A1A2E', border: 'none', borderRadius: 12,
-              padding: '11px 10px', cursor: 'pointer', fontFamily: 'inherit',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            }}>
-              <span style={{ fontSize: 17 }}>{a.emoji}</span>
-              <span style={{ color: '#FAD2E1', fontWeight: 800, fontSize: 12, whiteSpace: 'nowrap' }}>{a.label}</span>
-            </button>
-          ))}
-        </div>
-
         {/* Stats */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto' }}>
           {[
@@ -329,7 +310,27 @@ export default function StoreScreen({ user, patterns = [] }) {
         )}
       </div>
 
-      {/* (FABs flotantes removidos — ver fila de acciones rápidas arriba) */}
+      {/* FABs apilados */}
+      <div style={{ position: 'fixed', bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 92px))', right: 24, zIndex: 300, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12 }}>
+
+        {/* FAB 🧮 Calcular costo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ backgroundColor: '#1A1A2E', color: '#FAD2E1', padding: '5px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Calcular costo</div>
+          <button onClick={() => { setEditingCost(null); setCostingModal(true); }} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: '#1A1A2E', border: '2px solid #E9C46A', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🧮</button>
+        </div>
+
+        {/* FAB 🏪 Nuevo lugar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ backgroundColor: '#1A1A2E', color: '#FAD2E1', padding: '5px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Nuevo lugar</div>
+          <button onClick={() => { setEditingEvt(null); setEventModal(true); }} style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: '#1A1A2E', border: '2px solid #FAD2E1', boxShadow: '0 4px 16px rgba(0,0,0,0.25)', cursor: 'pointer', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏪</button>
+        </div>
+
+        {/* FAB 🧸 Nuevo producto */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ backgroundColor: '#1A1A2E', color: '#FAD2E1', padding: '5px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Nuevo producto</div>
+          <button onClick={() => { setEditingProd(null); setProductModal(true); }} style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#FAD2E1', border: 'none', boxShadow: '0 4px 20px #a8a8ca', cursor: 'pointer', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🧸</button>
+        </div>
+      </div>
 
       {/* Modals */}
       <StoreProductModal visible={productModal} initial={editingProd} patterns={patterns}
