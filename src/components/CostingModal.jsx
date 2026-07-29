@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CATEGORIAS } from '../hooks/useStore';
 import { calcPrecio } from '../hooks/useOrders';
-import { COLORS } from '../lib/constants';
+import { COLORS, COSTING_DEFAULTS } from '../lib/constants';
 
 const BLANK = {
   nombre: '', emoji: '🧸', categoria: 'amigurumi',
   patron_id: '', patron_nombre: '', color_hex: '#FAD2E1',
-  materiales: [], horas: '', costo_hora: '40',
+  materiales: [], horas: '', costo_hora: String(COSTING_DEFAULTS.costo_hora),
+  overhead_pct: String(COSTING_DEFAULTS.overhead_pct),
+  margen_pct: String(COSTING_DEFAULTS.margen_pct),
   precio_sugerido: 0, precio_final: '', precio_manual: false,
   notas: '', stock_inicial: '1',
 };
@@ -58,16 +60,18 @@ export default function CostingModal({ visible, initial, patterns = [], onClose,
   }, [visible, initial]);
 
   // ── Recalcula precio automático ────────────────────────────
-  const recalc = useCallback((mats, horas, costo_hora, precio_manual, precio_final_override) => {
+  const recalc = useCallback((mats, horas, costo_hora, overhead_pct, margen_pct, precio_manual, precio_final_override) => {
     const materialesNum = mats.map(m => ({
       ...m,
       cantidad:   Number(m.cantidad)   || 0,
       costo_unit: Number(m.costo_unit) || 0,
     }));
     const calc = calcPrecio({
-      materiales: materialesNum,
-      horas:      Number(horas)      || 0,
-      costo_hora: Number(costo_hora) || 40,
+      materiales:   materialesNum,
+      horas:        Number(horas)        || 0,
+      costo_hora:   Number(costo_hora)   || COSTING_DEFAULTS.costo_hora,
+      overhead_pct: Number(overhead_pct) || COSTING_DEFAULTS.overhead_pct,
+      margen_pct:   Number(margen_pct)   || COSTING_DEFAULTS.margen_pct,
     });
     return {
       costo_total:     calc.costoTotal,
@@ -85,31 +89,31 @@ export default function CostingModal({ visible, initial, patterns = [], onClose,
 
   const handleMatChange = (idx, updated) => {
     const mats = form.materiales.map((m, i) => i === idx ? updated : m);
-    const r = recalc(mats, form.horas, form.costo_hora, form.precio_manual, form.precio_final);
+    const r = recalc(mats, form.horas, form.costo_hora, form.overhead_pct, form.margen_pct, form.precio_manual, form.precio_final);
     setForm(f => ({ ...f, materiales: mats, ...r }));
   };
 
   const handleMatDelete = (idx) => {
     const mats = form.materiales.filter((_, i) => i !== idx);
-    const r = recalc(mats, form.horas, form.costo_hora, form.precio_manual, form.precio_final);
+    const r = recalc(mats, form.horas, form.costo_hora, form.overhead_pct, form.margen_pct, form.precio_manual, form.precio_final);
     setForm(f => ({ ...f, materiales: mats, ...r }));
   };
 
   const handleAddMat = () => {
     if (!newMat.nombre.trim()) return;
     const mats = [...form.materiales, { ...newMat, id: Date.now() }];
-    const r = recalc(mats, form.horas, form.costo_hora, form.precio_manual, form.precio_final);
+    const r = recalc(mats, form.horas, form.costo_hora, form.overhead_pct, form.margen_pct, form.precio_manual, form.precio_final);
     setForm(f => ({ ...f, materiales: mats, ...r }));
     setNewMat({ nombre: '', cantidad: '', costo_unit: '' });
   };
 
   const handleHorasChange = (val) => {
-    const r = recalc(form.materiales, val, form.costo_hora, form.precio_manual, form.precio_final);
+    const r = recalc(form.materiales, val, form.costo_hora, form.overhead_pct, form.margen_pct, form.precio_manual, form.precio_final);
     setForm(f => ({ ...f, horas: val, ...r }));
   };
 
   const handleCostoHoraChange = (val) => {
-    const r = recalc(form.materiales, form.horas, val, form.precio_manual, form.precio_final);
+    const r = recalc(form.materiales, form.horas, val, form.overhead_pct, form.margen_pct, form.precio_manual, form.precio_final);
     setForm(f => ({ ...f, costo_hora: val, ...r }));
   };
 
@@ -118,7 +122,7 @@ export default function CostingModal({ visible, initial, patterns = [], onClose,
   };
 
   const handleResetPrecio = () => {
-    const r = recalc(form.materiales, form.horas, form.costo_hora, false, null);
+    const r = recalc(form.materiales, form.horas, form.costo_hora, form.overhead_pct, form.margen_pct, false, null);
     setForm(f => ({ ...f, ...r, precio_manual: false }));
   };
 
@@ -147,12 +151,14 @@ export default function CostingModal({ visible, initial, patterns = [], onClose,
       await onSave({
         ...form,
         materiales:      materialesNum,
-        horas:           Number(form.horas)          || 0,
-        costo_hora:      Number(form.costo_hora)     || 40,
-        costo_total:     Number(form.costo_total)    || 0,
-        precio_sugerido: Number(form.precio_sugerido)|| 0,
-        precio_final:    Number(form.precio_final)   || 0,
-        stock_inicial:   Number(form.stock_inicial)  || 1,
+        horas:           Number(form.horas)              || 0,
+        costo_hora:      Number(form.costo_hora)         || COSTING_DEFAULTS.costo_hora,
+        overhead_pct:    Number(form.overhead_pct)       || COSTING_DEFAULTS.overhead_pct,
+        margen_pct:      Number(form.margen_pct)         || COSTING_DEFAULTS.margen_pct,
+        costo_total:     Number(form.costo_total)        || 0,
+        precio_sugerido: Number(form.precio_sugerido)    || 0,
+        precio_final:    Number(form.precio_final)       || 0,
+        stock_inicial:   Number(form.stock_inicial)      || 1,
       });
     } finally { setSaving(false); }
   };
@@ -312,6 +318,30 @@ export default function CostingModal({ visible, initial, patterns = [], onClose,
             </div>
           </div>
 
+          {/* ── Overhead y Margen ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <span style={LABEL}>Overhead (%)</span>
+              <input type="number" inputMode="decimal" value={form.overhead_pct}
+                onChange={e => {
+                  const val = e.target.value;
+                  const r = recalc(form.materiales, form.horas, form.costo_hora, val, form.margen_pct, form.precio_manual, form.precio_final);
+                  setForm(f => ({ ...f, overhead_pct: val, ...r }));
+                }}
+                placeholder="10" style={INPUT} />
+            </div>
+            <div>
+              <span style={LABEL}>Margen de ganancia (%)</span>
+              <input type="number" inputMode="decimal" value={form.margen_pct}
+                onChange={e => {
+                  const val = e.target.value;
+                  const r = recalc(form.materiales, form.horas, form.costo_hora, form.overhead_pct, val, form.precio_manual, form.precio_final);
+                  setForm(f => ({ ...f, margen_pct: val, ...r }));
+                }}
+                placeholder="30" style={INPUT} />
+            </div>
+          </div>
+
           {/* ── Desglose de costos ── */}
           <div style={{ backgroundColor: '#F5F0EB', borderRadius: 14, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontWeight: 800, fontSize: 12, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Desglose</div>
@@ -319,8 +349,8 @@ export default function CostingModal({ visible, initial, patterns = [], onClose,
               { label: 'Materiales',          val: costoMat,                                      color: COLORS.textPrimary },
               { label: `M. de obra (${form.horas || 0}h × $${form.costo_hora || 40})`, val: costoMO, color: COLORS.textPrimary },
               { label: 'Costo total',         val: costoMat + costoMO,                            color: COLORS.textPrimary, bold: true },
-              { label: '+ Overhead (10%)',    val: (costoMat + costoMO) * 0.10,                   color: '#92400E' },
-              { label: '+ Ganancia (30%)',    val: (costoMat + costoMO) * 1.10 * 0.30,            color: '#065F46' },
+              { label: `+ Overhead (${form.overhead_pct || 10}%)`,    val: (costoMat + costoMO) * ((Number(form.overhead_pct) || 10) / 100), color: '#92400E' },
+              { label: `+ Ganancia (${form.margen_pct || 30}%)`,    val: (costoMat + costoMO) * (1 + ((Number(form.overhead_pct) || 10) / 100)) * ((Number(form.margen_pct) || 30) / 100), color: '#065F46' },
               { label: 'Precio sugerido',     val: Number(form.precio_sugerido) || 0,             color: '#1D4ED8', bold: true },
             ].map(r => (
               <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>

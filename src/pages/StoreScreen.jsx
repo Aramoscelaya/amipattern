@@ -116,7 +116,7 @@ function AddStockModal({ visible, product, onClose, onSave }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-export default function StoreScreen({ user, patterns = [] }) {
+export default function StoreScreen({ user, patterns = [], onBack }) {
   const {
     products, events, loading, error,
     saveProduct, deleteProduct,
@@ -232,6 +232,21 @@ export default function StoreScreen({ user, patterns = [] }) {
           </div>
         </div>
       )}
+
+      {/* Header */}
+      <div style={{
+        backgroundColor: COLORS.header,
+        paddingTop: 'max(12px, env(safe-area-inset-top))',
+        paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
+        display: 'flex', alignItems: 'center', gap: 12,
+        position: 'sticky', top: 0, zIndex: 100,
+      }}>
+        <button onClick={onBack} style={{
+          background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
+          color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit',
+        }}>←</button>
+        <div style={{ color: '#FAD2E1', fontSize: 18, fontWeight: 900 }}>🏪 Tienda</div>
+      </div>
 
       <div style={{ padding: '16px 16px', maxWidth: 960, margin: '0 auto' }}>
 

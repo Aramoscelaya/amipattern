@@ -27,3 +27,17 @@ export const BADGE_COLORS = {
   'Intermedio':   { bg: '#FFF7ED', fg: '#9A3412' },
   'Avanzado':     { bg: '#FDF2F8', fg: '#9D174D' },
 };
+
+// ── Pricing defaults ────────────────────────────────────────
+export const PRICING_DEFAULTS = {
+  pago_por_hora:   60,
+  margen_boutique: 0.35,
+  margen_propio:   0.20,
+};
+
+// ── Defaults para CostingModal / OrderModal ─────────────────
+export const COSTING_DEFAULTS = {
+  costo_hora: 40,
+  overhead_pct: 10,
+  margen_pct: 30,
+};

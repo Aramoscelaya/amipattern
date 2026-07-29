@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './pages/LoginScreen';
-import GridScreen from './pages/GridScreen';
+import DashboardScreen from './pages/DashboardScreen';
+import PatternsScreen from './pages/PatternsScreen';
 import DetailScreen from './pages/DetailScreen';
+import InventoryScreen from './pages/InventoryScreen';
+import BusinessScreen from './pages/BusinessScreen';
+import PriceListScreen from './pages/PriceListScreen';
+import StoreScreen from './pages/StoreScreen';
 import PatternModal from './components/PatternModal';
 import { usePatterns } from './hooks/usePatterns';
 import { COLORS } from './lib/constants';
@@ -12,7 +17,7 @@ function AppInner() {
   const { patterns, loading, error, savePattern, deletePattern, toggleStep, uploadImage } =
     usePatterns(user?.id);
 
-  const [view, setView]       = useState('grid');
+  const [view, setView]       = useState('dashboard');
   const [detail, setDetail]   = useState(null);
   const [modal, setModal]     = useState(false);
   const [editing, setEditing] = useState(null);
@@ -23,7 +28,6 @@ function AppInner() {
     setTimeout(() => setToast(null), 2200);
   };
 
-  // Cargando sesión
   if (authLoading) {
     return (
       <div style={{
@@ -38,7 +42,6 @@ function AppInner() {
     );
   }
 
-  // No autenticado → pantalla de login
   if (!user) return <LoginScreen />;
 
   const handleSavePattern = async (form) => {
@@ -57,7 +60,7 @@ function AppInner() {
     try {
       await deletePattern(detail.id);
       setDetail(null);
-      setView('grid');
+      setView('dashboard');
       showToast('🗑 Patrón eliminado');
     } catch (err) {
       alert('Error eliminando: ' + err.message);
@@ -89,26 +92,47 @@ function AppInner() {
         </div>
       )}
 
-      {view === 'grid' ? (
-        <GridScreen
+      {view === 'dashboard' && (
+        <DashboardScreen user={user} onSignOut={signOut} onSelect={setView} />
+      )}
+
+      {view === 'patterns' && (
+        <PatternsScreen
           patterns={patterns}
           loading={loading}
           error={error}
           user={user}
           onSignOut={signOut}
+          onBack={() => setView('dashboard')}
           onSelect={p => { setDetail(p); setView('detail'); }}
           onNew={() => { setEditing(null); setModal(true); }}
         />
-      ) : (
-        detail && (
-          <DetailScreen
-            pattern={detail}
-            onBack={() => { setDetail(null); setView('grid'); }}
-            onEdit={() => { setEditing(detail); setModal(true); }}
-            onDelete={handleDeletePattern}
-            onToggleStep={handleToggleStep}
-          />
-        )
+      )}
+
+      {view === 'detail' && detail && (
+        <DetailScreen
+          pattern={detail}
+          onBack={() => { setDetail(null); setView('dashboard'); }}
+          onEdit={() => { setEditing(detail); setModal(true); }}
+          onDelete={handleDeletePattern}
+          onToggleStep={handleToggleStep}
+        />
+      )}
+
+      {view === 'inventory' && (
+        <InventoryScreen user={user} onBack={() => setView('dashboard')} />
+      )}
+
+      {view === 'business' && (
+        <BusinessScreen user={user} onBack={() => setView('dashboard')} />
+      )}
+
+      {view === 'prices' && (
+        <PriceListScreen user={user} patterns={patterns} onBack={() => setView('dashboard')} />
+      )}
+
+      {view === 'store' && (
+        <StoreScreen user={user} patterns={patterns} onBack={() => setView('dashboard')} />
       )}
 
       <PatternModal
@@ -132,7 +156,6 @@ function AppInner() {
           from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
           to   { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        /* Móvil: safe area para notch/home bar */
         @supports (padding: env(safe-area-inset-bottom)) {
           body { padding-bottom: env(safe-area-inset-bottom); }
         }

@@ -406,6 +406,8 @@ export function useStoreCostings(userId) {
       materiales:      form.materiales      || [],
       horas:           Number(form.horas)   || 0,
       costo_hora:      Number(form.costo_hora) || 40,
+      overhead_pct:    Number(form.overhead_pct)    || 10,
+      margen_pct:      Number(form.margen_pct)      || 30,
       costo_total:     Number(form.costo_total)     || 0,
       precio_sugerido: Number(form.precio_sugerido) || 0,
       precio_final:    Number(form.precio_final)    || 0,

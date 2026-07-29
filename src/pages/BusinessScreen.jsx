@@ -14,7 +14,7 @@ const FILTROS = [
   { id:'urgentes',   label:'🔴 Urgentes'    },
 ];
 
-export default function BusinessScreen({ user }) {
+export default function BusinessScreen({ user, onBack }) {
   const { orders, loading, error, saveOrder, deleteOrder, updateEstado, proximosVencer, stats }
     = useOrders(user?.id);
   const { items: invItems } = useInventory(user?.id);
@@ -123,6 +123,21 @@ export default function BusinessScreen({ user }) {
           </div>
         </div>
       )}
+
+      {/* Header */}
+      <div style={{
+        backgroundColor: COLORS.header,
+        paddingTop: 'max(12px, env(safe-area-inset-top))',
+        paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
+        display: 'flex', alignItems: 'center', gap: 12,
+        position: 'sticky', top: 0, zIndex: 100,
+      }}>
+        <button onClick={onBack} style={{
+          background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
+          color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit',
+        }}>←</button>
+        <div style={{ color: '#FAD2E1', fontSize: 18, fontWeight: 900 }}>💼 Negocio</div>
+      </div>
 
       <div style={{ padding:'16px 16px', maxWidth:960, margin:'0 auto' }}>
 

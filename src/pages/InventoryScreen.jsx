@@ -11,7 +11,7 @@ const FILTROS = [
   { id:'alerta',   label:'⚠️ Alerta'     },
 ];
 
-export default function InventoryScreen({ user }) {
+export default function InventoryScreen({ user, onBack }) {
   const {
     items, loading, error,
     saveItem, deleteItem,
@@ -132,6 +132,21 @@ export default function InventoryScreen({ user }) {
           </div>
         </div>
       )}
+
+      {/* Header */}
+      <div style={{
+        backgroundColor: COLORS.header,
+        paddingTop: 'max(12px, env(safe-area-inset-top))',
+        paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
+        display: 'flex', alignItems: 'center', gap: 12,
+        position: 'sticky', top: 0, zIndex: 100,
+      }}>
+        <button onClick={onBack} style={{
+          background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
+          color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit',
+        }}>←</button>
+        <div style={{ color: '#FAD2E1', fontSize: 18, fontWeight: 900 }}>🧵 Inventario</div>
+      </div>
 
       <div style={{ padding:'16px 16px', maxWidth:960, margin:'0 auto' }}>
 
