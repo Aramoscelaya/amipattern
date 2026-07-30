@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useStore, useStoreCostings, CATEGORIAS } from '../hooks/useStore';
+import { usePriceList } from '../hooks/usePriceList';
 import StoreProductModal from '../components/StoreProductModal';
 import SaleModal         from '../components/SaleModal';
 import StoreEventModal   from '../components/StoreEventModal';
 import EventsPanel       from '../components/EventsPanel';
-import CostingModal      from '../components/CostingModal';
-import { COLORS }        from '../lib/constants';
+import ProductModal      from '../components/ProductModal';
+import ConfirmDialog     from '../components/ConfirmDialog';
+import { useToast }      from '../components/Toast';
+import { COLORS, Z_INDEX } from '../lib/constants';
 
 const FILTROS = [
   { id: 'todos',     label: 'Todos'       },
@@ -31,7 +34,7 @@ function StockBar({ inicial, vendido }) {
   );
 }
 
-function ProductCard({ product, onSell, onEdit, onAddStock }) {
+function ProductCard({ product, onSell, onEdit, onAddStock, onAddToPriceList, hasPriceListEntry }) {
   const disponible = (product.stock_inicial || 0) - (product.stock_vendido || 0);
   const agotado    = disponible <= 0;
   return (
@@ -58,7 +61,12 @@ function ProductCard({ product, onSell, onEdit, onAddStock }) {
             </div>
           </div>
         </div>
-        <button onClick={() => onEdit(product)} style={{ background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', color: COLORS.textMuted, padding: 4, flexShrink: 0 }}>✏️</button>
+        <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
+          {!hasPriceListEntry && (
+            <button onClick={() => onAddToPriceList(product)} style={{ background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', color: COLORS.textMuted, padding: 4 }}>💰</button>
+          )}
+          <button onClick={() => onEdit(product)} style={{ background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', color: COLORS.textMuted, padding: 4 }}>✏️</button>
+        </div>
       </div>
       <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>
         ${Number(product.precio_venta || 0).toFixed(0)}
@@ -89,12 +97,12 @@ function AddStockModal({ visible, product, onClose, onSave }) {
   if (!visible || !product) return null;
   const handle = async () => {
     const n = Number(cantidad);
-    if (!n || n <= 0) return alert('Ingresa una cantidad válida');
+    if (!n || n <= 0) return;
     setSaving(true);
     try { await onSave(product.id, n); } finally { setSaving(false); }
   };
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 800, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: 24, maxWidth: 320, width: '100%' }}>
         <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 6 }}>📦 Agregar stock</div>
         <div style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 16 }}>
@@ -127,25 +135,27 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
   } = useStore(user?.id);
 
   const { costings, saveCosting } = useStoreCostings(user?.id);
+  const { items: priceListItems, saveItem: savePriceListItem } = usePriceList(user?.id);
+
+  const { showToast } = useToast();
 
   const [filtro, setFiltro] = useState('todos');
   const [search, setSearch] = useState('');
-  const [toast,  setToast]  = useState(null);
 
-  const [productModal,  setProductModal]  = useState(false);
+  const [storeProductModal, setStoreProductModal] = useState(false);
   const [editingProd,   setEditingProd]   = useState(null);
   const [saleModal,     setSaleModal]     = useState(false);
   const [sellingProd,   setSellingProd]   = useState(null);
   const [eventModal,    setEventModal]    = useState(false);
   const [editingEvt,    setEditingEvt]    = useState(null);
   const [eventsPanel,   setEventsPanel]   = useState(false);
-  const [costingModal,  setCostingModal]  = useState(false);
-  const [editingCost,   setEditingCost]   = useState(null);
+  const [productModal,  setProductModalState] = useState(false);
+  const [editingProduct, setEditingProduct]   = useState(null);
+  const [priceListModal, setPriceListModal]   = useState(false);
+  const [priceListProd,  setPriceListProd]    = useState(null);
   const [addStockModal, setAddStockModal] = useState(false);
   const [addStockProd,  setAddStockProd]  = useState(null);
   const [confirmId,     setConfirmId]     = useState(null);
-
-  const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2200); };
 
   const filtered = products.filter(p => {
     if (filtro === 'con_stock' && (p.stock_inicial - p.stock_vendido) <= 0) return false;
@@ -159,8 +169,8 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
     try {
       await saveProduct(form);
       showToast(form.id ? '✅ Producto actualizado' : '🧸 Producto agregado');
-      setProductModal(false); setEditingProd(null);
-    } catch (e) { alert('Error: ' + e.message); }
+      setStoreProductModal(false); setEditingProd(null);
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   const handleSale = async (saleData) => {
@@ -168,7 +178,7 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
       await registerSale(saleData);
       showToast('💸 ¡Venta registrada!');
       setSaleModal(false); setSellingProd(null);
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   const handleSaveEvent = async (form) => {
@@ -176,12 +186,12 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
       await saveEvent(form);
       showToast(form.id ? '✅ Evento actualizado' : '🏪 Evento creado');
       setEventModal(false); setEditingEvt(null);
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   const handleDeleteEvent = async (id) => {
     try { await deleteEvent(id); showToast('🗑 Evento eliminado'); }
-    catch (e) { alert('Error: ' + e.message); }
+    catch (e) { showToast('Error: ' + e.message); }
   };
 
   const handleAddStock = async (productId, cantidad) => {
@@ -189,49 +199,52 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
       await addStock(productId, cantidad);
       showToast('📦 Stock actualizado');
       setAddStockModal(false); setAddStockProd(null);
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   const handleDeleteProduct = async (id) => {
     try {
       await deleteProduct(id);
       setConfirmId(null); showToast('🗑 Producto eliminado');
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
-  const handleSaveCosting = async (form) => {
+  const handleSavePriceListProduct = async ({ costing, storeProduct, priceListItem }) => {
     try {
-      await saveCosting(form, saveProduct);
-      showToast('🧮 Desglose guardado y producto creado');
-      setCostingModal(false); setEditingCost(null);
-    } catch (e) { alert('Error: ' + e.message); }
+      if (priceListItem) {
+        await savePriceListItem(priceListItem);
+      }
+      showToast('💰 Agregado a lista de precios');
+      setPriceListModal(false); setPriceListProd(null);
+    } catch (e) { showToast('Error: ' + e.message); }
+  };
+
+  const handleSaveProductModal = async ({ costing, storeProduct, priceListItem }) => {
+    try {
+      if (costing && storeProduct) {
+        const merged = { ...costing, ...storeProduct };
+        await saveCosting(merged, saveProduct);
+      } else if (costing && !storeProduct) {
+        await saveCosting(costing, null);
+      }
+      if (priceListItem) {
+        await savePriceListItem(priceListItem);
+      }
+      showToast('✅ Guardado');
+      setProductModalState(false); setEditingProduct(null);
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   return (
     <div style={{ minHeight: '80vh', backgroundColor: COLORS.bg, fontFamily: 'inherit' }}>
 
-      {toast && (
-        <div style={{
-          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
-          backgroundColor: '#1A1A2E', color: '#fff',
-          padding: '10px 20px', borderRadius: 99, fontWeight: 700, fontSize: 14,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: 9999, whiteSpace: 'nowrap',
-        }}>{toast}</div>
-      )}
-
-      {confirmId && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 900, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: 24, maxWidth: 320, width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>🗑</div>
-            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>¿Eliminar producto?</div>
-            <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 20 }}>Esta acción no se puede deshacer.</div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setConfirmId(null)} style={{ flex: 1, padding: 12, borderRadius: 12, border: '2px solid #E5E7EB', background: 'transparent', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
-              <button onClick={() => handleDeleteProduct(confirmId)} style={{ flex: 1, padding: 12, borderRadius: 12, background: '#EF4444', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        visible={confirmId !== null}
+        title="¿Eliminar producto?"
+        message="Esta acción no se puede deshacer."
+        onConfirm={() => handleDeleteProduct(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
 
       {/* Header */}
       <div style={{
@@ -239,7 +252,7 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
         paddingTop: 'max(12px, env(safe-area-inset-top))',
         paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
         display: 'flex', alignItems: 'center', gap: 12,
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
         <button onClick={onBack} style={{
           background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
@@ -253,9 +266,9 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
         {/* Acciones rápidas */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto', paddingBottom: 2 }}>
           {[
-            { id: 'costo',    emoji: '🧮', label: 'Calcular costo', onClick: () => { setEditingCost(null); setCostingModal(true); } },
+            { id: 'costo',    emoji: '🧮', label: 'Calcular costo', onClick: () => { setEditingProduct(null); setProductModalState(true); } },
             { id: 'lugar',    emoji: '🏪', label: 'Nuevo lugar',    onClick: () => { setEditingEvt(null); setEventModal(true); } },
-            { id: 'producto', emoji: '🧸', label: 'Nuevo producto', onClick: () => { setEditingProd(null); setProductModal(true); } },
+            { id: 'producto', emoji: '🧸', label: 'Nuevo producto', onClick: () => { setEditingProd(null); setStoreProductModal(true); } },
           ].map(a => (
             <button key={a.id} onClick={a.onClick} style={{
               flex: '1 1 0', minWidth: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -324,7 +337,7 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
               {products.length === 0 ? '¡Agrega tu primer producto!' : 'Sin resultados'}
             </div>
             {products.length === 0 && (
-              <button onClick={() => { setEditingProd(null); setProductModal(true); }} style={{ marginTop: 16, backgroundColor: '#1A1A2E', color: '#fff', border: 'none', borderRadius: 12, padding: '12px 24px', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>+ Agregar producto</button>
+              <button onClick={() => { setEditingProd(null); setStoreProductModal(true); }} style={{ marginTop: 16, backgroundColor: '#1A1A2E', color: '#fff', border: 'none', borderRadius: 12, padding: '12px 24px', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>+ Agregar producto</button>
             )}
           </div>
         ) : (
@@ -334,10 +347,12 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
                 onSell={prod => { setSellingProd(prod); setSaleModal(true); }}
                 onEdit={prod => {
                   const linked = costings.find(co => co.product_id === prod.id);
-                  if (linked) { setEditingCost({ ...linked, emoji: prod.emoji, color_hex: prod.color_hex, stock_inicial: prod.stock_inicial }); setCostingModal(true); }
-                  else { setEditingProd(prod); setProductModal(true); }
+                  if (linked) { setEditingProduct({ ...linked, emoji: prod.emoji, color_hex: prod.color_hex, stock_inicial: prod.stock_inicial }); setProductModalState(true); }
+                  else { setEditingProd(prod); setStoreProductModal(true); }
                 }}
                 onAddStock={prod => { setAddStockProd(prod); setAddStockModal(true); }}
+                onAddToPriceList={prod => { setPriceListProd({ nombre: prod.nombre, emoji: prod.emoji, patron_id: prod.patron_id, patron_nombre: prod.patron_nombre }); setPriceListModal(true); }}
+                hasPriceListEntry={priceListItems.some(pl => pl.nombre === p.nombre)}
               />
             ))}
           </div>
@@ -347,8 +362,8 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
       {/* (FABs flotantes removidos — ver fila de acciones rápidas arriba) */}
 
       {/* Modals */}
-      <StoreProductModal visible={productModal} initial={editingProd} patterns={patterns}
-        onClose={() => { setProductModal(false); setEditingProd(null); }}
+      <StoreProductModal visible={storeProductModal} initial={editingProd} patterns={patterns}
+        onClose={() => { setStoreProductModal(false); setEditingProd(null); }}
         onSave={handleSaveProduct}
       />
       <SaleModal visible={saleModal} product={sellingProd} events={events}
@@ -369,9 +384,13 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
         onClose={() => { setEventModal(false); setEditingEvt(null); }}
         onSave={handleSaveEvent}
       />
-      <CostingModal visible={costingModal} initial={editingCost} patterns={patterns}
-        onClose={() => { setCostingModal(false); setEditingCost(null); }}
-        onSave={handleSaveCosting}
+      <ProductModal visible={productModal} initial={editingProduct} patterns={patterns} priceConfig={null}
+        onClose={() => { setProductModalState(false); setEditingProduct(null); }}
+        onSave={handleSaveProductModal}
+      />
+      <ProductModal visible={priceListModal} initial={priceListProd} patterns={patterns} priceConfig={{}}
+        onClose={() => { setPriceListModal(false); setPriceListProd(null); }}
+        onSave={handleSavePriceListProduct}
       />
     </div>
   );

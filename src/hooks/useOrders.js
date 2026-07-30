@@ -43,22 +43,6 @@ import { supabase } from '../lib/supabase';
 ═══════════════════════════════════════════════════════════════
 */
 
-// Fórmula: (Materiales + Horas×costoHora) × (1 + overhead/100) × (1 + margen/100)
-export function calcPrecio({ materiales = [], horas = 0, costo_hora = 40, overhead_pct = 10, margen_pct = 30 }) {
-  const costoMat   = materiales.reduce((s, m) => s + (m.cantidad * m.costo_unit), 0);
-  const costoMO    = horas * costo_hora;
-  const subtotal   = costoMat + costoMO;
-  const conOverhead = subtotal * (1 + overhead_pct / 100);
-  const conMargen   = conOverhead * (1 + margen_pct / 100);
-  return {
-    costoMat:     parseFloat(costoMat.toFixed(2)),
-    costoMO:      parseFloat(costoMO.toFixed(2)),
-    subtotal:     parseFloat(subtotal.toFixed(2)),
-    conOverhead:  parseFloat(conOverhead.toFixed(2)),
-    precioFinal:  parseFloat(conMargen.toFixed(2)),
-  };
-}
-
 export function useOrders(userId) {
   const [orders,  setOrders]  = useState([]);
   const [loading, setLoading] = useState(true);

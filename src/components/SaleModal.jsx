@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { COLORS } from '../lib/constants';
+import { COLORS, Z_INDEX, ANIMATION } from '../lib/constants';
+import { StyledInput, StyledLabel, SelectRow } from './FormFields';
 
 export default function SaleModal({ visible, product, events, onClose, onSave }) {
   const [cantidad,   setCantidad]   = useState('1');
@@ -27,8 +28,8 @@ export default function SaleModal({ visible, product, events, onClose, onSave })
   const total      = cant * precio;
 
   const handleSave = async () => {
-    if (cant <= 0)         return alert('La cantidad debe ser mayor a 0');
-    if (cant > disponible) return alert(`Solo tienes ${disponible} piezas disponibles`);
+    if (cant <= 0)         return;
+    if (cant > disponible) return;
     const event = events.find(e => String(e.id) === String(eventId)) || null;
     setSaving(true);
     try {
@@ -36,25 +37,21 @@ export default function SaleModal({ visible, product, events, onClose, onSave })
     } finally { setSaving(false); }
   };
 
-  const INPUT = {
+  const fechaStyle = {
     width: '100%', boxSizing: 'border-box',
     backgroundColor: '#F9FAFB', borderRadius: 10,
     border: '1.5px solid #E5E7EB',
     padding: '10px 12px', fontSize: 14, color: COLORS.textPrimary,
     outline: 'none', fontFamily: 'inherit',
   };
-  const LABEL = {
-    fontSize: 12, fontWeight: 800, color: COLORS.textSecondary,
-    marginBottom: 4, display: 'block', textTransform: 'uppercase', letterSpacing: 0.5,
-  };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 700, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '90vh', overflowY: 'auto',
         backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
         padding: '0 0 40px',
-        animation: 'slideUp 0.25s ease',
+        animation: ANIMATION.slideUp,
       }}>
         {/* Header */}
         <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -72,16 +69,16 @@ export default function SaleModal({ visible, product, events, onClose, onSave })
           {/* Cantidad + Precio */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <span style={LABEL}>Cantidad</span>
-              <input type="number" inputMode="numeric" value={cantidad}
+              <StyledLabel>Cantidad</StyledLabel>
+              <StyledInput type="number" inputMode="numeric" value={cantidad}
                 onChange={e => setCantidad(e.target.value)}
-                min={1} max={disponible} style={INPUT} />
+                min={1} max={disponible} />
             </div>
             <div>
-              <span style={LABEL}>Precio unitario ($)</span>
-              <input type="number" inputMode="decimal" value={precioUnit}
+              <StyledLabel>Precio unitario ($)</StyledLabel>
+              <StyledInput type="number" inputMode="decimal" value={precioUnit}
                 onChange={e => setPrecioUnit(e.target.value)}
-                placeholder={String(product.precio_venta || '0')} style={INPUT} />
+                placeholder={String(product.precio_venta || '0')} />
             </div>
           </div>
 
@@ -97,13 +94,13 @@ export default function SaleModal({ visible, product, events, onClose, onSave })
 
           {/* Evento / lugar */}
           <div>
-            <span style={LABEL}>¿Dónde vendiste? (opcional)</span>
-            <select value={eventId} onChange={e => setEventId(e.target.value)} style={INPUT}>
+            <StyledLabel>¿Dónde vendiste? (opcional)</StyledLabel>
+            <SelectRow value={eventId} onChange={e => setEventId(e.target.value)}>
               <option value="">— Sin evento —</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>{ev.nombre}</option>
               ))}
-            </select>
+            </SelectRow>
             {events.length === 0 && (
               <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 5 }}>
                 💡 Crea un lugar de venta desde la pantalla principal antes de vender
@@ -113,15 +110,15 @@ export default function SaleModal({ visible, product, events, onClose, onSave })
 
           {/* Fecha */}
           <div>
-            <span style={LABEL}>Fecha</span>
-            <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} style={INPUT} />
+            <StyledLabel>Fecha</StyledLabel>
+            <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} style={fechaStyle} />
           </div>
 
           {/* Notas */}
           <div>
-            <span style={LABEL}>Notas (opcional)</span>
-            <input value={notas} onChange={e => setNotas(e.target.value)}
-              placeholder="Ej: precio especial, cliente frecuente…" style={INPUT} />
+            <StyledLabel>Notas (opcional)</StyledLabel>
+            <StyledInput value={notas} onChange={e => setNotas(e.target.value)}
+              placeholder="Ej: precio especial, cliente frecuente…" />
           </div>
 
           {/* Botones */}

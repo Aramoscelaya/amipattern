@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TIPOS_EVENTO } from '../hooks/useStore';
-import { COLORS } from '../lib/constants';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { COLORS, Z_INDEX, ANIMATION } from '../lib/constants';
 
 function tipoEvento(tipo) {
   return TIPOS_EVENTO.find(t => t.id === tipo) || { emoji: '📍', label: tipo };
@@ -18,12 +19,12 @@ export default function EventsPanel({ visible, events, eventStats, onClose, onNe
   if (!visible) return null;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 600, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '92vh', overflowY: 'auto',
         backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
         padding: '0 0 40px',
-        animation: 'slideUp 0.25s ease',
+        animation: ANIMATION.slideUp,
       }}>
         {/* Header */}
         <div style={{ padding: '20px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -38,20 +39,13 @@ export default function EventsPanel({ visible, events, eventStats, onClose, onNe
           </div>
         </div>
 
-        {/* Confirm delete */}
-        {confirmId && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 700, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-            <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: 24, maxWidth: 320, width: '100%', textAlign: 'center' }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>🗑</div>
-              <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>¿Eliminar evento?</div>
-              <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 20 }}>Las ventas registradas en este evento no se borrarán.</div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setConfirmId(null)} style={{ flex: 1, padding: 12, borderRadius: 12, border: '2px solid #E5E7EB', background: 'transparent', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
-                <button onClick={() => { onDelete(confirmId); setConfirmId(null); }} style={{ flex: 1, padding: 12, borderRadius: 12, background: '#EF4444', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmDialog
+          visible={confirmId !== null}
+          title="¿Eliminar evento?"
+          message="Las ventas registradas en este evento no se borrarán."
+          onConfirm={() => { onDelete(confirmId); setConfirmId(null); }}
+          onCancel={() => setConfirmId(null)}
+        />
 
         <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {events.length === 0 ? (

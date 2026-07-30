@@ -28,16 +28,29 @@ export const BADGE_COLORS = {
   'Avanzado':     { bg: '#FDF2F8', fg: '#9D174D' },
 };
 
-// ── Pricing defaults ────────────────────────────────────────
+export const Z_INDEX = {
+  header:        100,
+  fab:           300,
+  modal:         1000,
+  confirmDialog: 1100,
+  toast:         9999,
+};
+
+export const COLORS_PALETTE = [
+  '#FAD2E1','#B5EAD7','#FFDAC1','#C7CEEA',
+  '#A8DADC','#F4A261','#E9C46A','#2A9D8F','#264653','#E76F51',
+];
+
+export const ANIMATION = {
+  slideUp: 'slideUp 0.25s ease',
+};
+
+// ── Pricing defaults unificados ─────────────────────────────
 export const PRICING_DEFAULTS = {
+  costo_hora:      60,
+  overhead_pct:    10,
+  margen_pct:      30,
   pago_por_hora:   60,
   margen_boutique: 0.35,
   margen_propio:   0.20,
-};
-
-// ── Defaults para CostingModal / OrderModal ─────────────────
-export const COSTING_DEFAULTS = {
-  costo_hora: 40,
-  overhead_pct: 10,
-  margen_pct: 30,
 };

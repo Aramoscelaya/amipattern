@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import InventoryCard from '../components/InventoryCard';
 import InventoryModal from '../components/InventoryModal';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useToast } from '../components/Toast';
 import { useInventory } from '../hooks/useInventory';
-import { COLORS } from '../lib/constants';
+import { COLORS, Z_INDEX } from '../lib/constants';
 
 const FILTROS = [
   { id:'todos',    label:'Todos'         },
@@ -19,11 +21,12 @@ export default function InventoryScreen({ user, onBack }) {
     stockBajoItems, valorTotal
   } = useInventory(user?.id);
 
+  const { showToast } = useToast();
+
   const [filtro,    setFiltro]    = useState('todos');
   const [search,    setSearch]    = useState('');
   const [modal,     setModal]     = useState(false);
   const [editing,   setEditing]   = useState(null);
-  const [toast,     setToast]     = useState(null);
   const [confirmId, setConfirmId] = useState(null);
 
   // Notificación de stock bajo
@@ -47,11 +50,6 @@ export default function InventoryScreen({ user, onBack }) {
     }
   }, [stockBajoItems]);
 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2000);
-  };
-
   const handleSave = async (form) => {
     try {
       await saveItem(form);
@@ -59,7 +57,7 @@ export default function InventoryScreen({ user, onBack }) {
       setModal(false);
       setEditing(null);
     } catch (err) {
-      alert('Error: ' + err.message);
+      showToast('Error: ' + err.message);
     }
   };
 
@@ -69,7 +67,7 @@ export default function InventoryScreen({ user, onBack }) {
       setConfirmId(null);
       showToast('🗑 Eliminado');
     } catch (err) {
-      alert('Error: ' + err.message);
+      showToast('Error: ' + err.message);
     }
   };
 
@@ -92,46 +90,13 @@ export default function InventoryScreen({ user, onBack }) {
   return (
     <div style={{ minHeight:'80vh', backgroundColor: COLORS.bg, fontFamily:'inherit' }}>
 
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position:'fixed', top:20, left:'50%', transform:'translateX(-50%)',
-          backgroundColor:'#1A1A2E', color:'#fff',
-          padding:'10px 20px', borderRadius:99, fontWeight:700, fontSize:14,
-          boxShadow:'0 4px 20px rgba(0,0,0,0.25)', zIndex:9999,
-          whiteSpace:'nowrap', animation:'fadeInDown 0.2s ease',
-        }}>{toast}</div>
-      )}
-
-      {/* Confirm delete */}
-      {confirmId && (
-        <div style={{
-          position:'fixed', inset:0, zIndex:500,
-          backgroundColor:'rgba(0,0,0,0.5)',
-          display:'flex', alignItems:'center', justifyContent:'center', padding:20,
-        }}>
-          <div style={{
-            backgroundColor:'#fff', borderRadius:20, padding:24,
-            maxWidth:320, width:'100%', textAlign:'center',
-          }}>
-            <div style={{ fontSize:36, marginBottom:12 }}>🗑</div>
-            <div style={{ fontWeight:800, fontSize:16, marginBottom:8 }}>¿Eliminar este item?</div>
-            <div style={{ color:'#6B7280', fontSize:14, marginBottom:20 }}>Esta acción no se puede deshacer.</div>
-            <div style={{ display:'flex', gap:10 }}>
-              <button onClick={() => setConfirmId(null)} style={{
-                flex:1, padding:12, borderRadius:12,
-                border:'2px solid #E5E7EB', background:'transparent',
-                fontWeight:700, cursor:'pointer', fontFamily:'inherit',
-              }}>Cancelar</button>
-              <button onClick={() => handleDelete(confirmId)} style={{
-                flex:1, padding:12, borderRadius:12,
-                background:'#EF4444', border:'none',
-                color:'#fff', fontWeight:800, cursor:'pointer', fontFamily:'inherit',
-              }}>Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        visible={confirmId !== null}
+        title="¿Eliminar este item?"
+        message="Esta acción no se puede deshacer."
+        onConfirm={() => handleDelete(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
 
       {/* Header */}
       <div style={{
@@ -139,7 +104,7 @@ export default function InventoryScreen({ user, onBack }) {
         paddingTop: 'max(12px, env(safe-area-inset-top))',
         paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
         display: 'flex', alignItems: 'center', gap: 12,
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
         <button onClick={onBack} style={{
           background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
@@ -262,7 +227,7 @@ export default function InventoryScreen({ user, onBack }) {
         onClick={() => { setEditing(null); setModal(true); }}
         style={{
           position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 92px))',
-          right:24, zIndex:300,
+          right:24, zIndex:Z_INDEX.fab,
           width:54, height:54, borderRadius:27,
           backgroundColor:'#FAD2E1', border:'none',
           boxShadow:'0 4px 20px #a8a8ca',

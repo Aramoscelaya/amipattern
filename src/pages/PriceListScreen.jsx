@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import { usePriceList, usePriceConfig, calcPrecioBoutique } from '../hooks/usePriceList';
+import React, { useState, useMemo } from 'react';
+import { usePriceList, usePriceConfig } from '../hooks/usePriceList';
+import { useStore, useStoreCostings } from '../hooks/useStore';
+import { calcPrecio } from '../lib/pricing';
 import PriceConfigModal from '../components/PriceConfigModal';
-import PriceListItemModal from '../components/PriceListItemModal';
-import { COLORS } from '../lib/constants';
+import ProductModal from '../components/ProductModal';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useToast } from '../components/Toast';
+import { COLORS, Z_INDEX } from '../lib/constants';
 
 function PriceCard({ item, config, onEdit, onDelete }) {
-  const calc = calcPrecioBoutique({
+  const calc = calcPrecio({
+    mode: 'boutique',
     costo_material: item.costo_material,
     horas: item.horas,
     costo_empaque: item.costo_empaque,
@@ -68,32 +73,41 @@ function PriceLabel({ label, val, color, bold }) {
 export default function PriceListScreen({ user, patterns, onBack }) {
   const { config, saveConfig } = usePriceConfig(user?.id);
   const { items, loading, error, saveItem, deleteItem } = usePriceList(user?.id);
+  const { saveProduct } = useStore(user?.id);
+  const { saveCosting } = useStoreCostings(user?.id);
+
+  const { showToast } = useToast();
 
   const [search, setSearch] = useState('');
-  const [toast, setToast] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
 
   const [showConfig, setShowConfig] = useState(false);
   const [itemModal, setItemModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
 
-  const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2200); };
-
   const handleSaveConfig = async (form) => {
     try {
       await saveConfig(form);
       showToast('⚙️ Configuración guardada');
       setShowConfig(false);
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
-  const handleSaveItem = async (form) => {
+  const handleSaveProductModal = async ({ costing, storeProduct, priceListItem }) => {
     try {
-      await saveItem(form);
-      showToast(form.id ? '✅ Producto actualizado' : '💰 Producto agregado');
+      if (costing && storeProduct) {
+        const merged = { ...costing, ...storeProduct };
+        await saveCosting(merged, saveProduct);
+      } else if (costing && !storeProduct) {
+        await saveCosting(costing, null);
+      }
+      if (priceListItem) {
+        await saveItem(priceListItem);
+      }
+      showToast('✅ Guardado');
       setItemModal(false);
       setEditingItem(null);
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   const handleDelete = async (id) => {
@@ -101,7 +115,7 @@ export default function PriceListScreen({ user, patterns, onBack }) {
       await deleteItem(id);
       setConfirmId(null);
       showToast('🗑 Eliminado');
-    } catch (e) { alert('Error: ' + e.message); }
+    } catch (e) { showToast('Error: ' + e.message); }
   };
 
   const filtered = items.filter(i => {
@@ -109,33 +123,19 @@ export default function PriceListScreen({ user, patterns, onBack }) {
     return true;
   });
 
-  const stats = {
+  const stats = useMemo(() => ({
     total: items.length,
     utilidadTotal: items.reduce((s, i) => {
-      const c = calcPrecioBoutique({
-        costo_material: i.costo_material,
-        horas: i.horas,
-        costo_empaque: i.costo_empaque,
-        pago_por_hora: config?.pago_por_hora,
-        margen_propio: config?.margen_propio,
-        margen_boutique: config?.margen_boutique,
-      });
+      const c = calcPrecio({ mode: 'boutique', costo_material: i.costo_material, horas: i.horas, costo_empaque: i.costo_empaque, pago_por_hora: config?.pago_por_hora, margen_propio: config?.margen_propio, margen_boutique: config?.margen_boutique });
       return s + c.utilidad_tuya;
     }, 0),
     precioPromedio: items.length > 0
       ? items.reduce((s, i) => {
-          const c = calcPrecioBoutique({
-            costo_material: i.costo_material,
-            horas: i.horas,
-            costo_empaque: i.costo_empaque,
-            pago_por_hora: config?.pago_por_hora,
-            margen_propio: config?.margen_propio,
-            margen_boutique: config?.margen_boutique,
-          });
+          const c = calcPrecio({ mode: 'boutique', costo_material: i.costo_material, horas: i.horas, costo_empaque: i.costo_empaque, pago_por_hora: config?.pago_por_hora, margen_propio: config?.margen_propio, margen_boutique: config?.margen_boutique });
           return s + c.precio_boutique;
         }, 0) / items.length
       : 0,
-  };
+  }), [items, config]);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, fontFamily: 'inherit' }}>
@@ -146,7 +146,7 @@ export default function PriceListScreen({ user, patterns, onBack }) {
         paddingTop: 'max(12px, env(safe-area-inset-top))',
         paddingBottom: 12, paddingLeft: 20, paddingRight: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={onBack} style={{
@@ -164,30 +164,13 @@ export default function PriceListScreen({ user, patterns, onBack }) {
         }}>⚙️</button>
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
-          backgroundColor: '#1A1A2E', color: '#fff',
-          padding: '10px 20px', borderRadius: 99, fontWeight: 700, fontSize: 14,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)', zIndex: 9999, whiteSpace: 'nowrap',
-        }}>{toast}</div>
-      )}
-
-      {/* Confirm delete */}
-      {confirmId && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 900, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: 24, maxWidth: 320, width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>🗑</div>
-            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>¿Eliminar producto?</div>
-            <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 20 }}>Esta acción no se puede deshacer.</div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setConfirmId(null)} style={{ flex: 1, padding: 12, borderRadius: 12, border: '2px solid #E5E7EB', background: 'transparent', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
-              <button onClick={() => handleDelete(confirmId)} style={{ flex: 1, padding: 12, borderRadius: 12, background: '#EF4444', border: 'none', color: '#fff', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        visible={confirmId !== null}
+        title="¿Eliminar producto?"
+        message="Esta acción no se puede deshacer."
+        onConfirm={() => handleDelete(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
 
       <div style={{ padding: '16px 16px', maxWidth: 960, margin: '0 auto' }}>
 
@@ -274,7 +257,7 @@ export default function PriceListScreen({ user, patterns, onBack }) {
       <button onClick={() => { setEditingItem(null); setItemModal(true); }} style={{
         position: 'fixed',
         bottom: 'max(24px, calc(env(safe-area-inset-bottom) + 24px))',
-        right: 24, zIndex: 300,
+        right: 24, zIndex: Z_INDEX.fab,
         width: 54, height: 54, borderRadius: 27,
         backgroundColor: '#FAD2E1', border: 'none',
         boxShadow: '0 4px 20px #a8a8ca',
@@ -287,9 +270,9 @@ export default function PriceListScreen({ user, patterns, onBack }) {
         onClose={() => setShowConfig(false)}
         onSave={handleSaveConfig}
       />
-      <PriceListItemModal visible={itemModal} item={editingItem} config={config} patterns={patterns}
+      <ProductModal visible={itemModal} initial={editingItem} patterns={patterns} priceConfig={config}
         onClose={() => { setItemModal(false); setEditingItem(null); }}
-        onSave={handleSaveItem}
+        onSave={handleSaveProductModal}
       />
     </div>
   );

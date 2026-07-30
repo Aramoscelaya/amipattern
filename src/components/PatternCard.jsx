@@ -3,10 +3,10 @@ import Badge from './Badge';
 import ProgressBar from './ProgressBar';
 import { COLORS } from '../lib/constants';
 
-export default function PatternCard({ pattern, onPress }) {
+export default function PatternCard({ pattern, onClick }) {
   return (
     <div
-      onClick={onPress}
+      onClick={onClick}
       style={{
         backgroundColor: COLORS.card,
         borderRadius: 18,

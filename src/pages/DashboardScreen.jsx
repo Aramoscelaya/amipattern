@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { COLORS } from '../lib/constants';
+import React, { useState, useMemo } from 'react';
+import { COLORS, Z_INDEX } from '../lib/constants';
 
 const MODULES = [
   { id: 'patterns',  emoji: '🧶', label: 'Patrones',  color: '#FAD2E1', desc: 'Tus amigurumis' },
@@ -9,11 +9,39 @@ const MODULES = [
   { id: 'store',     emoji: '🏪', label: 'Tienda',    color: '#A8DADC', desc: 'Ventas y eventos' },
 ];
 
-export default function DashboardScreen({ user, onSelect, onSignOut }) {
+export default function DashboardScreen({ user, patterns = [], items = [], orders = [], products = [], onSelect, onSignOut }) {
   const [showMenu, setShowMenu] = useState(false);
 
   const avatarUrl   = user?.user_metadata?.avatar_url;
   const displayName = user?.user_metadata?.full_name?.split(' ')[0] || 'Tú';
+
+  const stockAlerts = useMemo(() =>
+    items.filter(i => {
+      const disp = (i.stock_inicial || 0) + (i.entradas || 0) - (i.stock_usado || 0);
+      return disp <= (i.alerta_minimo || 0);
+    }), [items]);
+
+  const proximasEntregas = useMemo(() =>
+    orders.filter(o => {
+      if (!o.fecha_entrega || o.estado === 'entregado' || o.estado === 'cancelado') return false;
+      const dias = Math.ceil((new Date(o.fecha_entrega) - new Date()) / 86400000);
+      return dias <= 2 && dias >= 0;
+    }), [orders]);
+
+  const piezasTienda = useMemo(() =>
+    products.reduce((s, p) => s + (p.stock_inicial || 0) - (p.stock_vendido || 0), 0),
+  [products]);
+
+  const pedidosActivos = orders.filter(
+    o => o.estado === 'pendiente' || o.estado === 'en_proceso'
+  ).length;
+
+  const stats = [
+    { emoji: '🧶', val: patterns.length, label: 'Patrones' },
+    { emoji: '⚠️', val: stockAlerts.length, label: 'Alertas stock', warn: true },
+    { emoji: '💼', val: pedidosActivos, label: 'Pedidos activos' },
+    { emoji: '🏪', val: piezasTienda, label: 'Piezas en tienda' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, fontFamily: 'inherit' }}>
@@ -44,9 +72,9 @@ export default function DashboardScreen({ user, onSelect, onSignOut }) {
               }
             </button>
             {showMenu && (<>
-              <div onClick={() => setShowMenu(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
+              <div onClick={() => setShowMenu(false)} style={{position:'fixed',inset:0,zIndex:Z_INDEX.modal}}/>
               <div style={{
-                position:'absolute', right:0, top:48, zIndex:100,
+                position:'absolute', right:0, top:48, zIndex:Z_INDEX.header,
                 backgroundColor:'#fff', borderRadius:14,
                 boxShadow:'0 8px 32px rgba(0,0,0,0.15)',
                 minWidth:180, padding:8,
@@ -102,6 +130,65 @@ export default function DashboardScreen({ user, onSelect, onSignOut }) {
             </button>
           ))}
         </div>
+
+        {/* Stats rápidas */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 20 }}>
+          {stats.map(s => (
+            <div key={s.label} style={{
+              backgroundColor: '#fff', borderRadius: 14, padding: '12px 10px', textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            }}>
+              <div style={{ fontSize: 20 }}>{s.emoji}</div>
+              <div style={{
+                fontWeight: 900, fontSize: 18, marginTop: 2,
+                color: s.warn && s.val > 0 ? '#EF4444' : COLORS.textPrimary,
+              }}>{s.val}</div>
+              <div style={{ fontSize: 10, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Alertas */}
+        {(stockAlerts.length > 0 || proximasEntregas.length > 0) && (
+          <div style={{ marginTop: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
+              ⚠️ Alertas activas
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {stockAlerts.map(i => {
+                const disp = (i.stock_inicial || 0) + (i.entradas || 0) - (i.stock_usado || 0);
+                return (
+                  <div key={i.id} style={{
+                    backgroundColor: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 12,
+                    padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
+                  }}>
+                    <span style={{ fontSize: 16 }}>🧵</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 800, fontSize: 13, color: '#991B1B' }}>{i.nombre}</div>
+                      <div style={{ fontSize: 11, color: '#B91C1C' }}>
+                        Stock bajo: {Math.max(0, disp)} {i.unidad || 'ud'} (mín: {i.alerta_minimo || 0})
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {proximasEntregas.map(o => (
+                <div key={o.id} style={{
+                  backgroundColor: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 12,
+                  padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
+                }}>
+                  <span style={{ fontSize: 16 }}>📦</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: '#92400E' }}>{o.cliente_nombre}</div>
+                    <div style={{ fontSize: 11, color: '#78350F' }}>
+                      {o.patron_nombre} · Entrega: {o.fecha_entrega ? new Date(o.fecha_entrega).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) : '—'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div style={{

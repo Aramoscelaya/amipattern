@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PatternCard from '../components/PatternCard';
-import { COLORS, ESTADOS } from '../lib/constants';
+import { COLORS, ESTADOS, Z_INDEX } from '../lib/constants';
 
 export default function PatternsScreen({ patterns, onSelect, onNew, onBack, loading, error, user, onSignOut }) {
   const [search, setSearch] = useState('');
@@ -31,7 +31,7 @@ export default function PatternsScreen({ patterns, onSelect, onNew, onBack, load
         paddingTop:'max(12px, env(safe-area-inset-top))',
         paddingBottom:12, paddingLeft:20, paddingRight:20,
         display:'flex', alignItems:'center', justifyContent:'space-between',
-        position:'sticky', top:0, zIndex:100,
+        position:'sticky', top:0, zIndex:Z_INDEX.header,
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
           <button onClick={onBack} style={{
@@ -60,7 +60,7 @@ export default function PatternsScreen({ patterns, onSelect, onNew, onBack, load
           {showMenu && (<>
             <div onClick={()=>setShowMenu(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
             <div style={{
-              position:'absolute', right:0, top:44, zIndex:100,
+              position:'absolute', right:0, top:44, zIndex:Z_INDEX.header,
               backgroundColor:'#fff', borderRadius:14,
               boxShadow:'0 8px 32px rgba(0,0,0,0.15)',
               minWidth:180, padding:8,
@@ -159,7 +159,7 @@ export default function PatternsScreen({ patterns, onSelect, onNew, onBack, load
             gap:14,
           }}>
             {filtered.map(p=>(
-              <PatternCard key={p.id} pattern={p} onPress={()=>onSelect(p)}/>
+              <PatternCard key={p.id} pattern={p} onClick={()=>onSelect(p)}/>
             ))}
           </div>
         )}
@@ -168,7 +168,7 @@ export default function PatternsScreen({ patterns, onSelect, onNew, onBack, load
       {/* FAB */}
       <button onClick={onNew} style={{
         position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 24px))',
-        right:24, zIndex:300,
+        right:24, zIndex:Z_INDEX.fab,
         width:54, height:54, borderRadius:27,
         backgroundColor:'#FAD2E1', border:'none',
         boxShadow:'0 4px 20px #a8a8ca',

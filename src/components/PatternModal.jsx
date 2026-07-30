@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { YARN_COLORS, DIFICULTADES, ESTADOS } from '../lib/constants';
+import { YARN_COLORS, DIFICULTADES, ESTADOS, Z_INDEX, ANIMATION } from '../lib/constants';
+import { StyledInput, StyledLabel, StyledTextarea } from './FormFields';
 
 const BLANK = {
   nombre: '', emoji: '🧶', dificultad: 'Principiante', estado: 'En progreso',
@@ -8,44 +9,6 @@ const BLANK = {
   fecha: new Date().toISOString().slice(0, 10),
   color: YARN_COLORS[0],
 };
-
-const Label = ({ children }) => (
-  <div style={{
-    fontSize: 11, fontWeight: 800, color: '#6B7280',
-    textTransform: 'uppercase', letterSpacing: 0.5,
-    marginTop: 14, marginBottom: 5,
-  }}>
-    {children}
-  </div>
-);
-
-const Input = ({ style = {}, ...props }) => (
-  <input
-    style={{
-      border: '1.5px solid #E5E7EB', borderRadius: 10,
-      padding: '9px 12px', fontSize: 14, color: '#1A1A2E',
-      backgroundColor: '#FAFAFA', width: '100%',
-      boxSizing: 'border-box', outline: 'none',
-      fontFamily: 'inherit',
-      ...style,
-    }}
-    {...props}
-  />
-);
-
-const Textarea = ({ style = {}, ...props }) => (
-  <textarea
-    style={{
-      border: '1.5px solid #E5E7EB', borderRadius: 10,
-      padding: '9px 12px', fontSize: 14, color: '#1A1A2E',
-      backgroundColor: '#FAFAFA', width: '100%',
-      boxSizing: 'border-box', outline: 'none',
-      fontFamily: 'inherit', resize: 'vertical', minHeight: 72,
-      ...style,
-    }}
-    {...props}
-  />
-);
 
 export default function PatternModal({ visible, initial, onClose, onSave, onUploadImage }) {
   const [f, setF]         = useState(initial || BLANK);
@@ -92,7 +55,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
       const url = await onUploadImage(file);
       upd('imagen_url', url);
     } catch (err) {
-      alert('Error subiendo imagen: ' + err.message);
+      return;
     } finally {
       setImgLoading(false);
     }
@@ -100,7 +63,6 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
 
   const handleSave = async () => {
     if (!f.nombre.trim()) {
-      alert('Dale un nombre a tu amigurumi antes de guardar.');
       return;
     }
     setSaving(true);
@@ -115,7 +77,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 1000,
+      position: 'fixed', inset: 0, zIndex: Z_INDEX.modal,
       backgroundColor: 'rgba(0,0,0,0.5)',
       display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
     }}
@@ -127,7 +89,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
         width: '100%', maxWidth: 640,
         maxHeight: '92vh',
         display: 'flex', flexDirection: 'column',
-        animation: 'slideUp 0.3s ease',
+        animation: ANIMATION.slideUp,
       }}>
         {/* Hero */}
         <div style={{
@@ -167,7 +129,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
         <div style={{ overflowY: 'auto', flex: 1, padding: '4px 20px 20px' }}>
 
           {/* Color picker */}
-          <Label>Color de tarjeta</Label>
+          <StyledLabel>Color de tarjeta</StyledLabel>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {YARN_COLORS.map(c => (
               <button
@@ -185,7 +147,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           {/* Dificultad + Estado */}
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <Label>Dificultad</Label>
+              <StyledLabel>Dificultad</StyledLabel>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {DIFICULTADES.map(d => (
                   <button key={d} onClick={() => upd('dificultad', d)} style={{
@@ -199,7 +161,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
               </div>
             </div>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <Label>Estado</Label>
+              <StyledLabel>Estado</StyledLabel>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {ESTADOS.map(s => (
                   <button key={s} onClick={() => upd('estado', s)} style={{
@@ -217,23 +179,23 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           {/* Talla + Aguja */}
           <div style={{ display: 'flex', gap: 12 }}>
             <div style={{ flex: 1 }}>
-              <Label>📏 Talla</Label>
-              <Input value={f.talla} onChange={e => upd('talla', e.target.value)} placeholder="ej: 15 cm" />
+              <StyledLabel>📏 Talla</StyledLabel>
+              <StyledInput value={f.talla} onChange={e => upd('talla', e.target.value)} placeholder="ej: 15 cm" />
             </div>
             <div style={{ flex: 1 }}>
-              <Label>🪝 Aguja</Label>
-              <Input value={f.aguja} onChange={e => upd('aguja', e.target.value)} placeholder="ej: 3.5 mm" />
+              <StyledLabel>🪝 Aguja</StyledLabel>
+              <StyledInput value={f.aguja} onChange={e => upd('aguja', e.target.value)} placeholder="ej: 3.5 mm" />
             </div>
           </div>
 
           {/* Fecha */}
-          <Label>📅 Fecha de inicio</Label>
-          <Input type="date" value={f.fecha} onChange={e => upd('fecha', e.target.value)} style={{ maxWidth: 200 }} />
+          <StyledLabel>📅 Fecha de inicio</StyledLabel>
+          <StyledInput type="date" value={f.fecha} onChange={e => upd('fecha', e.target.value)} style={{ maxWidth: 200 }} />
 
           {/* Hilos */}
-          <Label>🧵 Colores de hilo</Label>
+          <StyledLabel>🧵 Colores de hilo</StyledLabel>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Input
+            <StyledInput
               value={hilo} onChange={e => setHilo(e.target.value)}
               placeholder="ej: Blanco crudo"
               onKeyDown={e => e.key === 'Enter' && addHilo()}
@@ -262,16 +224,16 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           </div>
 
           {/* Materiales */}
-          <Label>🧰 Materiales adicionales</Label>
-          <Textarea
+          <StyledLabel>🧰 Materiales adicionales</StyledLabel>
+          <StyledTextarea
             value={f.materiales} onChange={e => upd('materiales', e.target.value)}
             placeholder="Ojos de seguridad, relleno, alambre..."
           />
 
           {/* Pasos */}
-          <Label>📋 Pasos del patrón</Label>
+          <StyledLabel>📋 Pasos del patrón</StyledLabel>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Input
+            <StyledInput
               value={paso} onChange={e => setPaso(e.target.value)}
               placeholder="ej: Vuelta 1: 6pb en anillo mágico"
               onKeyDown={e => e.key === 'Enter' && addPaso()}
@@ -302,14 +264,14 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           </div>
 
           {/* Notas */}
-          <Label>💡 Notas y tips</Label>
-          <Textarea
+          <StyledLabel>💡 Notas y tips</StyledLabel>
+          <StyledTextarea
             value={f.notas} onChange={e => upd('notas', e.target.value)}
             placeholder="Trucos, errores comunes, mejoras..."
           />
 
           {/* Imagen */}
-          <Label>📷 Imagen de referencia</Label>
+          <StyledLabel>📷 Imagen de referencia</StyledLabel>
           <input
             ref={fileRef} type="file" accept="image/*"
             style={{ display: 'none' }} onChange={handleImageFile}

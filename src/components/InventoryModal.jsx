@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Z_INDEX, ANIMATION, COLORS_PALETTE } from '../lib/constants';
+import { StyledInput, StyledLabel, StyledTextarea, SelectRow } from './FormFields';
 
-const COLORS_HEX = [
-  '#2DD4BF','#FDA4AF','#F5F0DC','#A78BFA','#FCA5A5',
-  '#6EE7B7','#FCD34D','#93C5FD','#F9A8D4','#D9F99D',
-  '#C9A96E','#1A1A2E','#FFFFFF','#F97316','#84CC16',
-];
+const COLORS_HEX = [...COLORS_PALETTE, '#FFFFFF', '#1A1A2E', '#F97316', '#84CC16'];
 
 const SUBTIPOS_HILO = ['Chenille','Acrílico','Algodón','Lana','Amigurumi','Fantasía','Otro'];
 const SUBTIPOS_MAT  = [
@@ -34,24 +32,7 @@ const BLANK_MAT = {
   alerta_minimo:'5', costo_unitario:'', notas:'',
 };
 
-const Label = ({ t, hint }) => (
-  <div style={{ fontSize:11, fontWeight:800, color:'#6B7280',
-    textTransform:'uppercase', letterSpacing:0.5, marginTop:14, marginBottom:5,
-    display:'flex', alignItems:'center', gap:6 }}>
-    {t}
-    {hint && <span style={{ fontSize:10, fontWeight:400, textTransform:'none',
-      color:'#9CA3AF', letterSpacing:0 }}>— {hint}</span>}
-  </div>
-);
-const Input = ({ style={}, ...p }) => (
-  <input style={{
-    border:'1.5px solid #E5E7EB', borderRadius:10,
-    padding:'9px 12px', fontSize:14, color:'#1A1A2E',
-    backgroundColor:'#FAFAFA', width:'100%',
-    boxSizing:'border-box', outline:'none', fontFamily:'inherit',
-    ...style,
-  }} {...p}/>
-);
+
 
 export default function InventoryModal({ visible, initial, onClose, onSave }) {
   const [tab,    setTab]    = useState('hilo');
@@ -77,7 +58,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
   };
 
   const handleSave = async () => {
-    if (!f.nombre.trim()) { alert('Ponle un nombre al item.'); return; }
+    if (!f.nombre.trim()) return;
     setSaving(true);
     try { await onSave({ ...f, tipo: tab }); }
     finally { setSaving(false); }
@@ -93,7 +74,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
 
   return (
     <div style={{
-      position:'fixed', inset:0, zIndex:1000,
+      position:'fixed', inset:0, zIndex:Z_INDEX.modal,
       backgroundColor:'rgba(0,0,0,0.5)',
       display:'flex', alignItems:'flex-end', justifyContent:'center',
     }} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -102,7 +83,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
         backgroundColor:'#fff', borderRadius:'24px 24px 0 0',
         width:'100%', maxWidth:640, maxHeight:'94vh',
         display:'flex', flexDirection:'column',
-        animation:'slideUp 0.3s ease',
+        animation: ANIMATION.slideUp,
       }}>
 
         {/* Hero */}
@@ -157,7 +138,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
         <div style={{ overflowY:'auto', flex:1, padding:'4px 20px 20px' }}>
 
           {/* Color */}
-          <Label t="Color" />
+          <StyledLabel>Color</StyledLabel>
           <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:4 }}>
             {COLORS_HEX.map(c => (
               <button key={c} onClick={() => upd('color_hex', c)} style={{
@@ -168,7 +149,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
               }}/>
             ))}
           </div>
-          <Input
+          <StyledInput
             value={f.color}
             onChange={e => upd('color', e.target.value)}
             placeholder="Nombre del color (ej: turquesa, blanco crudo)"
@@ -177,7 +158,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
 
           {/* Hilo */}
           {isHilo && (<>
-            <Label t="Tipo de hilo" />
+            <StyledLabel>Tipo de hilo</StyledLabel>
             <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
               {SUBTIPOS_HILO.map(s => (
                 <button key={s} onClick={() => upd('subtipo', s)} style={{
@@ -191,25 +172,22 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
             </div>
             <div style={{ display:'flex', gap:12 }}>
               <div style={{ flex:1 }}>
-                <Label t="Grosor (mm)" />
-                <Input type="number" value={f.grosor_mm} onChange={e=>upd('grosor_mm',e.target.value)} placeholder="ej: 3.5"/>
+                <StyledLabel>Grosor (mm)</StyledLabel>
+                <StyledInput type="number" value={f.grosor_mm} onChange={e=>upd('grosor_mm',e.target.value)} placeholder="ej: 3.5"/>
               </div>
               <div style={{ flex:1 }}>
-                <Label t="Tipo de gancho" />
-                <select value={f.tipo_gancho} onChange={e=>upd('tipo_gancho',e.target.value)}
-                  style={{ border:'1.5px solid #E5E7EB', borderRadius:10, padding:'9px 12px',
-                    fontSize:14, color:'#1A1A2E', backgroundColor:'#FAFAFA',
-                    width:'100%', outline:'none', fontFamily:'inherit' }}>
+                <StyledLabel>Tipo de gancho</StyledLabel>
+                <SelectRow value={f.tipo_gancho} onChange={e=>upd('tipo_gancho',e.target.value)}>
                   <option value="">Seleccionar</option>
                   {GANCHOS.map(g => <option key={g} value={g}>{g}</option>)}
-                </select>
+                </SelectRow>
               </div>
             </div>
           </>)}
 
           {/* Material */}
           {!isHilo && (<>
-            <Label t="Tipo de material" />
+            <StyledLabel>Tipo de material</StyledLabel>
             <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
               {SUBTIPOS_MAT.map(s => (
                 <button key={s.id} onClick={() => setSubtipoMat(s.id)} style={{
@@ -224,8 +202,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
           </>)}
 
           {/* Marca */}
-          <Label t="Marca / Proveedor" />
-          <Input value={f.marca} onChange={e=>upd('marca',e.target.value)} placeholder="ej: Katia, Amazon, Mercado Libre"/>
+          <StyledLabel>Marca / Proveedor</StyledLabel>
+          <StyledInput value={f.marca} onChange={e=>upd('marca',e.target.value)} placeholder="ej: Katia, Amazon, Mercado Libre"/>
 
           {/* ── Sección de stock ── */}
           <div style={{
@@ -238,8 +216,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
 
             {/* Stock inicial */}
             <div>
-              <Label t={`Stock inicial (${unidadLabel})`} hint="cuánto tenías al dar de alta" />
-              <Input
+              <StyledLabel>Stock inicial ({unidadLabel})</StyledLabel>
+              <StyledInput
                 type="number"
                 value={f.stock_inicial}
                 onChange={e => upd('stock_inicial', e.target.value)}
@@ -251,8 +229,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
             {/* Entradas acumuladas — solo visible al editar */}
             {isEditing && (
               <div>
-                <Label t={`Entradas acumuladas (${unidadLabel})`} hint="total de reposiciones registradas" />
-                <Input
+                <StyledLabel>Entradas acumuladas ({unidadLabel})</StyledLabel>
+                <StyledInput
                   type="number"
                   value={f.entradas}
                   onChange={e => upd('entradas', e.target.value)}
@@ -268,8 +246,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
             {/* Salidas acumuladas — solo visible al editar */}
             {isEditing && (
               <div>
-                <Label t={`Salidas acumuladas (${unidadLabel})`} hint="total de uso registrado" />
-                <Input
+                <StyledLabel>Salidas acumuladas ({unidadLabel})</StyledLabel>
+                <StyledInput
                   type="number"
                   value={f.stock_usado}
                   onChange={e => upd('stock_usado', e.target.value)}
@@ -284,8 +262,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
 
             {/* Alerta */}
             <div>
-              <Label t={`Alerta si quedan menos de (${unidadLabel})`} />
-              <Input
+              <StyledLabel>Alerta si quedan menos de ({unidadLabel})</StyledLabel>
+              <StyledInput
                 type="number"
                 value={f.alerta_minimo}
                 onChange={e => upd('alerta_minimo', e.target.value)}
@@ -312,8 +290,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
           </div>
 
           {/* Costo */}
-          <Label t={costoLabel} />
-          <Input type="number" value={f.costo_unitario}
+          <StyledLabel>{costoLabel}</StyledLabel>
+          <StyledInput type="number" value={f.costo_unitario}
             onChange={e=>upd('costo_unitario',e.target.value)}
             placeholder="ej: 0.15"/>
           {Number(f.costo_unitario) > 0 && Number(f.stock_inicial) > 0 && (
@@ -326,16 +304,10 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
           )}
 
           {/* Notas */}
-          <Label t="Notas" />
-          <textarea value={f.notas} onChange={e=>upd('notas',e.target.value)}
+          <StyledLabel>Notas</StyledLabel>
+          <StyledTextarea value={f.notas} onChange={e=>upd('notas',e.target.value)}
             placeholder="Link de compra, tono exacto, observaciones..."
-            style={{
-              border:'1.5px solid #E5E7EB', borderRadius:10,
-              padding:'9px 12px', fontSize:14, color:'#1A1A2E',
-              backgroundColor:'#FAFAFA', width:'100%',
-              boxSizing:'border-box', outline:'none',
-              fontFamily:'inherit', resize:'vertical', minHeight:64,
-            }}/>
+            style={{ minHeight: 64 }} />
 
           {/* Botones */}
           <div style={{ display:'flex', gap:10, marginTop:22 }}>

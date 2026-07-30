@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { calcPrecio } from '../hooks/useOrders';
+import { calcPrecio } from '../lib/pricing';
+import { Z_INDEX, ANIMATION } from '../lib/constants';
+import { StyledInput, StyledLabel, StyledTextarea } from './FormFields';
 
 const ESTADOS = [
   { id:'pendiente',  label:'⏳ Pendiente',   color:'#FEF3C7', fg:'#92400E' },
@@ -24,20 +26,7 @@ const BLANK = {
   anticipo:'0', notas:'',
 };
 
-const Label = ({ t, hint }) => (
-  <div style={{ fontSize:11, fontWeight:800, color:'#6B7280',
-    textTransform:'uppercase', letterSpacing:0.5, marginTop:14, marginBottom:5 }}>
-    {t}{hint && <span style={{ fontSize:10, fontWeight:400, textTransform:'none', color:'#9CA3AF' }}> — {hint}</span>}
-  </div>
-);
-const Input = ({ style={}, ...p }) => (
-  <input style={{
-    border:'1.5px solid #E5E7EB', borderRadius:10, padding:'9px 12px',
-    fontSize:14, color:'#1A1A2E', backgroundColor:'#FAFAFA',
-    width:'100%', boxSizing:'border-box', outline:'none', fontFamily:'inherit',
-    ...style,
-  }} {...p}/>
-);
+
 
 export default function OrderModal({ visible, initial, inventoryItems = [], onClose, onSave }) {
   const [f,        setF]      = useState(BLANK);
@@ -59,9 +48,10 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
 
   // ── Cálculo en tiempo real ──
   const calc = useMemo(() => calcPrecio({
+    mode: 'order',
     materiales:   f.materiales || [],
     horas:        Number(f.horas)       || 0,
-    costo_hora:   Number(f.costo_hora)  || 40,
+    costo_hora:   Number(f.costo_hora)  || 60,
     overhead_pct: Number(f.overhead_pct)|| 10,
     margen_pct:   Number(f.margen_pct)  || 30,
   }), [f.materiales, f.horas, f.costo_hora, f.overhead_pct, f.margen_pct]);
@@ -100,8 +90,8 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
     upd('materiales', f.materiales.filter(m => m.inv_id !== inv_id));
 
   const handleSave = async () => {
-    if (!f.cliente_nombre.trim()) { alert('Agrega el nombre del cliente.'); return; }
-    if (!f.patron_nombre.trim())  { alert('Agrega el nombre del amigurumi.'); return; }
+    if (!f.cliente_nombre.trim()) { return; }
+    if (!f.patron_nombre.trim())  { return; }
     setSaving(true);
     try { await onSave(f); }
     finally { setSaving(false); }
@@ -113,7 +103,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
 
   return (
     <div style={{
-      position:'fixed', inset:0, zIndex:1000,
+      position:'fixed', inset:0, zIndex:Z_INDEX.modal,
       backgroundColor:'rgba(0,0,0,0.55)',
       display:'flex', alignItems:'flex-end', justifyContent:'center',
     }} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -122,7 +112,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
         backgroundColor:'#fff', borderRadius:'24px 24px 0 0',
         width:'100%', maxWidth:640, maxHeight:'95vh',
         display:'flex', flexDirection:'column',
-        animation:'slideUp 0.3s ease',
+        animation: ANIMATION.slideUp,
       }}>
 
         {/* Hero */}
@@ -172,18 +162,18 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
         <div style={{ overflowY:'auto', flex:1, padding:'4px 20px 24px' }}>
 
           {/* ── Cliente ── */}
-          <Label t="👤 Cliente" />
-          <Input value={f.cliente_nombre} onChange={e=>upd('cliente_nombre',e.target.value)}
+          <StyledLabel>👤 Cliente</StyledLabel>
+          <StyledInput value={f.cliente_nombre} onChange={e=>upd('cliente_nombre',e.target.value)}
             placeholder="Nombre completo" style={{ marginBottom:8 }}/>
           <div style={{ display:'flex', gap:8 }}>
-            <Input value={f.cliente_telefono} onChange={e=>upd('cliente_telefono',e.target.value)}
+            <StyledInput value={f.cliente_telefono} onChange={e=>upd('cliente_telefono',e.target.value)}
               placeholder="📱 Teléfono" type="tel" style={{ flex:1 }}/>
-            <Input value={f.cliente_email} onChange={e=>upd('cliente_email',e.target.value)}
+            <StyledInput value={f.cliente_email} onChange={e=>upd('cliente_email',e.target.value)}
               placeholder="📧 Email" type="email" style={{ flex:1 }}/>
           </div>
 
           {/* ── Estado ── */}
-          <Label t="Estado del pedido" />
+          <StyledLabel>Estado del pedido</StyledLabel>
           <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
             {ESTADOS.map(e => (
               <button key={e.id} onClick={()=>upd('estado',e.id)} style={{
@@ -199,21 +189,21 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           {/* ── Fechas ── */}
           <div style={{ display:'flex', gap:12 }}>
             <div style={{ flex:1 }}>
-              <Label t="📅 Fecha pedido" />
-              <Input type="date" value={f.fecha_pedido} onChange={e=>upd('fecha_pedido',e.target.value)}/>
+              <StyledLabel>📅 Fecha pedido</StyledLabel>
+              <StyledInput type="date" value={f.fecha_pedido} onChange={e=>upd('fecha_pedido',e.target.value)}/>
             </div>
             <div style={{ flex:1 }}>
-              <Label t="🔔 Fecha entrega" hint="recordatorio 2 días antes"/>
-              <Input type="date" value={f.fecha_entrega} onChange={e=>upd('fecha_entrega',e.target.value)}
+              <StyledLabel>🔔 Fecha entrega</StyledLabel>
+              <StyledInput type="date" value={f.fecha_entrega} onChange={e=>upd('fecha_entrega',e.target.value)}
                 style={{ borderColor: f.fecha_entrega ? '#2DD4BF' : '#E5E7EB' }}/>
             </div>
           </div>
 
           {/* ── Materiales del inventario ── */}
-          <Label t="🧵 Materiales usados" hint="desde tu inventario"/>
+          <StyledLabel>🧵 Materiales usados</StyledLabel>
 
           <div style={{ position:'relative' }}>
-            <Input
+            <StyledInput
               value={matSearch}
               onChange={e=>{ setMS(e.target.value); setShowM(true); }}
               onFocus={()=>setShowM(true)}
@@ -299,14 +289,14 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           {/* ── Tiempo de trabajo ── */}
           <div style={{ display:'flex', gap:12 }}>
             <div style={{ flex:1 }}>
-              <Label t="⏱️ Horas de trabajo" />
-              <Input type="number" min="0" step="0.5"
+              <StyledLabel>⏱️ Horas de trabajo</StyledLabel>
+              <StyledInput type="number" min="0" step="0.5"
                 value={f.horas} onChange={e=>upd('horas',e.target.value)}
                 placeholder="ej: 3.5"/>
             </div>
             <div style={{ flex:1 }}>
-              <Label t="💵 Costo por hora ($)" />
-              <Input type="number" min="0"
+              <StyledLabel>💵 Costo por hora ($)</StyledLabel>
+              <StyledInput type="number" min="0"
                 value={f.costo_hora} onChange={e=>upd('costo_hora',e.target.value)}
                 placeholder="40"/>
             </div>
@@ -315,13 +305,13 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           {/* ── Márgenes ── */}
           <div style={{ display:'flex', gap:12 }}>
             <div style={{ flex:1 }}>
-              <Label t="📊 Overhead %" hint="gastos fijos"/>
-              <Input type="number" min="0" max="100"
+              <StyledLabel>📊 Overhead %</StyledLabel>
+              <StyledInput type="number" min="0" max="100"
                 value={f.overhead_pct} onChange={e=>upd('overhead_pct',e.target.value)}/>
             </div>
             <div style={{ flex:1 }}>
-              <Label t="💹 Margen de ganancia %" />
-              <Input type="number" min="0" max="200"
+              <StyledLabel>💹 Margen de ganancia %</StyledLabel>
+              <StyledInput type="number" min="0" max="200"
                 value={f.margen_pct} onChange={e=>upd('margen_pct',e.target.value)}/>
             </div>
           </div>
@@ -337,8 +327,8 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
               🧮 Desglose de costos
             </div>
             {[
-              { label:`Materiales (${f.materiales.length} items)`, val: calc.costoMat,    color:'#374151' },
-              { label:`Mano de obra (${f.horas}h × $${f.costo_hora})`, val: calc.costoMO, color:'#374151' },
+              { label:`Materiales (${f.materiales.length} items)`, val: calc.costoMateriales, color:'#374151' },
+              { label:`Mano de obra (${f.horas}h × $${f.costo_hora})`, val: calc.costoManoObra, color:'#374151' },
               { label:'Subtotal',                                    val: calc.subtotal,   color:'#374151', border:true },
               { label:`Overhead (${f.overhead_pct}%)`,              val: calc.conOverhead - calc.subtotal, color:'#6B7280' },
               { label:`Ganancia (${f.margen_pct}%)`,                val: calc.precioFinal - calc.conOverhead, color:'#16A34A' },
@@ -366,9 +356,9 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           </div>
 
           {/* ── Precio de venta ── */}
-          <Label t="💰 Precio de venta final" hint={f.precio_manual ? 'manual' : 'calculado automático'}/>
+          <StyledLabel>💰 Precio de venta final</StyledLabel>
           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <Input type="number" min="0"
+            <StyledInput type="number" min="0"
               value={f.precio_venta}
               onChange={e=>{ upd('precio_venta',e.target.value); upd('precio_manual',true); }}
               style={{ flex:1, fontWeight:700, fontSize:16 }}/>
@@ -382,8 +372,8 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           </div>
 
           {/* ── Anticipo ── */}
-          <Label t="💳 Anticipo recibido ($)" />
-          <Input type="number" min="0"
+          <StyledLabel>💳 Anticipo recibido ($)</StyledLabel>
+          <StyledInput type="number" min="0"
             value={f.anticipo} onChange={e=>upd('anticipo',e.target.value)}/>
           {Number(f.precio_venta) > 0 && (
             <div style={{ fontSize:12, color:'#6B7280', marginTop:4 }}>
@@ -395,16 +385,10 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           )}
 
           {/* ── Notas ── */}
-          <Label t="📝 Notas del pedido" />
-          <textarea value={f.notas} onChange={e=>upd('notas',e.target.value)}
+          <StyledLabel>📝 Notas del pedido</StyledLabel>
+          <StyledTextarea value={f.notas} onChange={e=>upd('notas',e.target.value)}
             placeholder="Detalles especiales, tallas, colores específicos…"
-            style={{
-              border:'1.5px solid #E5E7EB', borderRadius:10,
-              padding:'9px 12px', fontSize:14, color:'#1A1A2E',
-              backgroundColor:'#FAFAFA', width:'100%',
-              boxSizing:'border-box', outline:'none',
-              fontFamily:'inherit', resize:'vertical', minHeight:64,
-            }}/>
+            style={{ minHeight: 64 }} />
 
           {/* ── Botones ── */}
           <div style={{ display:'flex', gap:10, marginTop:22 }}>

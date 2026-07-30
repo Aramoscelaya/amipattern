@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { CATEGORIAS } from '../hooks/useStore';
-import { COLORS } from '../lib/constants';
+import { COLORS, Z_INDEX, ANIMATION, COLORS_PALETTE } from '../lib/constants';
+import { StyledInput, StyledLabel, StyledTextarea, SelectRow } from './FormFields';
 
 const EMOJIS = ['🧸','🌸','🔑','🐣','🐧','🐸','🦊','🐰','🐻','🦄','🌻','🍄','⭐','🎀','🌈','🐙','🦋','🐝','🐠','🎃'];
-const COLORES = ['#FAD2E1','#B5EAD7','#FFDAC1','#C7CEEA','#A8DADC','#F4A261','#E9C46A','#2A9D8F','#264653','#E76F51'];
+
 
 const BLANK_PRODUCT = {
   nombre: '', emoji: '🧸', categoria: 'amigurumi',
@@ -25,8 +26,8 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSave = async () => {
-    if (!form.nombre.trim()) return alert('El nombre es obligatorio');
-    if (!form.stock_inicial && form.stock_inicial !== 0) return alert('Indica el stock inicial');
+    if (!form.nombre.trim()) return;
+    if (!form.stock_inicial && form.stock_inicial !== 0) return;
     setSaving(true);
     try {
       // Vincular nombre del patrón si se seleccionó
@@ -42,22 +43,13 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
     } finally { setSaving(false); }
   };
 
-  const INPUT = {
-    width: '100%', boxSizing: 'border-box',
-    backgroundColor: '#F9FAFB', borderRadius: 10,
-    border: '1.5px solid #E5E7EB',
-    padding: '10px 12px', fontSize: 14, color: COLORS.textPrimary,
-    outline: 'none', fontFamily: 'inherit',
-  };
-  const LABEL = { fontSize: 12, fontWeight: 800, color: COLORS.textSecondary, marginBottom: 4, display: 'block', textTransform: 'uppercase', letterSpacing: 0.5 };
-
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 600, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '92vh', overflowY: 'auto',
         backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
         padding: '0 0 40px',
-        animation: 'slideUp 0.25s ease',
+        animation: ANIMATION.slideUp,
       }}>
         {/* Header */}
         <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -72,7 +64,7 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
           {/* Emoji + Nombre */}
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
             <div>
-              <span style={LABEL}>Emoji</span>
+              <StyledLabel>Emoji</StyledLabel>
               <button onClick={() => setEmojiOpen(e => !e)} style={{
                 width: 52, height: 44, borderRadius: 10,
                 border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
@@ -95,15 +87,15 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
               )}
             </div>
             <div style={{ flex: 1 }}>
-              <span style={LABEL}>Nombre *</span>
-              <input value={form.nombre} onChange={e => set('nombre', e.target.value)}
-                placeholder="Ej: Llavero Pollito" style={INPUT} />
+              <StyledLabel>Nombre *</StyledLabel>
+              <StyledInput value={form.nombre} onChange={e => set('nombre', e.target.value)}
+                placeholder="Ej: Llavero Pollito" />
             </div>
           </div>
 
           {/* Categoría */}
           <div>
-            <span style={LABEL}>Categoría</span>
+            <StyledLabel>Categoría</StyledLabel>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {CATEGORIAS.map(c => (
                 <button key={c.id} onClick={() => set('categoria', c.id)} style={{
@@ -121,24 +113,24 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
           {/* Precio y Stock */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <span style={LABEL}>Precio de venta ($)</span>
-              <input type="number" inputMode="decimal" value={form.precio_venta}
+              <StyledLabel>Precio de venta ($)</StyledLabel>
+              <StyledInput type="number" inputMode="decimal" value={form.precio_venta}
                 onChange={e => set('precio_venta', e.target.value)}
-                placeholder="0.00" style={INPUT} />
+                placeholder="0.00" />
             </div>
             <div>
-              <span style={LABEL}>Stock inicial (piezas)</span>
-              <input type="number" inputMode="numeric" value={form.stock_inicial}
+              <StyledLabel>Stock inicial (piezas)</StyledLabel>
+              <StyledInput type="number" inputMode="numeric" value={form.stock_inicial}
                 onChange={e => set('stock_inicial', e.target.value)}
-                placeholder="0" style={INPUT} />
+                placeholder="0" />
             </div>
           </div>
 
           {/* Color */}
           <div>
-            <span style={LABEL}>Color de tarjeta</span>
+            <StyledLabel>Color de tarjeta</StyledLabel>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {COLORES.map(c => (
+              {COLORS_PALETTE.map(c => (
                 <button key={c} onClick={() => set('color_hex', c)} style={{
                   width: 30, height: 30, borderRadius: 15, backgroundColor: c,
                   border: form.color_hex === c ? '3px solid #1A1A2E' : '2px solid #E5E7EB',
@@ -150,24 +142,23 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
 
           {/* Descripción */}
           <div>
-            <span style={LABEL}>Descripción (opcional)</span>
-            <textarea value={form.descripcion} onChange={e => set('descripcion', e.target.value)}
+            <StyledLabel>Descripción (opcional)</StyledLabel>
+            <StyledTextarea value={form.descripcion} onChange={e => set('descripcion', e.target.value)}
               placeholder="Notas sobre este producto…"
               rows={2}
-              style={{ ...INPUT, resize: 'none' }} />
+              style={{ resize: 'none' }} />
           </div>
 
           {/* Patrón vinculado (opcional) */}
           {patterns.length > 0 && (
             <div>
-              <span style={LABEL}>Vincular a patrón (opcional)</span>
-              <select value={form.patron_id || ''} onChange={e => set('patron_id', e.target.value)}
-                style={{ ...INPUT }}>
+              <StyledLabel>Vincular a patrón (opcional)</StyledLabel>
+              <SelectRow value={form.patron_id || ''} onChange={e => set('patron_id', e.target.value)}>
                 <option value="">— Sin vincular —</option>
                 {patterns.map(p => (
                   <option key={p.id} value={p.id}>{p.emoji} {p.nombre}</option>
                 ))}
-              </select>
+              </SelectRow>
             </div>
           )}
 

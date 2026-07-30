@@ -2,24 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { PRICING_DEFAULTS } from '../lib/constants';
 
-export function calcPrecioBoutique({ costo_material, horas, costo_empaque, pago_por_hora, margen_propio, margen_boutique }) {
-  const pagoHora   = Number(pago_por_hora)   || PRICING_DEFAULTS.pago_por_hora;
-  const mPropio    = Number(margen_propio)    || PRICING_DEFAULTS.margen_propio;
-  const mBoutique  = Number(margen_boutique)  || PRICING_DEFAULTS.margen_boutique;
-
-  const costoTotal     = (Number(costo_material) || 0) + ((Number(horas) || 0) * pagoHora) + (Number(costo_empaque) || 0);
-  const precioBoutique = costoTotal * (1 + mPropio);
-  const precioPublico  = mBoutique < 1 ? precioBoutique / (1 - mBoutique) : precioBoutique;
-  const utilidadTuya   = precioBoutique - costoTotal;
-
-  return {
-    costo_total:     Math.round(costoTotal * 100) / 100,
-    precio_boutique: Math.round(precioBoutique * 100) / 100,
-    precio_publico:  Math.round(precioPublico * 100) / 100,
-    utilidad_tuya:   Math.round(utilidadTuya * 100) / 100,
-  };
-}
-
 export function usePriceConfig(userId) {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);

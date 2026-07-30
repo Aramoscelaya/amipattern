@@ -1,14 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Badge from '../components/Badge';
-import { COLORS } from '../lib/constants';
+import ConfirmDialog from '../components/ConfirmDialog';
+import ProductModal from '../components/ProductModal';
+import { usePriceConfig, usePriceList } from '../hooks/usePriceList';
+import { useStore, useStoreCostings } from '../hooks/useStore';
+import { COLORS, Z_INDEX } from '../lib/constants';
 
 const progress = p =>
   !p.pasos?.length ? 0 : Math.round(p.pasos.filter(s => s.hecho).length / p.pasos.length * 100);
 
-export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onToggleStep }) {
+export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, onToggleStep, onGoToInventory }) {
+  const { config: priceConfig } = usePriceConfig(user?.id);
+  const { saveProduct } = useStore(user?.id);
+  const { saveCosting } = useStoreCostings(user?.id);
+  const { saveItem: savePriceListItem } = usePriceList(user?.id);
+
+  const handleSaveProductModal = useCallback(async ({ costing, storeProduct, priceListItem }) => {
+    if (costing && storeProduct) {
+      const merged = { ...costing, ...storeProduct };
+      await saveCosting(merged, saveProduct);
+    }
+    if (priceListItem) {
+      await savePriceListItem(priceListItem);
+    }
+  }, [saveCosting, saveProduct, savePriceListItem]);
+
   const [confirmDel,  setConfirmDel]  = useState(false);
   const [counter,     setCounter]     = useState(0);
   const [showCounter, setShowCounter] = useState(false);
+  const [prodModal,   setProdModal]   = useState(false);
+  const [prodInitial, setProdInitial] = useState(null);
 
   const pct      = progress(pattern);
   const barColor = pct === 100 ? COLORS.teal : COLORS.orange;
@@ -24,7 +45,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         paddingLeft: 16,
         paddingRight: 16,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 100,
+        position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
         <button onClick={onBack} style={{
           backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
@@ -34,51 +55,38 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         }}>← Volver</button>
 
         <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => { setProdInitial({
+            nombre: pattern.nombre,
+            emoji: pattern.emoji,
+            patron_id: pattern.id,
+            patron_nombre: pattern.nombre,
+          }); setProdModal(true); }} style={{
+            backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
+            padding: '8px 10px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+            color: '#1A1A2E', fontFamily: 'inherit',
+            minHeight: 40, whiteSpace: 'nowrap',
+          }}>📦 Crear</button>
           <button onClick={onEdit} style={{
             backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-            padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+            padding: '8px 10px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
             color: '#1A1A2E', fontFamily: 'inherit',
             minHeight: 40,
-          }}>✏️ Editar</button>
+          }}>✏️</button>
           <button onClick={() => setConfirmDel(true)} style={{
             backgroundColor: 'rgba(239,68,68,0.15)', border: 'none', borderRadius: 10,
-            padding: '8px 12px', cursor: 'pointer', fontSize: 18,
-            minHeight: 40, minWidth: 44,
+            padding: '8px 10px', cursor: 'pointer', fontSize: 18,
+            minHeight: 40, minWidth: 40,
           }}>🗑</button>
         </div>
       </div>
 
-      {/* Confirm delete dialog */}
-      {confirmDel && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 200,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
-        }}>
-          <div style={{
-            backgroundColor: '#fff', borderRadius: 20, padding: 24,
-            maxWidth: 360, width: '100%', textAlign: 'center',
-          }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>🗑</div>
-            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 8 }}>Eliminar patrón</div>
-            <div style={{ color: '#6B7280', fontSize: 14, marginBottom: 20 }}>
-              ¿Seguro que quieres eliminar "{pattern.nombre}"?
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setConfirmDel(false)} style={{
-                flex: 1, padding: 12, borderRadius: 12,
-                border: '2px solid #E5E7EB', background: 'transparent',
-                fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-              }}>Cancelar</button>
-              <button onClick={onDelete} style={{
-                flex: 1, padding: 12, borderRadius: 12,
-                background: '#EF4444', border: 'none',
-                color: '#fff', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-              }}>Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        visible={confirmDel}
+        title="Eliminar patrón"
+        message={`¿Seguro que quieres eliminar "${pattern.nombre}"?`}
+        onConfirm={onDelete}
+        onCancel={() => setConfirmDel(false)}
+      />
 
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         {/* Hero */}
@@ -127,6 +135,10 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
                 🧰 Materiales
               </div>
               <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{pattern.materiales}</div>
+              <button onClick={onGoToInventory} style={{
+                marginTop: 10, background: 'none', border: 'none', padding: 0,
+                color: '#1D4ED8', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
+              }}>→ Ver inventario</button>
             </div>
           )}
 
@@ -201,7 +213,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         style={{
           position: 'fixed',
           bottom: 'max(48px, env(safe-area-inset-bottom, 24px))',
-          right: 24, zIndex: 300,
+          right: 24, zIndex: Z_INDEX.fab,
           width: 56, height: 56, borderRadius: 28,
           backgroundColor: "#687c8f", border: 'none',
           boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
@@ -217,7 +229,7 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         <div style={{
           position: 'fixed',
           bottom: 'max(90px, calc(env(safe-area-inset-bottom, 0px) + 90px))',
-          right: 24, zIndex: 300,
+          right: 24, zIndex: Z_INDEX.fab,
           backgroundColor: '#fff',
           borderRadius: 20,
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
@@ -274,6 +286,15 @@ export default function DetailScreen({ pattern, onBack, onEdit, onDelete, onTogg
         </div>
         
       )}
+
+      {/* ProductModal */}
+      <ProductModal visible={prodModal} initial={prodInitial} patterns={[]} priceConfig={priceConfig}
+        onClose={() => { setProdModal(false); setProdInitial(null); }}
+        onSave={async (payload) => {
+          await handleSaveProductModal(payload);
+          setProdModal(false); setProdInitial(null);
+        }}
+      />
 
       <style>{`
         @keyframes slideUpCounter {

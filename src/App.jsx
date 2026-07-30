@@ -9,7 +9,11 @@ import BusinessScreen from './pages/BusinessScreen';
 import PriceListScreen from './pages/PriceListScreen';
 import StoreScreen from './pages/StoreScreen';
 import PatternModal from './components/PatternModal';
+import { ToastProvider, useToast } from './components/Toast';
 import { usePatterns } from './hooks/usePatterns';
+import { useInventory } from './hooks/useInventory';
+import { useOrders } from './hooks/useOrders';
+import { useStore } from './hooks/useStore';
 import { COLORS } from './lib/constants';
 
 function AppInner() {
@@ -17,16 +21,16 @@ function AppInner() {
   const { patterns, loading, error, savePattern, deletePattern, toggleStep, uploadImage } =
     usePatterns(user?.id);
 
+  const { items: inventoryItems } = useInventory(user?.id);
+  const { orders } = useOrders(user?.id);
+  const { products } = useStore(user?.id);
+
+  const { showToast } = useToast();
+
   const [view, setView]       = useState('dashboard');
   const [detail, setDetail]   = useState(null);
   const [modal, setModal]     = useState(false);
   const [editing, setEditing] = useState(null);
-  const [toast, setToast]     = useState(null);
-
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2200);
-  };
 
   if (authLoading) {
     return (
@@ -52,7 +56,7 @@ function AppInner() {
       setModal(false);
       setEditing(null);
     } catch (err) {
-      alert('Error guardando: ' + err.message);
+      showToast('Error guardando: ' + err.message);
     }
   };
 
@@ -63,7 +67,7 @@ function AppInner() {
       setView('dashboard');
       showToast('🗑 Patrón eliminado');
     } catch (err) {
-      alert('Error eliminando: ' + err.message);
+      showToast('Error eliminando: ' + err.message);
     }
   };
 
@@ -72,28 +76,16 @@ function AppInner() {
       const updated = await toggleStep(detail.id, stepId);
       if (updated) setDetail(updated);
     } catch (err) {
-      alert('Error actualizando paso: ' + err.message);
+      showToast('Error actualizando paso: ' + err.message);
     }
   };
 
   return (
     <div style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}>
-      {toast && (
-        <div style={{
-          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
-          backgroundColor: '#1A1A2E', color: '#fff',
-          padding: '11px 20px', borderRadius: 99,
-          fontWeight: 700, fontSize: 14,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
-          zIndex: 9999, whiteSpace: 'nowrap',
-          animation: 'fadeInDown 0.2s ease',
-        }}>
-          {toast}
-        </div>
-      )}
-
       {view === 'dashboard' && (
-        <DashboardScreen user={user} onSignOut={signOut} onSelect={setView} />
+        <DashboardScreen user={user} onSignOut={signOut} onSelect={setView}
+          patterns={patterns} items={inventoryItems} orders={orders} products={products}
+        />
       )}
 
       {view === 'patterns' && (
@@ -111,11 +103,13 @@ function AppInner() {
 
       {view === 'detail' && detail && (
         <DetailScreen
+          user={user}
           pattern={detail}
           onBack={() => { setDetail(null); setView('dashboard'); }}
           onEdit={() => { setEditing(detail); setModal(true); }}
           onDelete={handleDeletePattern}
           onToggleStep={handleToggleStep}
+          onGoToInventory={() => { setDetail(null); setView('inventory'); }}
         />
       )}
 
@@ -167,7 +161,9 @@ function AppInner() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppInner />
+      <ToastProvider>
+        <AppInner />
+      </ToastProvider>
     </AuthProvider>
   );
 }

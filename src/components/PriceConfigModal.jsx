@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { COLORS } from '../lib/constants';
-import { calcPrecioBoutique } from '../hooks/usePriceList';
+import { COLORS, Z_INDEX, ANIMATION } from '../lib/constants';
+import { StyledInput, StyledLabel } from './FormFields';
+import { calcPrecio } from '../lib/pricing';
 
 export default function PriceConfigModal({ visible, config, onSave, onClose }) {
   const [form, setForm] = useState({ pago_por_hora: 60, margen_boutique: 0.35, margen_propio: 0.20 });
@@ -16,7 +17,8 @@ export default function PriceConfigModal({ visible, config, onSave, onClose }) {
     }
   }, [visible, config]);
 
-  const preview = calcPrecioBoutique({
+  const preview = calcPrecio({
+    mode: 'boutique',
     costo_material: 35,
     horas: 1.5,
     costo_empaque: 10,
@@ -40,22 +42,15 @@ export default function PriceConfigModal({ visible, config, onSave, onClose }) {
 
   if (!visible) return null;
 
-  const INPUT = {
-    width: '100%', boxSizing: 'border-box',
-    backgroundColor: '#F9FAFB', borderRadius: 10,
-    border: '1.5px solid #E5E7EB',
-    padding: '11px 14px', fontSize: 16, fontWeight: 700,
-    color: COLORS.textPrimary, outline: 'none', fontFamily: 'inherit', textAlign: 'center',
-  };
-  const LABEL = { fontSize: 12, fontWeight: 800, color: COLORS.textSecondary, marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: 0.5, textAlign: 'center' };
+
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 700, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '92vh', overflowY: 'auto',
         backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
         padding: '0 0 48px',
-        animation: 'slideUp 0.25s ease',
+        animation: ANIMATION.slideUp,
       }}>
         <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontWeight: 900, fontSize: 18, color: COLORS.textPrimary }}>⚙️ Configurar precios</div>
@@ -65,24 +60,24 @@ export default function PriceConfigModal({ visible, config, onSave, onClose }) {
         <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           <div>
-            <span style={LABEL}>💰 Pago por hora ($)</span>
-            <input type="number" inputMode="decimal" value={form.pago_por_hora}
+            <StyledLabel>💰 Pago por hora ($)</StyledLabel>
+            <StyledInput type="number" inputMode="decimal" value={form.pago_por_hora}
               onChange={e => set('pago_por_hora', e.target.value)}
-              placeholder="60" style={INPUT} />
+              placeholder="60" style={{ textAlign: 'center', fontWeight: 700, padding: '11px 14px', fontSize: 16 }} />
           </div>
 
           <div>
-            <span style={LABEL}>📈 Margen boutique (%)</span>
-            <input type="number" inputMode="decimal" value={form.margen_boutique * 100}
+            <StyledLabel>📈 Margen boutique (%)</StyledLabel>
+            <StyledInput type="number" inputMode="decimal" value={form.margen_boutique * 100}
               onChange={e => set('margen_boutique', (Number(e.target.value) || 0) / 100)}
-              placeholder="35" style={INPUT} />
+              placeholder="35" style={{ textAlign: 'center', fontWeight: 700, padding: '11px 14px', fontSize: 16 }} />
           </div>
 
           <div>
-            <span style={LABEL}>📊 Margen propio mínimo (%)</span>
-            <input type="number" inputMode="decimal" value={form.margen_propio * 100}
+            <StyledLabel>📊 Margen propio mínimo (%)</StyledLabel>
+            <StyledInput type="number" inputMode="decimal" value={form.margen_propio * 100}
               onChange={e => set('margen_propio', (Number(e.target.value) || 0) / 100)}
-              placeholder="20" style={INPUT} />
+              placeholder="20" style={{ textAlign: 'center', fontWeight: 700, padding: '11px 14px', fontSize: 16 }} />
           </div>
 
           {/* Preview */}
