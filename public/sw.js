@@ -1,50 +1,42 @@
-const CACHE = 'amipattern-v1';
-const PRECACHE = ['/', '/index.html'];
+const CACHE_NAME = 'amipattern-v1'
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE))
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+// Al instalar: cachear el app shell
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache =>
+      cache.addAll([
+        '/',
+        '/index.html',
+        '/manifest.json',
+      ])
     )
-  );
-  self.clients.claim();
-});
+  )
+  self.skipWaiting()
+})
 
-// Network-first para requests de API/Supabase; Cache-first para assets estáticos
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+// Al activar: limpiar caches viejos
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  )
+  self.clients.claim()
+})
 
-  // Supabase y Google Auth → siempre red
-  if (url.hostname.includes('supabase.co') || url.hostname.includes('google')) {
-    return;
-  }
+// Fetch: Network first, fallback a cache para navegación
+self.addEventListener('fetch', event => {
+  // Solo interceptar requests de navegación (no Supabase API)
+  if (event.request.url.includes('supabase.co')) return
 
-  // Navegación → sirve index.html (SPA)
-  if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request).catch(() => caches.match('/index.html'))
-    );
-    return;
-  }
-
-  // Assets estáticos → cache-first
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res.ok && e.request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      });
-    })
-  );
-});
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Cachear respuesta exitosa
+        const clone = response.clone()
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
+        return response
+      })
+      .catch(() => caches.match(event.request).then(r => r || caches.match('/index.html')))
+  )
+})

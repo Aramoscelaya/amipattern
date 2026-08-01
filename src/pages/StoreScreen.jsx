@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStore, useStoreCostings, CATEGORIAS } from '../hooks/useStore';
 import { usePriceList } from '../hooks/usePriceList';
 import StoreProductModal from '../components/StoreProductModal';
@@ -126,7 +126,7 @@ function AddStockModal({ visible, product, onClose, onSave }) {
 // ─────────────────────────────────────────────────────────────
 export default function StoreScreen({ user, patterns = [], onBack }) {
   const {
-    products, events, loading, error,
+    products, events, loading, error, isOnline, pendingCount,
     saveProduct, deleteProduct,
     saveEvent, deleteEvent,
     registerSale,
@@ -138,6 +138,14 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
   const { items: priceListItems, saveItem: savePriceListItem } = usePriceList(user?.id);
 
   const { showToast } = useToast();
+
+  const prevPendingCount = useRef(pendingCount);
+  useEffect(() => {
+    if (isOnline && pendingCount === 0 && prevPendingCount.current > 0) {
+      showToast('✅ Todo sincronizado');
+    }
+    prevPendingCount.current = pendingCount;
+  }, [isOnline, pendingCount, showToast]);
 
   const [filtro, setFiltro] = useState('todos');
   const [search, setSearch] = useState('');
@@ -302,6 +310,53 @@ export default function StoreScreen({ user, patterns = [], onBack }) {
             <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 800, textTransform: 'uppercase' }}>Eventos</div>
           </div>
         </div>
+
+        {/* Banner offline */}
+        {!isOnline && (
+          <div style={{
+            backgroundColor: '#FEF2F2',
+            border: '1.5px solid #FECACA',
+            borderRadius: 12,
+            padding: '12px 16px',
+            marginBottom: 12,
+            fontSize: 13,
+            color: '#991B1B',
+            fontWeight: 700,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>🔴 Sin conexión — modo bazar activo</span>
+              {pendingCount > 0 && (
+                <span style={{
+                  backgroundColor: '#EF4444', color: '#fff',
+                  borderRadius: 99, padding: '2px 8px', fontSize: 11,
+                }}>
+                  {pendingCount} pendiente{pendingCount !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 600, marginTop: 4, color: '#B91C1C' }}>
+              Tus ventas se guardan localmente y se sincronizan al reconectar
+            </div>
+          </div>
+        )}
+
+        {isOnline && pendingCount > 0 && (
+          <div style={{
+            backgroundColor: '#FFF7ED',
+            border: '1.5px solid #FED7AA',
+            borderRadius: 12,
+            padding: '10px 16px',
+            marginBottom: 12,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: 13,
+            color: '#92400E',
+            fontWeight: 700,
+          }}>
+            <span>🔄 Sincronizando {pendingCount} operación{pendingCount !== 1 ? 'es' : ''}…</span>
+          </div>
+        )}
 
         {/* Buscador */}
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Buscar producto…"

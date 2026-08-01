@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import {
+  getPendingSales, addPendingSale, removePendingSale,
+  getPendingStock, addPendingStock, removePendingStock,
+  getTotalPending,
+} from '../lib/offlineQueue';
 
 /*
 ═══════════════════════════════════════════════════════════════
@@ -103,6 +108,10 @@ export function useStore(userId) {
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState(null);
 
+  // ── Conectividad ──────────────────────────────────────────
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [pendingCount, setPendingCount] = useState(getTotalPending);
+
   // ── Carga inicial ─────────────────────────────────────────
   const load = useCallback(async () => {
     if (!userId) return;
@@ -202,11 +211,10 @@ export function useStore(userId) {
 
   // ── VENTAS ────────────────────────────────────────────────
   const registerSale = useCallback(async ({ product, event, cantidad, precio_unit, fecha, notas }) => {
-    const cant  = Number(cantidad)   || 1;
+    const cant  = Number(cantidad)    || 1;
     const price = Number(precio_unit) || product.precio_venta || 0;
     const total = cant * price;
 
-    // 1. Insertar venta
     const salePayload = {
       user_id:        userId,
       product_id:     product.id,
@@ -221,6 +229,20 @@ export function useStore(userId) {
       notas:          notas || null,
     };
 
+    if (!navigator.onLine) {
+      // Optimistic update local
+      const tempSale = { ...salePayload, id: 'offline_' + Date.now() };
+      const newVendido = (product.stock_vendido || 0) + cant;
+      setSales(prev => [tempSale, ...prev]);
+      setProducts(prev => prev.map(p =>
+        p.id === product.id ? { ...p, stock_vendido: newVendido } : p
+      ));
+      addPendingSale(salePayload);
+      setPendingCount(getTotalPending());
+      return tempSale;
+    }
+
+    // 1. Insertar venta
     const { data: saleData, error: saleErr } = await supabase
       .from('store_sales').insert(salePayload).select().single();
     if (saleErr) throw new Error(saleErr.message);
@@ -261,6 +283,18 @@ export function useStore(userId) {
   const addStock = useCallback(async (productId, cantidad) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
+
+    if (!navigator.onLine) {
+      // Optimistic update local
+      const newStock = (product.stock_inicial || 0) + Number(cantidad);
+      setProducts(prev => prev.map(p =>
+        p.id === productId ? { ...p, stock_inicial: newStock } : p
+      ));
+      addPendingStock({ productId, cantidad: Number(cantidad) });
+      setPendingCount(getTotalPending());
+      return { ...product, stock_inicial: newStock };
+    }
+
     const newStock = (product.stock_inicial || 0) + Number(cantidad);
     const { data, error: err } = await supabase
       .from('store_products')
@@ -270,6 +304,88 @@ export function useStore(userId) {
     setProducts(prev => prev.map(p => p.id === productId ? data : p));
     return data;
   }, [products]);
+
+  // ── Sincronización de operaciones pendientes ──────────────
+  const _syncPending = useCallback(async () => {
+    if (!navigator.onLine || !userId) return;
+
+    const pendingSales = getPendingSales();
+    const pendingStock = getPendingStock();
+    if (pendingSales.length === 0 && pendingStock.length === 0) return;
+
+    let synced = 0;
+
+    // ── Sincronizar ventas ────────────────────────────────────
+    for (const sale of pendingSales) {
+      try {
+        const { _id, _savedAt, ...saleData } = sale;
+
+        // 1. Insertar venta en store_sales
+        const { error: saleErr } = await supabase
+          .from('store_sales').insert(saleData).select().single();
+        if (saleErr) throw saleErr;
+
+        // 2. Leer stock_vendido ACTUAL de Supabase (no del estado local)
+        const { data: freshProduct, error: fetchErr } = await supabase
+          .from('store_products')
+          .select('stock_vendido')
+          .eq('id', sale.product_id)
+          .single();
+        if (fetchErr) throw fetchErr;
+
+        // 3. Sumar solo la cantidad de esta venta al valor real de DB
+        const newVendido = (freshProduct.stock_vendido || 0) + sale.cantidad;
+        const { error: updateErr } = await supabase
+          .from('store_products')
+          .update({ stock_vendido: newVendido, updated_at: new Date().toISOString() })
+          .eq('id', sale.product_id);
+        if (updateErr) throw updateErr;
+
+        removePendingSale(_id);
+        synced++;
+      } catch (e) {
+        console.error('Error sincronizando venta:', e);
+      }
+    }
+
+    // Sincronizar stock
+    for (const entry of pendingStock) {
+      try {
+        const product = products.find(p => p.id === entry.productId);
+        if (!product) { removePendingStock(entry._id); continue; }
+        const newStock = (product.stock_inicial || 0) + entry.cantidad;
+        const { error } = await supabase.from('store_products')
+          .update({ stock_inicial: newStock, updated_at: new Date().toISOString() })
+          .eq('id', entry.productId);
+        if (error) throw error;
+        removePendingStock(entry._id);
+        synced++;
+      } catch (e) {
+        console.error('Error sincronizando stock:', e);
+      }
+    }
+
+    setPendingCount(getTotalPending());
+
+    // Recargar datos frescos de Supabase
+    if (synced > 0) await load();
+
+    return synced;
+  }, [userId, products, load]);
+
+  // ── Conectividad (detección + sync automático) ────────────
+  useEffect(() => {
+    const handleOnline  = () => { setIsOnline(true); _syncPending(); };
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online',  handleOnline);
+    window.addEventListener('offline', handleOffline);
+    // Sync al montar si hay red y hay pendientes
+    if (navigator.onLine) _syncPending();
+    return () => {
+      window.removeEventListener('online',  handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [_syncPending]);
 
   // ── Derived / stats ───────────────────────────────────────
   const statsGlobal = {
@@ -338,7 +454,7 @@ export function useStore(userId) {
 
   return {
     products, events, sales,
-    loading, error,
+    loading, error, isOnline, pendingCount,
     saveProduct, deleteProduct,
     saveEvent,   deleteEvent,
     registerSale, deleteSale,
@@ -346,6 +462,7 @@ export function useStore(userId) {
     saveCostingAndProduct,
     statsGlobal, eventStats,
     reload: load,
+    syncPending: _syncPending,
   };
 }
 
