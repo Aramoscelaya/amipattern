@@ -4,26 +4,27 @@ import LoginScreen from './pages/LoginScreen';
 import DashboardScreen from './pages/DashboardScreen';
 import PatternsScreen from './pages/PatternsScreen';
 import DetailScreen from './pages/DetailScreen';
-import InventoryScreen from './pages/InventoryScreen';
-import BusinessScreen from './pages/BusinessScreen';
-import PriceListScreen from './pages/PriceListScreen';
-import StoreScreen from './pages/StoreScreen';
+import InventarioPedidosScreen from './pages/InventarioPedidosScreen';
+import ComercialScreen from './pages/ComercialScreen';
 import PatternModal from './components/PatternModal';
 import { ToastProvider, useToast } from './components/Toast';
 import { usePatterns } from './hooks/usePatterns';
 import { useInventory } from './hooks/useInventory';
 import { useOrders } from './hooks/useOrders';
-import { useStore } from './hooks/useStore';
+import { useCommerce } from './hooks/useCommerce';
 import { COLORS } from './lib/constants';
 
 function AppInner() {
   const { user, loading: authLoading, signOut } = useAuth();
-  const { patterns, loading, error, savePattern, deletePattern, toggleStep, uploadImage } =
+  const { patterns, loading, error, savePattern, deletePattern, toggleStep, resetPattern, uploadImage } =
     usePatterns(user?.id);
 
-  const { items: inventoryItems } = useInventory(user?.id);
-  const { orders } = useOrders(user?.id);
-  const { products } = useStore(user?.id);
+  const inventory = useInventory(user?.id);
+  const ordersHook = useOrders(user?.id);
+  const { products } = useCommerce(user?.id);
+
+  const { items: inventoryItems } = inventory;
+  const { orders } = ordersHook;
 
   const { showToast } = useToast();
 
@@ -80,6 +81,16 @@ function AppInner() {
     }
   };
 
+  const handleResetPattern = async (patternId) => {
+    try {
+      const updated = await resetPattern(patternId);
+      if (updated) setDetail(updated);
+      showToast('🔄 Patrón reiniciado');
+    } catch (err) {
+      showToast('Error reiniciando patrón: ' + err.message);
+    }
+  };
+
   return (
     <div style={{ fontFamily: "'Nunito', 'Segoe UI', sans-serif" }}>
       {view === 'dashboard' && (
@@ -109,24 +120,22 @@ function AppInner() {
           onEdit={() => { setEditing(detail); setModal(true); }}
           onDelete={handleDeletePattern}
           onToggleStep={handleToggleStep}
-          onGoToInventory={() => { setDetail(null); setView('inventory'); }}
+          onResetPattern={handleResetPattern}
+          onGoToInventory={() => { setDetail(null); setView('inventario_pedidos'); }}
         />
       )}
 
-      {view === 'inventory' && (
-        <InventoryScreen user={user} onBack={() => setView('dashboard')} />
+      {view === 'inventario_pedidos' && (
+        <InventarioPedidosScreen
+          user={user}
+          inventory={inventory}
+          orders={ordersHook}
+          onBack={() => setView('dashboard')}
+        />
       )}
 
-      {view === 'business' && (
-        <BusinessScreen user={user} onBack={() => setView('dashboard')} />
-      )}
-
-      {view === 'prices' && (
-        <PriceListScreen user={user} patterns={patterns} onBack={() => setView('dashboard')} />
-      )}
-
-      {view === 'store' && (
-        <StoreScreen user={user} patterns={patterns} onBack={() => setView('dashboard')} />
+      {view === 'comercial' && (
+        <ComercialScreen user={user} patterns={patterns} onBack={() => setView('dashboard')} />
       )}
 
       <PatternModal

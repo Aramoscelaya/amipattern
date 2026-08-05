@@ -3,10 +3,8 @@ import { COLORS, Z_INDEX } from '../lib/constants';
 
 const MODULES = [
   { id: 'patterns',  emoji: '🧶', label: 'Patrones',  color: '#FAD2E1', desc: 'Tus amigurumis' },
-  { id: 'inventory', emoji: '🧵', label: 'Inventario', color: '#B5EAD7', desc: 'Hilos y materiales' },
-  { id: 'business',  emoji: '💼', label: 'Negocio',   color: '#FFDAC1', desc: 'Pedidos y clientes' },
-  { id: 'prices',    emoji: '💰', label: 'Precios',   color: '#C7CEEA', desc: 'Lista para boutique' },
-  { id: 'store',     emoji: '🏪', label: 'Tienda',    color: '#A8DADC', desc: 'Ventas y eventos' },
+  { id: 'inventario_pedidos', emoji: '📦', label: 'Inventario & Pedidos',  color: '#B5EAD7', desc: 'Hilos, materiales y pedidos' },
+  { id: 'comercial', emoji: '💼', label: 'Comercial', color: '#A8DADC', desc: 'Vender, catálogo y costos' },
 ];
 
 export default function DashboardScreen({ user, patterns = [], items = [], orders = [], products = [], onSelect, onSignOut }) {

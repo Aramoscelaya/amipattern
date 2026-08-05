@@ -12,9 +12,9 @@
 ## Pages
 
 ### `DashboardScreen.jsx` (NUEVO)
-- **Props:** `user`, `onSelect(moduleId)`, `onSignOut`
-- **Renderiza:** Grid 2×2 (y 1 abajo) con íconos grandes para cada módulo
-- **Módulos:** Patrones 🧶, Inventario 🧵, Negocio 💼, Precios 💰, Tienda 🏪
+- **Props:** `user`, `onSelect(moduleId)`, `onSignOut`, `patterns`, `items`, `orders`, `products`
+- **Renderiza:** Grid 2×2 con íconos grandes para cada módulo + stats rápidas + alertas activas
+- **Módulos:** Patrones 🧶, Inventario & Pedidos 📦, Comercial 💼
 - **Header:** Logo + saludo + avatar con menú desplegable (sign out)
 - **Footer:** "Creado por Minué Crochet"
 
@@ -28,37 +28,28 @@
 - **Estados:** `searchTerm`, `filterStatus`
 - **Renderiza:** Stats cards, search bar, filter chips, PatternCards grid, FAB
 - **Header sticky:** Back button + logo + avatar con menú de sign out
-- **Nota:** Ya no tiene tabs ni BottomNav — cada módulo es vista independiente
 
 ### `DetailScreen.jsx`
-- **Inputs:** `pattern`, `onToggleStep`, `onDelete`, `onBack`
-- **Estados locales:** `confirmDelete`, `stitchCount`
+- **Inputs:** `pattern`, `onToggleStep`, `onDelete`, `onBack`, `onResetPattern`, `onGoToInventory`
+- **Estados locales:** `confirmDelete`, `confirmReset`, `stitchCount`, `prodModal`
 - **Renderiza:** Hero image, badges, info grid, steps con toggle, notas, **stitch counter flotante**
-- **Stitch counter:** +1 / -1 / reset, posición fixed
+- **Acciones:** botones ✏️ Editar, 🔄 Repetir (reset), 🗑 Eliminar, 📦 Crear (ProductModal → useCommerce.saveCosting)
 
-### `InventoryScreen.jsx`
-- **Inputs:** `items`, handlers de CRUD
-- **Estados:** `searchTerm`, `filterType` (all/threads/materials/alerts), `confirmDelete`
-- **Funcionalidad:** Notificaciones browser para stock bajo, FAB button
+### `InventarioPedidosScreen.jsx` (NUEVO — fusión Fase 8)
+- **Props:** `user`, `inventory` (hook completo), `orders` (hook completo), `onBack`
+- **Tabs internos:** Materiales 🧵 / Pedidos 📦 (tab bar estilo ComercialScreen)
+- **Materiales:** idéntico al antiguo `InventoryScreen` (stats, filtros, alertas, FAB)
+- **Pedidos:** idéntico al antiguo `BusinessScreen` + `OrderCard` con WhatsApp 📱/💬
 
-### `BusinessScreen.jsx`
-- **Inputs:** `orders`, handlers CRUD
-- **Estados:** `searchTerm`, `filterStatus`, `confirmDelete`
-- **Funcionalidad:** Banner de entregas urgentes, notificaciones browser, stats cards
-
-### `StoreScreen.jsx`
-- **Inputs:** `products`, `events`, handlers
-- **Estados:** `searchTerm`, `filterStock`, `filterCategory`, 6 modales booleanos
-- **Funcionalidad:** StockBar inline, quick actions, stats cards
+### `ComercialScreen.jsx` (NUEVO — Fase 7)
+- **Props:** `user`, `patterns`, `onBack`
+- **Hook:** `useCommerce(user.id)` (catálogo, canales, ventas, config, costings, offline)
+- **Tabs internos:** Vender 🛍️ / Catálogo 📚 / Costear 🧮
+- **Header:** ← volver + título "Comercial" + indicador offline (con contador pendientes)
 
 ---
 
 ## Components
-
-### `BottomNav.jsx`
-- **Props:** `activeTab`, `onChange`
-- **Tabs:** 0=Patrones, 1=Inventario, 2=Negocio, 3=Tienda
-- **Estilo:** Fixed bottom, safe-area padding, indicador activo tipo pill
 
 ### `Badge.jsx`
 - **Props:** `text`, `type` (status/difficulty)
@@ -89,62 +80,63 @@
 - **Campos dinámicos:** color picker, nombre, subtipo, marca, stock (inicial/entradas/usado), alerta mínima, costo unitario, notas
 - **Muestra:** Disponible calculado al editar
 
-### `OrderCard.jsx`
-- **Props:** `order`, `onAdvanceStatus`, `onEdit`, `onDelete`
-- **Renderiza:** Emoji, nombre patrón, cliente, status badge, urgencia, precio/saldo, fecha entrega, link WhatsApp
+### `OrderCard.jsx` (con WhatsApp — Fase 2)
+- **Props:** `order`, `onEstado`, `onEdit`, `onDelete`
+- **Renderiza:** Emoji, nombre patrón, cliente, status badge, urgencia, precio/saldo, fecha entrega
 - **Acción:** Botón "Avanzar estado"
+- **WhatsApp:** botones 📱 Estado (mensaje de estado) y 💬 Cotización (modal pre-llenado); deshabilitados si el cliente no tiene teléfono
 
 ### `OrderModal.jsx`
-- **Props:** `order`, `onSave`, `onClose`, `inventory`
+- **Props:** `order`, `onSave`, `onClose`, `inventoryItems`
 - **Campos:** emoji picker, nombre patrón, estado, fechas, materiales del inventario (búsqueda+selección+cantidad), horas, costo_hora, overhead%, margen%
 - **Pricing en vivo:** Muestra desglose en tiempo real (materiales, mano de obra, subtotal, overhead, ganancia, sugerido)
 - **Opciones:** Precio final (auto o manual), anticipo, notas
 
-### `StoreProductModal.jsx`
-- **Props:** `product`, `onSave`, `onClose`
-- **Campos:** emoji, nombre, categoría, precio, stock, color, descripción, patrón vinculado (opcional)
+### `ProductModal.jsx` (NUEVO — sustituye CostingModal + PriceListItemModal)
+- **Props:** `visible`, `initial`, `patterns`, `priceConfig`, `onSave`, `onClose`
+- **Secciones:** Datos del producto + materiales dinámicos, desglose costing (overhead/margen), precio final (auto/manual), toggle "Crear en Tienda" (stock + color + descripción), toggle "Agregar a Lista de Precios" (tamaño, costo empaque, nota, precios boutique en vivo)
 
-### `SaleModal.jsx`
-- **Props:** `product`, `events`, `onSave`, `onClose`
-- **Campos:** cantidad, precio unitario (total auto), evento, fecha, notas
-- **Validación:** No vender más que stock disponible
+### `StoreProductModal.jsx`
+- **Props:** `visible`, `initial`, `config`, `onSave`, `onClose`
+- **Campos:** emoji, nombre, categoría, costo_base, precio_boutique (auto vía calcPreciosCanal o manual), estado_catalogo, tiempo_elaboracion, precio, stock, color, descripción, patrón vinculado
 
 ### `StoreEventModal.jsx`
 - **Props:** `event`, `onSave`, `onClose`
-- **Campos:** nombre, tipo (bazaar/store/stationery/market/online/other), fechas inicio/fin, notas
+- **Campos:** nombre, tipo (bazar/tienda/papeleria/mercado/online/otro), fechas inicio/fin, notas
 
-### `EventsPanel.jsx`
-- **Props:** `events`, `sales`, `products`, handlers
-- **Vista:** Pantalla completa con lista de eventos expandibles
-- **Cada evento:** Nombre, tipo, fechas, ingresos totales, piezas vendidas
-- **Expandido:** Ventas individuales del evento con totales
+### `CarritoPanel.jsx` (NUEVO — Fase 4)
+- **Props:** `visible`, `items`, `canal`, `onChangeQty`, `onRemove`, `onCobrar`, `onClose`
+- **Vista:** Bottom sheet con items del carrito, cantidades editables, método de pago, total
 
-### `PriceListScreen.jsx` (NUEVO)
-- **Inputs:** `user`, `patterns`, `onBack`
-- **Hooks:** `usePriceList`, `usePriceConfig`
-- **Estados:** `search`, `showConfig`, `itemModal`, `editingItem`, `confirmId`, `toast`
-- **Renderiza:** Header con back + ⚙️, barra de config (pago/hora, márgenes), stats (total, utilidad, precio prom.), search, grid de PriceCards, FAB
-- **Modales:** `PriceConfigModal`, `PriceListItemModal`
-- **Cada card** muestra: emoji, nombre, tamaño, 4 precios inline (costo, utilidad, boutique, público)
+### `CanalSelectorModal.jsx` (NUEVO — Fase 4)
+- **Props:** `visible`, `channels`, `activeChannel`, `onSelect`, `onNew`, `onClose`
+- **Renderiza:** Lista de canales/eventos con emoji de tipo (TIPOS_EVENTO), resaltando el activo
 
-### `PriceConfigModal.jsx` (NUEVO)
+### `CatalogoProductCard.jsx` (NUEVO — Fase 5)
+- **Props:** `product`, `config`, `onEdit`, `onDelete`
+- **Renderiza:** Emoji, nombre, precio público/boutique, utilidades, stock disponible, estado del catálogo
+
+### `PriceConfigModal.jsx` (NUEVO — Fase 5)
 - **Props:** `visible`, `config`, `onSave`, `onClose`
-- **Campos:** pago por hora ($), margen boutique (%), margen propio mínimo (%)
-- **Preview en vivo:** Muestra cálculo con valores ejemplo (ami. mediano)
-- **Diseño:** Bottom sheet
+- **Campos:** tarifa_hora, margen_propio, margen_boutique, redondeo (0/5/10)
+- **Preview en vivo:** cálculo con costo ejemplo ($100) vía calcPreciosCanal
 
-### `PriceListItemModal.jsx` (NUEVO)
-- **Props:** `visible`, `item`, `config`, `patterns`, `onSave`, `onClose`
-- **Campos:** emoji picker, nombre, tamaño, costo material, horas, costo empaque, patrón vinculado (opcional), nota
-- **Desglose en vivo:** costo total, precio boutique, precio público, utilidad tuya
-- **Diseño:** Bottom sheet
+### `ConfirmDialog.jsx`
+- **Props:** `visible`, `title`, `message`, `onConfirm`, `onCancel`
+- **Renderiza:** Diálogo de confirmación con botones Cancelar/Confirmar
 
-### `CostingModal.jsx`
-- **Props:** `patterns`, `onSave`, `onClose`
-- **Campos:** Materiales dinámicos (nombre, cantidad, costo_unit), horas labor, costo_hora
-- **Desglose en vivo:** Materiales, mano de obra, total, overhead%, ganancia%, sugerido
-- **Actions:** Precio final (auto/manual), stock, color, vincular patrón
-- **Resultado:** Crea registro de costing + producto de tienda
+### `FormFields.jsx`
+- **Exports:** `StyledInput`, `StyledLabel`, `StyledTextarea`, `SelectRow`
+- **Uso:** Campos de formulario consistentes en todos los modales
+
+### `Toast.jsx`
+- **Exports:** `ToastProvider`, `useToast()`
+- **Uso:** `showToast(mensaje)` para feedback de acciones
+
+### `WhatsAppCotizacionModal.jsx` (NUEVO — Fases 2/6)
+- **Props:** `visible`, `initial` ({nombre, emoji, precio, tiempoEntrega}), `telefono`, `onClose`
+- **Campos:** nombre, emoji, precio, tiempo de entrega, mensaje extra
+- **Teléfono:** si llega vacío, muestra campo editable requerido (10 dígitos); si viene de un pedido, se muestra en readonly
 
 ---
 
@@ -184,13 +176,24 @@ const { orders, loading, error,
   saveOrder, deleteOrder, updateEstado, reload } = useOrders(userId, items)
 ```
 
-### `useStore.js`
+### `useCommerce.js` (NUEVO — reemplaza useStore + useStoreCostings)
 ```js
-// Store
-const { products, events, sales, statsGlobal,
-  saveProduct, deleteProduct, saveEvent, deleteEvent,
-  registerSale, deleteSale, addStock, eventStats } = useStore(userId)
-
-// Costings
-const { costings, saveCosting, saveCostingAndProduct } = useStoreCostings(userId)
+const {
+  // datos
+  products, channels, sales, config, costings,
+  loading, error, isOnline, pendingCount,
+  // catálogo
+  saveProduct, deleteProduct, addStock, statsGlobal,
+  // canales
+  saveChannel, deleteChannel, setActiveChannel, activeChannel,
+  // ventas (offline)
+  registerSale, deleteSale, channelStats,
+  // pricing
+  saveConfig, saveCosting,
+  // más
+  reload, syncPending,
+} = useCommerce(userId)
 ```
+- `registerSale({ product, channel, items, fecha, metodoPago })` → inserta varias ventas + descuenta stock; **offline-first** (cola local + sync)
+- `saveCosting(form, { createProduct, updateProduct })` → guarda costeo y crea/actualiza producto
+- `activeChannel` se determina por `es_activo_ahora`

@@ -1,25 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import { CATEGORIAS } from '../hooks/useStore';
+import { CATEGORIAS } from '../lib/constants';
 import { COLORS, Z_INDEX, ANIMATION, COLORS_PALETTE } from '../lib/constants';
 import { StyledInput, StyledLabel, StyledTextarea, SelectRow } from './FormFields';
+import { calcPreciosCanal } from '../lib/pricing';
 
 const EMOJIS = ['🧸','🌸','🔑','🐣','🐧','🐸','🦊','🐰','🐻','🦄','🌻','🍄','⭐','🎀','🌈','🐙','🦋','🐝','🐠','🎃'];
 
+const DEFAULT_CONFIG = { tarifa_hora: 60, margen_propio: 0.20, margen_boutique: 0.35, redondeo: 0 };
+
+const ESTADOS_CATALOGO = [
+  { id: 'activo',         label: '🟢 Activo' },
+  { id: 'bajo_pedido',    label: '🟡 Bajo pedido' },
+  { id: 'descontinuado',  label: '🔴 Descontinuado' },
+];
 
 const BLANK_PRODUCT = {
   nombre: '', emoji: '🧸', categoria: 'amigurumi',
   descripcion: '', precio_venta: '', stock_inicial: '',
   stock_vendido: 0, patron_id: '', color_hex: '#FAD2E1',
+  costo_base: '', precio_boutique: '', estado_catalogo: 'activo',
+  tiempo_elaboracion: '',
 };
 
-export default function StoreProductModal({ visible, initial, patterns = [], onClose, onSave }) {
+export default function StoreProductModal({ visible, initial, patterns = [], config = null, onClose, onSave }) {
   const [form,    setForm]    = useState(BLANK_PRODUCT);
   const [saving,  setSaving]  = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [precioManual, setPrecioManual] = useState(false);
+
+  const cfg = {
+    ...DEFAULT_CONFIG,
+    ...(config || {}),
+    margen_propio:   config?.margen_propio   ?? DEFAULT_CONFIG.margen_propio,
+    margen_boutique: config?.margen_boutique ?? DEFAULT_CONFIG.margen_boutique,
+    redondeo:        config?.redondeo ?? DEFAULT_CONFIG.redondeo,
+  };
 
   useEffect(() => {
-    if (visible) setForm(initial ? { ...initial } : BLANK_PRODUCT);
+    if (visible) {
+      setForm(initial ? { ...initial } : BLANK_PRODUCT);
+      setPrecioManual(!!(initial && (initial.precio_boutique || initial.precio_boutique === 0)));
+    }
   }, [visible, initial]);
+
+  useEffect(() => {
+    if (!visible || precioManual) return;
+    const base = Number(form.costo_base);
+    if (base > 0) {
+      const calc = calcPreciosCanal({ costo_base: base, config: cfg });
+      set('precio_venta', calc.precio_publico);
+      set('precio_boutique', calc.precio_boutique);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.costo_base, cfg.margen_propio, cfg.margen_boutique, cfg.redondeo, visible, precioManual]);
 
   if (!visible) return null;
 
@@ -35,6 +68,8 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
       await onSave({
         ...form,
         precio_venta:  Number(form.precio_venta)  || 0,
+        precio_boutique: Number(form.precio_boutique) || 0,
+        costo_base:    Number(form.costo_base)    || 0,
         stock_inicial: Number(form.stock_inicial) || 0,
         stock_vendido: Number(form.stock_vendido) || 0,
         patron_id:     patSelected?.id     || null,
@@ -124,6 +159,48 @@ export default function StoreProductModal({ visible, initial, patterns = [], onC
                 onChange={e => set('stock_inicial', e.target.value)}
                 placeholder="0" />
             </div>
+          </div>
+
+          {/* Costo base + precio boutique (módulo 3) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <StyledLabel>💵 Costo base ($)</StyledLabel>
+              <StyledInput type="number" inputMode="decimal" value={form.costo_base}
+                onChange={e => { set('costo_base', e.target.value); setPrecioManual(false); }}
+                placeholder="0.00" />
+            </div>
+            <div>
+              <StyledLabel>✨ Precio boutique ($)</StyledLabel>
+              <StyledInput type="number" inputMode="decimal" value={form.precio_boutique}
+                onChange={e => { set('precio_boutique', e.target.value); setPrecioManual(true); }}
+                placeholder="auto" />
+            </div>
+          </div>
+          <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: -8 }}>
+            💡 Precio público y boutique se calculan con los márgenes globales. Edita el boutique para fijarlo manualmente.
+          </div>
+
+          {/* Estado catálogo + tiempo elaboración */}
+          <div>
+            <StyledLabel>📋 Estado del catálogo</StyledLabel>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {ESTADOS_CATALOGO.map(c => (
+                <button key={c.id} onClick={() => set('estado_catalogo', c.id)} style={{
+                  padding: '7px 12px', borderRadius: 99,
+                  border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
+                  fontWeight: 700, fontSize: 12,
+                  backgroundColor: form.estado_catalogo === c.id ? COLORS.header : '#F9FAFB',
+                  borderColor: form.estado_catalogo === c.id ? COLORS.header : '#E5E7EB',
+                  color: form.estado_catalogo === c.id ? '#fff' : COLORS.textSecondary,
+                }}>{c.label}</button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <StyledLabel>⏱️ Tiempo de elaboración</StyledLabel>
+            <StyledInput value={form.tiempo_elaboracion} onChange={e => set('tiempo_elaboracion', e.target.value)}
+              placeholder='Ej: 2 horas' />
           </div>
 
           {/* Color */}

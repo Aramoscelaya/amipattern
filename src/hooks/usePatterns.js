@@ -77,6 +77,18 @@ export function usePatterns(userId) {
     return data;
   }, [patterns]);
 
+  const resetPattern = useCallback(async (patternId) => {
+    const pattern = patterns.find(p => p.id === patternId);
+    if (!pattern) return null;
+    const updatedPasos = pattern.pasos.map(s => ({ ...s, hecho: false }));
+    const { data, error: err } = await supabase
+      .from('patterns').update({ pasos: updatedPasos, updated_at: new Date().toISOString() })
+      .eq('id', patternId).select().single();
+    if (err) throw new Error(err.message);
+    setPatterns(prev => prev.map(p => p.id === patternId ? data : p));
+    return data;
+  }, [patterns]);
+
   // Sube imagen y devuelve la URL pública
   const uploadImage = useCallback(async (file) => {
     // Redimensionar antes de subir (optimización de imágenes)
@@ -96,7 +108,7 @@ export function usePatterns(userId) {
     return urlData.publicUrl;
   }, [userId]);
 
-  return { patterns, loading, error, savePattern, deletePattern, toggleStep, uploadImage, reload: loadPatterns };
+  return { patterns, loading, error, savePattern, deletePattern, toggleStep, resetPattern, uploadImage, reload: loadPatterns };
 }
 
 // ── Utilidad: redimensiona y comprime imagen en el browser ──────────────────

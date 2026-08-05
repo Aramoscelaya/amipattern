@@ -36,3 +36,13 @@ export function calcPrecio({ mode, ...params }) {
 }
 
 function round2(n) { return Math.round((n + Number.EPSILON) * 100) / 100 }
+
+export function calcPreciosCanal({ costo_base, config }) {
+  const round = (n) => {
+    if (!config.redondeo) return Math.round((n + Number.EPSILON) * 100) / 100
+    return Math.ceil(n / config.redondeo) * config.redondeo
+  }
+  const precio_publico  = round(costo_base * (1 + config.margen_propio))
+  const precio_boutique = round(precio_publico / (1 - config.margen_boutique))
+  return { precio_publico, precio_boutique }
+}

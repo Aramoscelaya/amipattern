@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import WhatsAppCotizacionModal from './WhatsAppCotizacionModal';
+import { buildWhatsAppLink, mensajeEstado } from '../lib/whatsapp';
 
 const ESTADO_CFG = {
   pendiente:  { label:'⏳ Pendiente',  bg:'#FEF3C7', fg:'#92400E' },
@@ -9,7 +11,11 @@ const ESTADO_CFG = {
 };
 
 export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
+  const [cotizModal, setCotizModal] = useState(false);
   const cfg       = ESTADO_CFG[order.estado] || ESTADO_CFG.pendiente;
+  const telefono  = order.cliente_telefono || '';
+  const hasPhone  = telefono.replace(/\D/g, '').length > 0;
+
   const saldo     = (order.precio_venta || 0) - (order.anticipo || 0);
   const diasHasta = order.fecha_entrega
     ? Math.ceil((new Date(order.fecha_entrega) - new Date()) / 86400000)
@@ -130,6 +136,48 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
             Marcar como {ESTADO_CFG[nextEstado]?.label} →
           </button>
         )}
+
+        {/* WhatsApp actions */}
+        <div style={{ display:'flex', gap:8, marginTop:8 }}>
+          <button
+            onClick={() => {
+              const msg = mensajeEstado(order.cliente_nombre, order.estado);
+              window.open(buildWhatsAppLink(telefono, msg), '_blank');
+            }}
+            disabled={!hasPhone}
+            title={hasPhone ? '' : 'Agrega el teléfono del cliente'}
+            style={{
+              flex:1, padding:'8px 0', borderRadius:10,
+              border:'1.5px solid #E5E7EB', backgroundColor:'#F9FAFB',
+              fontWeight:700, fontSize:12, color:'#1D4ED8',
+              cursor: hasPhone ? 'pointer' : 'not-allowed', fontFamily:'inherit',
+              opacity: hasPhone ? 1 : 0.4,
+            }}
+          >📱 Estado</button>
+          <button
+            onClick={() => setCotizModal(true)}
+            disabled={!hasPhone}
+            title={hasPhone ? '' : 'Agrega el teléfono del cliente'}
+            style={{
+              flex:1, padding:'8px 0', borderRadius:10,
+              border:'1.5px solid #E5E7EB', backgroundColor:'#F9FAFB',
+              fontWeight:700, fontSize:12, color:'#16A34A',
+              cursor: hasPhone ? 'pointer' : 'not-allowed', fontFamily:'inherit',
+              opacity: hasPhone ? 1 : 0.4,
+            }}
+          >💬 Cotización</button>
+        </div>
+
+        <WhatsAppCotizacionModal
+          visible={cotizModal}
+          telefono={telefono}
+          initial={{
+            nombre: order.patron_nombre,
+            emoji: order.patron_emoji,
+            precio: order.precio_venta,
+          }}
+          onClose={() => setCotizModal(false)}
+        />
       </div>
     </div>
   );

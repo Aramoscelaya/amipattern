@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TIPOS_EVENTO } from '../hooks/useStore';
+import { TIPOS_EVENTO } from '../lib/constants';
 import { COLORS, Z_INDEX, ANIMATION } from '../lib/constants';
 import { StyledInput, StyledLabel, StyledTextarea } from './FormFields';
 

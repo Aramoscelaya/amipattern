@@ -87,9 +87,13 @@
 | `user_id` | uuid FK | |
 | `nombre` | text | |
 | `emoji` | text | |
-| `categoria` | text | |
+| `categoria` | text | amigurumi / flor / llavero / otro |
 | `descripcion` | text | |
-| `precio_venta` | numeric | |
+| `precio_venta` | numeric | Precio público (canal "propio") |
+| `precio_boutique` | numeric | Precio aplicado en canal boutique |
+| `costo_base` | numeric | Costo base o costo total de elaboración |
+| `tiempo_elaboracion` | text | Tiempo de elaboración/entrega |
+| `estado_catalogo` | text | activo / bajo_pedido / descontinuado |
 | `stock_inicial` | numeric | |
 | `stock_vendido` | numeric | |
 | `patron_id` | uuid FK → patterns (nullable) | |
@@ -98,6 +102,8 @@
 | `color_hex` | text | |
 
 **Fórmula:** `stock_disponible = stock_inicial - stock_vendido`
+
+> **Fase 3:** se agregaron `precio_boutique`, `costo_base`, `tiempo_elaboracion`, `estado_catalogo`.
 
 ---
 
@@ -108,11 +114,15 @@
 | `id` | uuid PK | |
 | `user_id` | uuid FK | |
 | `nombre` | text | |
-| `tipo` | text | bazaar / store / stationery / market / online / other |
+| `tipo` | text | bazar / tienda / papeleria / mercado / online / otro |
+| `tipo_canal` | text | Tipo de canal (venta_directa / bazar / boutique / online) |
+| `es_activo_ahora` | boolean | Canal activo actualmente para vender |
 | `fecha_inicio` | date | |
 | `fecha_fin` | date | |
 | `activo` | boolean | |
 | `notas` | text | |
+
+> **Notas:** el hook `useCommerce` usa `tipo_canal` (con fallback a `tipo`) y `es_activo_ahora` para el canal de venta vigente.
 
 ---
 
@@ -131,6 +141,8 @@
 | `precio_unit` | numeric | |
 | `total` | numeric | cantidad × precio_unit |
 | `fecha` | date | |
+| `metodo_pago` | text | efectivo / transferencia (agregado Fase 3) |
+| `notas` | text | |
 
 ---
 
@@ -146,9 +158,13 @@
 | `materiales` | jsonb | Array de `{ nombre, cantidad, costo_unit }` |
 | `horas` | numeric | |
 | `costo_hora` | numeric | |
+| `overhead_pct` | numeric | % de overhead |
+| `margen_pct` | numeric | % de margen |
 | `costo_total` | numeric | Costo total calculado |
 | `precio_sugerido` | numeric | Precio sugerido por la fórmula |
-| `precio_final` | numeric | Precio final |
+| `precio_final` | numeric | Precio final (canal propio) |
+| `precio_boutique` | numeric | Precio boutique (agregado Fase 3) |
+| `tiempo_entrega` | text | Tiempo de entrega (agregado Fase 3) |
 | `precio_manual` | boolean | TRUE si se ingresó manualmente |
 
 ---
@@ -164,19 +180,22 @@
 
 ---
 
-## `price_config` (NUEVA — Módulo Precios)
+## `price_config` (Módulo Precios / Comercial)
 
 | Columna | Tipo | Default | Descripción |
 |---------|------|---------|-------------|
 | `id` | uuid PK | gen_random_uuid() | |
 | `user_id` | uuid FK → auth.users | | |
-| `pago_por_hora` | numeric | 60 | Pago por hora de trabajo |
+| `tarifa_hora` | numeric | 60 | Tarifa por hora de trabajo (`pago_por_hora` legacy) |
 | `margen_boutique` | numeric | 0.35 | Margen que aplica la boutique (35%) |
 | `margen_propio` | numeric | 0.20 | Margen de ganancia propio mínimo (20%) |
+| `redondeo` | numeric | 0 | Redondeo del precio final (0 / 5 / 10) |
 | `created_at` | timestamptz | now() | |
 | `updated_at` | timestamptz | now() | |
 
 **Nota:** 1 fila por usuario (constraint `unique(user_id)`).
+
+> **Fase 3:** el hook `useCommerce` usa `tarifa_hora` (fallback a `pago_por_hora` legacy) y agrega `redondeo`. El alias `pago_por_hora` se conserva por compatibilidad.
 
 ---
 

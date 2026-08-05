@@ -102,6 +102,24 @@
 - [x] CostingModal: márgenes editables (overhead_pct, margen_pct)
 - [x] Defaults centralizados de pricing en `constants.js`
 
+## ✅ Módulo 3 — Comercial (Fases 0–7)
+
+- [x] Fase 1: Reset de patrón ("Repetir")
+- [x] Fase 2: WhatsApp desde pedidos (Estado 📱 + Cotización 💬)
+- [x] Fase 3: Hook `useCommerce` (catálogo, canales, ventas, config, costings, offline)
+- [x] Fase 4: `VenderTab` (carrito, selector de canal)
+- [x] Fase 5: `CatalogoTab` + `PriceConfigModal` (márgenes, redondeo, preview)
+- [x] Fase 6: `CostearTab` + teléfono manual en WhatsAppCotizacionModal
+- [x] Fase 7: `ComercialScreen` ensambla los 3 tabs; retirados `StoreScreen`, `PriceListScreen`, `useStore`
+
+## ✅ Módulo 2 — Inventario & Pedidos (Fase 8)
+
+- [x] Fase 8: `InventarioPedidosScreen` fusiona Inventario + Pedidos en 2 tabs; retirados `InventoryScreen`, `BusinessScreen`
+
+## ✅ Módulo 1 — Limpieza (Fase 9)
+
+- [x] Fase 9: Eliminación de archivos huérfanos (`SaleModal`, `EventsPanel`), verificación de builds y docs actualizadas
+
 ## 🛠 Deuda Técnica
 
 - [ ] Migrar de CRA a Vite (más rápido, menor bundle)
@@ -112,7 +130,6 @@
 - [ ] CI/CD pipeline con tests automáticos
 - [ ] Code splitting y lazy loading de páginas
 - [ ] Manejo de errores más robusto (Error Boundaries)
-- [ ] Limpiar archivos `_v1`, `_v2` (o mover a branch archive)
 - [ ] Optimización de imágenes (webp, lazy loading)
 
 ---
@@ -120,6 +137,6 @@
 ## 📝 Notas
 
 - Fecha de inicio del proyecto: ~2024
-- Última revisión de este doc: Julio 2026
+- Última revisión de este doc: Agosto 2026
 - Stack: React 18 + Supabase + Vercel
 - Sin framework CSS, sin router, sin state manager externo

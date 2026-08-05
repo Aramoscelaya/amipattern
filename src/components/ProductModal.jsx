@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { calcPrecio } from '../lib/pricing';
-import { CATEGORIAS } from '../hooks/useStore';
+import { CATEGORIAS } from '../lib/constants';
 import { COLORS, PRICING_DEFAULTS, Z_INDEX, ANIMATION, COLORS_PALETTE } from '../lib/constants';
 import { StyledInput, StyledLabel, StyledTextarea, SelectRow } from './FormFields';
 

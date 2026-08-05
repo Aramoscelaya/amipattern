@@ -45,6 +45,23 @@ export const ANIMATION = {
   slideUp: 'slideUp 0.25s ease',
 };
 
+// ── Módulo Comercial ────────────────────────────────────────
+export const CATEGORIAS = [
+  { id: 'amigurumi', label: 'Amigurumi',  emoji: '🧸' },
+  { id: 'flor',      label: 'Flor',       emoji: '🌸' },
+  { id: 'llavero',   label: 'Llavero',    emoji: '🔑' },
+  { id: 'otro',      label: 'Otro',       emoji: '🎀' },
+];
+
+export const TIPOS_EVENTO = [
+  { id: 'bazar',      label: 'Bazar',      emoji: '🏪' },
+  { id: 'tienda',     label: 'Tienda',     emoji: '🏬' },
+  { id: 'papeleria',  label: 'Papelería',  emoji: '📚' },
+  { id: 'mercado',    label: 'Mercado',    emoji: '🛒' },
+  { id: 'online',     label: 'En línea',   emoji: '💻' },
+  { id: 'otro',       label: 'Otro',       emoji: '📍' },
+];
+
 // ── Pricing defaults unificados ─────────────────────────────
 export const PRICING_DEFAULTS = {
   costo_hora:      60,

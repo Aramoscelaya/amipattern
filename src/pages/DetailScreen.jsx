@@ -3,29 +3,29 @@ import Badge from '../components/Badge';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ProductModal from '../components/ProductModal';
 import { usePriceConfig, usePriceList } from '../hooks/usePriceList';
-import { useStore, useStoreCostings } from '../hooks/useStore';
+import { useCommerce } from '../hooks/useCommerce';
 import { COLORS, Z_INDEX } from '../lib/constants';
 
 const progress = p =>
   !p.pasos?.length ? 0 : Math.round(p.pasos.filter(s => s.hecho).length / p.pasos.length * 100);
 
-export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, onToggleStep, onGoToInventory }) {
+export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, onToggleStep, onResetPattern, onGoToInventory }) {
   const { config: priceConfig } = usePriceConfig(user?.id);
-  const { saveProduct } = useStore(user?.id);
-  const { saveCosting } = useStoreCostings(user?.id);
+  const { saveCosting } = useCommerce(user?.id);
   const { saveItem: savePriceListItem } = usePriceList(user?.id);
 
   const handleSaveProductModal = useCallback(async ({ costing, storeProduct, priceListItem }) => {
     if (costing && storeProduct) {
       const merged = { ...costing, ...storeProduct };
-      await saveCosting(merged, saveProduct);
+      await saveCosting(merged, { createProduct: true });
     }
     if (priceListItem) {
       await savePriceListItem(priceListItem);
     }
-  }, [saveCosting, saveProduct, savePriceListItem]);
+  }, [saveCosting, savePriceListItem]);
 
   const [confirmDel,  setConfirmDel]  = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [counter,     setCounter]     = useState(0);
   const [showCounter, setShowCounter] = useState(false);
   const [prodModal,   setProdModal]   = useState(false);
@@ -72,6 +72,12 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
             color: '#1A1A2E', fontFamily: 'inherit',
             minHeight: 40,
           }}>✏️</button>
+          <button onClick={() => setConfirmReset(true)} style={{
+            backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
+            padding: '8px 10px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+            color: '#1A1A2E', fontFamily: 'inherit',
+            minHeight: 40, whiteSpace: 'nowrap',
+          }}>🔄 Repetir</button>
           <button onClick={() => setConfirmDel(true)} style={{
             backgroundColor: 'rgba(239,68,68,0.15)', border: 'none', borderRadius: 10,
             padding: '8px 10px', cursor: 'pointer', fontSize: 18,
@@ -86,6 +92,20 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
         message={`¿Seguro que quieres eliminar "${pattern.nombre}"?`}
         onConfirm={onDelete}
         onCancel={() => setConfirmDel(false)}
+      />
+
+      <ConfirmDialog
+        visible={confirmReset}
+        title="Repetir patrón"
+        message="¿Resetear todos los pasos? Esto marcará todas las etapas como no completadas."
+        confirmLabel="Resetear"
+        confirmColor={COLORS.teal}
+        onConfirm={async () => {
+          await onResetPattern(pattern.id);
+          setCounter(0);
+          setConfirmReset(false);
+        }}
+        onCancel={() => setConfirmReset(false)}
       />
 
       <div style={{ maxWidth: 720, margin: '0 auto' }}>

@@ -11,41 +11,52 @@ amipattern-web/
 │   └── *.png / *.ico        # Favicons & icons
 ├── src/
 │   ├── index.js             # Entry point → <App />
-│   ├── App.jsx              # Root: auth, routing (view state), modals
+│   ├── App.jsx              # Root: auth, routing (view state), modals, instancia hooks
 │   ├── context/
 │   │   └── AuthContext.jsx  # Auth provider (Google OAuth)
 │   ├── lib/
 │   │   ├── supabase.js      # Supabase client singleton
-│   │   └── constants.js     # Colors, difficulties, statuses, palette
+│   │   ├── constants.js     # Colores, dificultades, estados, CATEGORIAS, TIPOS_EVENTO
+│   │   ├── pricing.js       # Cálculo de precios (calcPrecio, calcPreciosCanal)
+│   │   ├── whatsapp.js      # Links y mensajes WhatsApp (cotización, estado)
+│   │   └── offlineQueue.js  # Cola offline para ventas/stock
 │   ├── hooks/
 │   │   ├── usePatterns.js   # CRUD patrones + image upload
-│   │   ├── useInventory.js  # CRUD inventario + stock tracking
+│   │   ├── useInventory.js  # CRUD inventario + stock tracking + stock bajo
 │   │   ├── useOrders.js     # CRUD pedidos + pricing + descuento inventario
-│   │   ├── useStore.js      # CRUD productos/eventos/ventas/costings
-│   │   └── use*_v1.js       # Versiones anteriores archivadas
+│   │   ├── usePriceList.js  # Lista de precios + config (legacy → reemplazado por useCommerce)
+│   │   └── useCommerce.js   # Módulo Comercial: catálogo, canales, ventas, costings, offline
 │   ├── pages/
 │   │   ├── LoginScreen.jsx      # Pantalla de login Google
-│   │   ├── GridScreen.jsx       # Hub principal con tabs
-│   │   ├── DetailScreen.jsx     # Detalle de patrón + contador
-│   │   ├── InventoryScreen.jsx  # Gestión de inventario
-│   │   ├── BusinessScreen.jsx   # Gestión de pedidos
-│   │   ├── StoreScreen.jsx      # Tienda/ventas/eventos
-│   │   └── ComingSoonScreen.jsx # Placeholder
+│   │   ├── DashboardScreen.jsx  # Hub: grid de 3 módulos (Patrones, Inv&Pedidos, Comercial)
+│   │   ├── PatternsScreen.jsx   # Grid de patrones + búsqueda/filtros + FAB
+│   │   ├── DetailScreen.jsx     # Detalle de patrón + contador + crear producto
+│   │   ├── InventarioPedidosScreen.jsx  # Fusión: tabs Materiales + Pedidos
+│   │   ├── ComercialScreen.jsx  # Módulo Comercial: tabs Vender + Catálogo + Costear
+│   │   └── tabs/
+│   │       ├── VenderTab.jsx    # Vender con carrito + canales + offline
+│   │       ├── CatalogoTab.jsx  # Catálogo con configuración de precios
+│   │       └── CostearTab.jsx   # Calculadora de costos + WhatsApp
 │   └── components/
-│       ├── BottomNav.jsx        # Barra inferior (4 tabs)
 │       ├── Badge.jsx            # Chip de estado/dificultad
 │       ├── ProgressBar.jsx      # Barra de progreso
 │       ├── PatternCard.jsx      # Card de patrón en grid
 │       ├── PatternModal.jsx     # Modal crear/editar patrón
 │       ├── InventoryCard.jsx    # Card de item + botones usar/reponer
 │       ├── InventoryModal.jsx   # Modal crear/editar item
-│       ├── OrderCard.jsx        # Card de pedido + avanzar estado
+│       ├── OrderCard.jsx        # Card de pedido + avanzar estado + WhatsApp
 │       ├── OrderModal.jsx       # Modal pedido con pricing
-│       ├── StoreProductModal.jsx
-│       ├── SaleModal.jsx
-│       ├── StoreEventModal.jsx
-│       ├── EventsPanel.jsx      # Panel completo de eventos
-│       └── CostingModal.jsx     # Calculadora de costos
+│       ├── ProductModal.jsx     # Modal de costeo/producto (precios boutique)
+│       ├── StoreProductModal.jsx# Modal producto catálogo
+│       ├── StoreEventModal.jsx  # Modal canal/evento de venta
+│       ├── CarritoPanel.jsx     # Panel de carrito en Vender
+│       ├── CanalSelectorModal.jsx # Selector de canal/evento
+│       ├── CatalogoProductCard.jsx # Card de producto del catálogo
+│       ├── PriceConfigModal.jsx # Modal configuración de precios
+│       ├── ConfirmDialog.jsx    # Diálogo de confirmación
+│       ├── FormFields.jsx       # Inputs/labels reutilizables
+│       ├── Toast.jsx            # Sistema de toasts (ToastProvider + useToast)
+│       └── WhatsAppCotizacionModal.jsx # Modal envío de cotización por WhatsApp
 ```
 
 ## Component Tree (App.jsx)
@@ -58,7 +69,7 @@ amipattern-web/
       ├── <PatternModal />          (if modal)
       │
       ├── view === 'dashboard'  → <DashboardScreen />
-      │   └── Icon grid (5 módulos)
+      │   └── Icon grid (3 módulos: Patrones · Inventario & Pedidos · Comercial)
       │
       ├── view === 'patterns'   → <PatternsScreen />
       │   ├── <PatternCard /> grid
@@ -67,30 +78,22 @@ amipattern-web/
       │
       ├── view === 'detail'     → <DetailScreen />
       │   ├── <Badge />
-      │   ├── <ProgressBar />
-      │   └── (stitch counter)
+      │   └── (stitch counter) + ProductModal para costeo
       │
-      ├── view === 'inventory'  → <InventoryScreen />
-      │   ├── <InventoryCard />
-      │   └── <InventoryModal />
+      ├── view === 'inventario_pedidos' → <InventarioPedidosScreen />
+      │   ├── tab 'materiales' → <InventoryCard /> + <InventoryModal />
+      │   └── tab 'pedidos'    → <OrderCard /> + <OrderModal />   (con WhatsApp)
       │
-      ├── view === 'business'   → <BusinessScreen />
-      │   ├── <OrderCard />
-      │   └── <OrderModal />
-      │
-      ├── view === 'prices'     → <PriceListScreen />      ← NUEVO
-      │   ├── <PriceListItemModal />
-      │   └── <PriceConfigModal />
-      │
-      └── view === 'store'      → <StoreScreen />
-            ├── <StoreProductModal />
-            ├── <SaleModal />
-            ├── <StoreEventModal />
-            ├── <EventsPanel />
-            └── <CostingModal />
+      └── view === 'comercial' → <ComercialScreen />
+            └── (useCommerce) → tab bar interna
+                  ├── tab 'vender'   → <VenderTab />      (carrito, canales, offline)
+                  ├── tab 'catalogo' → <CatalogoTab />    (catálogo + PriceConfig)
+                  └── tab 'costear'  → <CostearTab />     (+ WhatsAppCotizacionModal)
   </AuthProvider>
 </App>
 ```
+
+> **App.jsx** instancia los hooks raíz (`usePatterns`, `useInventory`, `useOrders`, `useCommerce`) y los pasa como props. `ComercialScreen` e `InventarioPedidosScreen` reciben los objetos de hook completos.
 
 ## Navigation Pattern
 
@@ -98,18 +101,17 @@ No hay router. La navegación se maneja con el estado `view` en `App.jsx`:
 
 | view | Componente | Descripción |
 |------|-----------|-------------|
-| `'dashboard'` | `<DashboardScreen />` | Pantalla de inicio con grid de íconos |
+| `'dashboard'` | `<DashboardScreen />` | Inicio con grid de 3 módulos |
 | `'patterns'` | `<PatternsScreen />` | Grid de patrones con búsqueda/filtros |
 | `'detail'` | `<DetailScreen />` | Detalle de patrón + contador de puntos |
-| `'inventory'` | `<InventoryScreen />` | Gestión de inventario |
-| `'business'` | `<BusinessScreen />` | Gestión de pedidos |
-| `'prices'` | `<PriceListScreen />` | Lista de precios boutique |
-| `'store'` | `<StoreScreen />` | Tienda, ventas y eventos |
+| `'inventario_pedidos'` | `<InventarioPedidosScreen />` | Materiales + Pedidos (2 tabs) |
+| `'comercial'` | `<ComercialScreen />` | Vender + Catálogo + Costear (3 tabs) |
 
 **Navegación:**
 - Dashboard → selecciona módulo → cambia `view`
 - Cada módulo tiene botón `←` que regresa a `'dashboard'`
-- No hay BottomNav, no hay tabs internos
+- `InventarioPedidosScreen` y `ComercialScreen` usan una **tab bar interna** (no BottomNav global)
+- No hay router: el estado `view` en `App.jsx` controla la navegación
 
 ## Data Flow
 
@@ -136,5 +138,6 @@ App mount → AuthContext.getSession()
 
 - **Denormalized data**: `patron_nombre`, `product_nombre`, `event_nombre` se copian en tablas relacionadas para preservar datos aunque se elimine el registro original
 - **Inline styles**: Sin archivos CSS, todo en objetos JS (consistencia via constants.js)
-- **Sin router**: Mantiene simplicidad, la app tiene solo 2 vistas principales
-- **Archivos `_v1`**: Se conservan como referencia/historial, no se usan en producción
+- **Sin router**: Mantiene simplicidad, la app usa `view` state + tab bars internas
+- **Hooks por módulo**: `useCommerce` (Módulo 3) centraliza catálogo/canales/ventas/costings con cola offline; `useInventory`/`useOrders` se mantienen para Módulo 2
+- **Offline first en ventas**: Ventas y reposiciones de stock se guardan en cola local y sincronizan al reconectar
