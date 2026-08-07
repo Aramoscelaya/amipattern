@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCommerce } from '../hooks/useCommerce';
 import VenderTab from './tabs/VenderTab';
 import CatalogoTab from './tabs/CatalogoTab';
 import CostearTab from './tabs/CostearTab';
+import { useToast } from '../components/Toast';
 import { COLORS, Z_INDEX } from '../lib/constants';
 
 const TABS = [
@@ -16,7 +17,7 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
     products, channels, config,
     loading, error,
     saveConfig,
-    saveProduct, deleteProduct,
+    saveProduct, deleteProduct, addStock,
     saveChannel, setActiveChannel, activeChannel,
     registerSale, channelStats,
     saveCosting,
@@ -24,6 +25,16 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
   } = useCommerce(user?.id);
 
   const [tab, setTab] = useState('vender');
+
+  const { showToast } = useToast();
+  const prevPendingRef = useRef(0);
+
+  useEffect(() => {
+    if (isOnline && pendingCount === 0 && prevPendingRef.current > 0) {
+      showToast('Todo sincronizado');
+    }
+    prevPendingRef.current = pendingCount;
+  }, [isOnline, pendingCount, showToast]);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, fontFamily: 'inherit' }}>
@@ -83,6 +94,20 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
         ))}
       </div>
 
+      {isOnline && pendingCount > 0 && (
+        <div style={{
+          backgroundColor: '#FFF7ED',
+          border: '1.5px solid #FED7AA',
+          padding: '8px 16px',
+          fontSize: 12,
+          color: '#92400E',
+          fontWeight: 700,
+          textAlign: 'center',
+        }}>
+          Sincronizando {pendingCount} operacion{pendingCount !== 1 ? 'es' : ''}...
+        </div>
+      )}
+
       {error && (
         <div style={{
           backgroundColor: '#FEF2F2', borderBottom: '1.5px solid #FECACA',
@@ -114,6 +139,9 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
           onSaveProduct={saveProduct}
           onDeleteProduct={deleteProduct}
           onSaveConfig={saveConfig}
+          onAddStock={addStock}
+          isOnline={isOnline}
+          pendingCount={pendingCount}
         />
       ) : (
         <CostearTab
@@ -121,6 +149,8 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
           config={config}
           patterns={patterns}
           saveCosting={saveCosting}
+          isOnline={isOnline}
+          pendingCount={pendingCount}
         />
       )}
     </div>

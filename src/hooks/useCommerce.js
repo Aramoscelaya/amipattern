@@ -3,7 +3,9 @@ import { supabase } from '../lib/supabase';
 import { PRICING_DEFAULTS } from '../lib/constants';
 import {
   getPendingSales, addPendingSale, removePendingSale,
-  getPendingStock, addPendingStock, removePendingStock,
+  getPendingStock, removePendingStock,
+  getPendingCatalogStock, addPendingCatalogStock, removePendingCatalogStock,
+  getPendingCostings, addPendingCosting, removePendingCosting,
   getTotalPending,
 } from '../lib/offlineQueue';
 
@@ -140,24 +142,33 @@ export function useCommerce(userId) {
   const addStock = useCallback(async (productId, cantidad) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-    const cant = Number(cantidad) || 0;
 
     if (!navigator.onLine) {
-      const newStock = (product.stock_inicial || 0) + cant;
+      // Optimistic update local
+      const newStock = (product.stock_inicial || 0) + Number(cantidad);
       setProducts(prev => prev.map(p =>
         p.id === productId ? { ...p, stock_inicial: newStock } : p
       ));
-      addPendingStock({ productId, cantidad: cant });
+      addPendingCatalogStock({ productId, cantidad: Number(cantidad) });
       setPendingCount(getTotalPending());
       return { ...product, stock_inicial: newStock };
     }
 
-    const newStock = (product.stock_inicial || 0) + cant;
-    const { data, error } = await supabase
+    // Flujo online — leer valor fresco de Supabase antes de actualizar
+    const { data: fresh, error: fetchErr } = await supabase
+      .from('store_products')
+      .select('stock_inicial')
+      .eq('id', productId)
+      .single();
+    if (fetchErr) throw new Error(fetchErr.message);
+
+    const newStock = (fresh.stock_inicial || 0) + Number(cantidad);
+    const { data, error: err } = await supabase
       .from('store_products')
       .update({ stock_inicial: newStock, updated_at: new Date().toISOString() })
       .eq('id', productId).select().single();
-    if (error) throw new Error(error.message);
+    if (err) throw new Error(err.message);
+
     setProducts(prev => prev.map(p => p.id === productId ? data : p));
     return data;
   }, [products]);
@@ -312,6 +323,43 @@ export function useCommerce(userId) {
 
   // ── COSTINGS ──────────────────────────────────────────────
   const saveCosting = useCallback(async (form, { createProduct = false, updateProduct = null } = {}) => {
+    // El cálculo siempre es local — solo el guardado necesita internet
+    if (!navigator.onLine) {
+      const mode = createProduct
+        ? 'new_product'
+        : updateProduct
+          ? 'update_product'
+          : 'costing_only';
+
+      addPendingCosting({
+        form,
+        options: { createProduct, updateProductId: updateProduct },
+        mode,
+      });
+      setPendingCount(getTotalPending());
+
+      // Optimistic update solo si crea o actualiza producto
+      if (createProduct) {
+        const tempProduct = {
+          ...form,
+          id: 'offline_prod_' + Date.now(),
+          stock_vendido: 0,
+          _isOffline: true,
+        };
+        setProducts(prev => [...prev, tempProduct]);
+      }
+
+      if (updateProduct) {
+        setProducts(prev => prev.map(p =>
+          p.id === updateProduct
+            ? { ...p, costo_base: form.costo_total, precio_venta: form.precio_final }
+            : p
+        ));
+      }
+
+      return { offline: true };
+    }
+
     const payload = {
       user_id:         userId,
       patron_id:       form.patron_id       || null,
@@ -441,6 +489,115 @@ export function useCommerce(userId) {
         synced++;
       } catch (e) {
         console.error('Error sincronizando stock:', e);
+      }
+    }
+
+    // Sincronizar stock de Catálogo
+    const pendingCatalogStock = getPendingCatalogStock();
+    for (const entry of pendingCatalogStock) {
+      try {
+        // Leer valor fresco de Supabase
+        const { data: fresh, error: fetchErr } = await supabase
+          .from('store_products')
+          .select('stock_inicial')
+          .eq('id', entry.productId)
+          .single();
+        if (fetchErr) throw fetchErr;
+
+        const newStock = (fresh.stock_inicial || 0) + entry.cantidad;
+        const { error } = await supabase
+          .from('store_products')
+          .update({ stock_inicial: newStock, updated_at: new Date().toISOString() })
+          .eq('id', entry.productId);
+        if (error) throw error;
+
+        removePendingCatalogStock(entry._id);
+        synced++;
+      } catch (e) {
+        console.error('Error sincronizando catalog stock:', e);
+        // Dejar en cola para reintentar
+      }
+    }
+
+    // Sincronizar costings
+    const pendingCostings = getPendingCostings();
+    for (const entry of pendingCostings) {
+      try {
+        const { form, options, mode } = entry;
+
+        // 1. Siempre guardar el costing
+        const costingPayload = {
+          user_id:         userId,
+          nombre:          form.nombre,
+          materiales:      form.materiales || [],
+          horas:           form.horas      || 0,
+          costo_hora:      form.costo_hora || 60,
+          overhead_pct:    form.overhead_pct || 10,
+          margen_pct:      form.margen_pct   || 30,
+          costo_total:     form.costo_total  || 0,
+          precio_sugerido: form.precio_sugerido || 0,
+          precio_final:    form.precio_final    || 0,
+          precio_manual:   form.precio_manual   || false,
+          patron_id:       form.patron_id       || null,
+          patron_nombre:   form.patron_nombre   || null,
+          updated_at:      new Date().toISOString(),
+        };
+
+        const { data: costingData, error: costingErr } = await supabase
+          .from('store_costings').insert(costingPayload).select().single();
+        if (costingErr) throw costingErr;
+
+        // 2. Si modo new_product → crear producto en store_products
+        if (mode === 'new_product') {
+          const productPayload = {
+            user_id:         userId,
+            nombre:          form.nombre,
+            emoji:           form.emoji      || '🧸',
+            categoria:       form.categoria  || 'amigurumi',
+            precio_venta:    form.precio_final || 0,
+            precio_boutique: form.precio_boutique || 0,
+            costo_base:      form.costo_total || 0,
+            stock_inicial:   form.stock_inicial || 0,
+            stock_vendido:   0,
+            patron_id:       form.patron_id  || null,
+            patron_nombre:   form.patron_nombre || null,
+            color_hex:       form.color_hex || '#FAD2E1',
+            activo:          true,
+            updated_at:      new Date().toISOString(),
+          };
+          const { data: prodData, error: prodErr } = await supabase
+            .from('store_products').insert(productPayload).select().single();
+          if (prodErr) throw prodErr;
+
+          // Linkear product_id en el costing
+          await supabase.from('store_costings')
+            .update({ product_id: prodData.id })
+            .eq('id', costingData.id);
+
+          // Reemplazar producto temporal en estado local
+          setProducts(prev => prev.map(p =>
+            p._isOffline && p.nombre === form.nombre ? prodData : p
+          ));
+        }
+
+        // 3. Si modo update_product → actualizar costo en producto existente
+        if (mode === 'update_product' && options.updateProductId) {
+          const { error: updateErr } = await supabase
+            .from('store_products')
+            .update({
+              costo_base:   form.costo_total  || 0,
+              precio_venta: form.precio_final || 0,
+              updated_at:   new Date().toISOString(),
+            })
+            .eq('id', options.updateProductId);
+          if (updateErr) throw updateErr;
+        }
+
+        removePendingCosting(entry._id);
+        synced++;
+      } catch (e) {
+        console.error('Error sincronizando costing:', e);
+        // Dejar en cola para reintentar
       }
     }
 

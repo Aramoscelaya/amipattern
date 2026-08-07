@@ -157,15 +157,6 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
           </div>
         )}
 
-        {isOnline && pendingCount > 0 && (
-          <div style={{
-            backgroundColor: '#FFF7ED', border: '1.5px solid #FED7AA', borderRadius: 12,
-            padding: '10px 16px', marginBottom: 12, fontSize: 13, color: '#92400E', fontWeight: 700,
-          }}>
-            🔄 Sincronizando {pendingCount} operación{pendingCount !== 1 ? 'es' : ''}…
-          </div>
-        )}
-
         {!activeChannel && (
           <div style={{
             backgroundColor: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: 12,

@@ -39,7 +39,7 @@ function MatRow({ mat, onChange, onDelete }) {
   );
 }
 
-export default function CostearTab({ products, config, patterns = [], saveCosting, onOpenWhatsApp, onClose }) {
+export default function CostearTab({ products, config, patterns = [], saveCosting, onOpenWhatsApp, onClose, isOnline = true, pendingCount = 0 }) {
   const { showToast } = useToast();
 
   const [modo,       setModo]       = useState('nueva');
@@ -157,6 +157,22 @@ export default function CostearTab({ products, config, patterns = [], saveCostin
       </div>
 
       <div style={{ padding: '16px', maxWidth: 720, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {!isOnline && (
+          <div style={{
+            backgroundColor: '#FFF7ED',
+            border: '1.5px solid #FED7AA',
+            borderRadius: 12,
+            padding: '10px 16px',
+            marginBottom: 12,
+            fontSize: 13,
+            color: '#92400E',
+            fontWeight: 700,
+          }}>
+            Sin conexion — el calculo funciona normalmente.
+            Al guardar, se sincroniza cuando vuelvas a tener internet.
+          </div>
+        )}
 
         {/* Selector de modo */}
         <div style={{ display: 'flex', gap: 8 }}>
@@ -332,7 +348,7 @@ export default function CostearTab({ products, config, patterns = [], saveCostin
           backgroundColor: modo === 'prueba' ? '#6B7280' : '#1A1A2E', border: 'none', color: '#FAD2E1',
           fontWeight: 900, fontSize: 15, cursor: saving ? 'wait' : 'pointer', fontFamily: 'inherit', opacity: saving ? 0.7 : 1,
         }}>
-          {saving ? '⏳ Guardando…' : modo === 'prueba' ? '🎯 Solo calcular' : modo === 'actualizar' ? '💾 Guardar cambios' : '✨ Crear en catálogo'}
+          {saving ? '⏳ Guardando…' : !isOnline ? 'Guardar (pendiente de sync)' : modo === 'prueba' ? '🎯 Solo calcular' : modo === 'actualizar' ? '💾 Guardar cambios' : '✨ Crear en catálogo'}
         </button>
 
         {modo === 'prueba' && (

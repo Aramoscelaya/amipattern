@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CATEGORIAS } from '../lib/constants';
 import { COLORS } from '../lib/constants';
 import { calcPreciosCanal } from '../lib/pricing';
@@ -9,7 +9,9 @@ const ESTADO_CFG = {
   descontinuado:  { label: '🔴 Descontinuado', bg: '#FEE2E2', fg: '#991B1B' },
 };
 
-export default function CatalogoProductCard({ product, config, onEdit, onDelete }) {
+export default function CatalogoProductCard({ product, config, onEdit, onDelete, onAddStock }) {
+  const [stockModal, setStockModal] = useState(false);
+  const [stockQty, setStockQty] = useState('');
   const cfg = {
     margen_propio:   config?.margen_propio   ?? 0.20,
     margen_boutique: config?.margen_boutique ?? 0.35,
@@ -112,6 +114,11 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete 
 
       {/* Acciones */}
       <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
+        <button onClick={() => { setStockModal(true); setStockQty(''); }} style={{
+          flex: 1, padding: '8px 0', borderRadius: 10,
+          border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
+          fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: '#6B7280',
+        }}>+ Stock</button>
         <button onClick={() => onEdit(product)} style={{
           flex: 1, padding: '8px 0', borderRadius: 10,
           border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
@@ -123,6 +130,58 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete 
           fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: '#EF4444',
         }}>🗑 Eliminar</button>
       </div>
+
+      {stockModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 800,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ backgroundColor: '#fff', borderRadius: 20,
+            padding: 24, maxWidth: 320, width: '100%' }}>
+            <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 6 }}>
+              Agregar stock
+            </div>
+            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 16 }}>
+              {product.emoji} {product.nombre} · actualmente {(product.stock_inicial || 0) - (product.stock_vendido || 0)} disponibles
+            </div>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={stockQty}
+              onChange={e => setStockQty(e.target.value)}
+              placeholder="Cuantas piezas nuevas?"
+              autoFocus
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                padding: '11px 14px', borderRadius: 10,
+                border: '1.5px solid #E5E7EB',
+                fontSize: 15, fontFamily: 'inherit',
+                outline: 'none', marginBottom: 16,
+              }}
+            />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => { setStockModal(false); setStockQty(''); }}
+                style={{ flex: 1, padding: 12, borderRadius: 12,
+                  border: '2px solid #E5E7EB', background: 'transparent',
+                  fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                  const n = Number(stockQty);
+                  if (!n || n <= 0) return;
+                  if (onAddStock) await onAddStock(product.id, n);
+                  setStockModal(false);
+                  setStockQty('');
+                }}
+                style={{ flex: 2, padding: 12, borderRadius: 12,
+                  backgroundColor: '#1A1A2E', border: 'none',
+                  color: '#fff', fontWeight: 800,
+                  cursor: 'pointer', fontFamily: 'inherit' }}>
+                + Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
