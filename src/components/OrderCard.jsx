@@ -23,6 +23,24 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
   const urgente   = diasHasta !== null && diasHasta <= 2
     && !['entregado','cancelado'].includes(order.estado);
 
+  // Calcular precio sugerido del pedido para comparar con precio_venta
+  const calcularSugerido = (order) => {
+    const costoMat = (order.materiales || []).reduce(
+      (s, m) => s + (Number(m.cantidad) || 0) * (Number(m.costo_unit) || 0), 0
+    )
+    const costoMO  = (Number(order.horas) || 0) * (Number(order.costo_hora) || 40)
+    const subtotal = costoMat + costoMO
+    const overhead = subtotal * (1 + (Number(order.overhead_pct) || 10) / 100)
+    return overhead * (1 + (Number(order.margen_pct) || 30) / 100)
+  }
+
+  const precioSugerido = calcularSugerido(order)
+  const precioFinal    = Number(order.precio_venta) || 0
+  const diferencia     = precioFinal - precioSugerido
+  const pct            = precioSugerido > 0
+    ? ((diferencia / precioSugerido) * 100).toFixed(0)
+    : 0
+
   const nextEstado = {
     pendiente: 'en_proceso', en_proceso: 'listo',
     listo: 'entregado', entregado: null, cancelado: null,
@@ -110,6 +128,37 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
             </div>
           </div>
         </div>
+
+        {/* Badge de rentabilidad — solo si hay precio sugerido calculado */}
+        {precioSugerido > 0 && precioFinal > 0 && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+            backgroundColor: diferencia > 0.5
+              ? '#D1FAE5'
+              : diferencia < -0.5
+                ? '#FEE2E2'
+                : '#F3F4F6',
+            color: diferencia > 0.5
+              ? '#065F46'
+              : diferencia < -0.5
+                ? '#991B1B'
+                : '#6B7280',
+            borderRadius: 99,
+            padding: '2px 8px',
+            fontSize: 11,
+            fontWeight: 800,
+            marginTop: 4,
+            marginBottom: 8,
+          }}>
+            {diferencia > 0.5
+              ? `+${pct}% sobre sugerido`
+              : diferencia < -0.5
+                ? `${pct}% bajo sugerido`
+                : 'Al precio sugerido'}
+          </div>
+        )}
 
         {/* Fecha entrega */}
         {order.fecha_entrega && (

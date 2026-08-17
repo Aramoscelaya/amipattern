@@ -191,6 +191,27 @@ export function useOrders(userId) {
     return dias <= 2 && dias >= 0;
   });
 
+  // Stats de rentabilidad — calcular precio sugerido por pedido y comparar
+  const calcSugerido = (order) => {
+    const mat = (order.materiales || []).reduce(
+      (s, m) => s + (Number(m.cantidad) || 0) * (Number(m.costo_unit) || 0), 0
+    )
+    const mo  = (Number(order.horas) || 0) * (Number(order.costo_hora) || 40)
+    const sub = mat + mo
+    const oh  = sub * (1 + (Number(order.overhead_pct) || 10) / 100)
+    return oh * (1 + (Number(order.margen_pct) || 30) / 100)
+  }
+
+  // Solo considerar pedidos con precio_venta y sugerido calculable
+  const pedidosConPrecio = orders.filter(o =>
+    Number(o.precio_venta) > 0 &&
+    o.estado !== 'cancelado'
+  )
+
+  const ingresosReales     = pedidosConPrecio.reduce((s, o) => s + Number(o.precio_venta), 0)
+  const ingresosSugeridos  = pedidosConPrecio.reduce((s, o) => s + calcSugerido(o), 0)
+  const gananciaExtra      = ingresosReales - ingresosSugeridos
+
   const stats = {
     total:      orders.length,
     pendientes: orders.filter(o => o.estado === 'pendiente').length,
@@ -203,6 +224,9 @@ export function useOrders(userId) {
     porCobrar:  orders
       .filter(o => !['entregado','cancelado'].includes(o.estado))
       .reduce((s, o) => s + ((o.precio_venta || 0) - (o.anticipo || 0)), 0),
+    ingresosReales,
+    ingresosSugeridos,
+    gananciaExtra,
   };
 
   return {

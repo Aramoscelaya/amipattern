@@ -370,9 +370,48 @@ function PedidosTab({ ordersHook, inventoryItems }) {
               </div>
             </div>
           ))}
-        </div>
 
-        {/* Search */}
+          {/* Ganancia extra */}
+          {stats.gananciaExtra !== undefined && (
+            <div style={{
+              flex: '0 0 auto', minWidth: 80,
+              backgroundColor: stats.gananciaExtra >= 0 ? '#F0FDF4' : '#FEF2F2',
+              borderRadius: 14, padding: '10px 8px', textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            }}>
+              <div style={{ fontSize: 18 }}>{stats.gananciaExtra >= 0 ? '⬆' : '⬇'}</div>
+              <div style={{
+                fontWeight: 900, fontSize: 14, marginTop: 2,
+                color: stats.gananciaExtra >= 0 ? '#059669' : '#EF4444',
+              }}>
+                {stats.gananciaExtra >= 0 ? '+' : ''}${Math.abs(stats.gananciaExtra).toFixed(0)}
+              </div>
+              <div style={{ fontSize: 9, color: '#6B7280', fontWeight: 800, textTransform: 'uppercase' }}>
+                Extra
+              </div>
+            </div>
+          )}
+
+          {/* Ingresos mínimos (precio sugerido acumulado) */}
+          {stats.ingresosSugeridos !== undefined && stats.ingresosSugeridos > 0 && (
+            <div style={{
+              flex: '0 0 auto', minWidth: 80,
+              backgroundColor: '#fff',
+              borderRadius: 14, padding: '10px 8px', textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            }}>
+              <div style={{ fontSize: 18 }}>📊</div>
+              <div style={{ fontWeight: 900, fontSize: 14, color: '#1A1A2E', marginTop: 2 }}>
+                ${stats.ingresosSugeridos.toFixed(0)}
+              </div>
+              <div style={{ fontSize: 9, color: '#6B7280', fontWeight: 800, textTransform: 'uppercase' }}>
+                Min. sugerido
+              </div>
+            </div>
+          )}
+          </div>
+
+          {/* Search */}
         <input value={search} onChange={e=>setSearch(e.target.value)}
           placeholder="🔍 Buscar por cliente o amigurumi…"
           style={{

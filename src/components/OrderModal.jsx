@@ -371,6 +371,43 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
             )}
           </div>
 
+          {/* Indicador ganancia extra — solo mostrar si hay precio sugerido calculado */}
+          {calc.precioFinal > 0 && Number(f.precio_venta) > 0 && (() => {
+            const final      = Number(f.precio_venta)
+            const sugerido   = calc.precioFinal
+            const diferencia = final - sugerido
+            const pct        = sugerido > 0 ? ((diferencia / sugerido) * 100).toFixed(1) : 0
+            const esMas      = diferencia > 0
+            const esIgual    = Math.abs(diferencia) < 0.01
+
+            if (esIgual) return (
+              <div style={{ fontSize: 12, color: '#6B7280', marginTop: 4, fontWeight: 600 }}>
+                Cobrando exactamente el precio sugerido
+              </div>
+            )
+
+            return (
+              <div style={{
+                marginTop: 6,
+                padding: '8px 12px',
+                borderRadius: 10,
+                backgroundColor: esMas ? '#F0FDF4' : '#FEF2F2',
+                border: `1.5px solid ${esMas ? '#BBF7D0' : '#FECACA'}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: esMas ? '#065F46' : '#991B1B' }}>
+                  {esMas ? 'Ganancia extra sobre sugerido' : 'Por debajo del sugerido'}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 900, color: esMas ? '#059669' : '#EF4444' }}>
+                  {esMas ? '+' : '-'}${Math.abs(diferencia).toFixed(2)}
+                  {' '}({esMas ? '+' : ''}{pct}%)
+                </span>
+              </div>
+            )
+          })()}
+
           {/* ── Anticipo ── */}
           <StyledLabel>💳 Anticipo recibido ($)</StyledLabel>
           <StyledInput type="number" min="0"
