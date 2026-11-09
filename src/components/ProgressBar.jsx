@@ -10,7 +10,7 @@ export default function ProgressBar({ steps }) {
   return (
     <div style={{ marginTop: 8 }}>
       <div style={{
-        height: 5, backgroundColor: '#F3F4F6',
+        height: 5, backgroundColor: COLORS.surface2,
         borderRadius: 99, overflow: 'hidden',
       }}>
         <div style={{

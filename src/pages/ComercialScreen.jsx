@@ -49,22 +49,22 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
       }}>
         <button onClick={onBack} style={{
           background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
-          color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit',
+          color: COLORS.headerAccent, padding: '4px 4px 4px 0', fontFamily: 'inherit',
         }}>←</button>
         <div style={{ flex: 1 }}>
-          <div style={{ color: '#FAD2E1', fontSize: 18, fontWeight: 900 }}>💼 Comercial</div>
-          <div style={{ color: '#4B5563', fontSize: 11, marginTop: 1 }}>Ventas, catálogo y costos</div>
+          <div style={{ color: COLORS.accent, fontSize: 18, fontWeight: 900 }}>💼 Comercial</div>
+          <div style={{ color: COLORS.headerAccent, fontSize: 11, marginTop: 1 }}>Ventas, catálogo y costos</div>
         </div>
         {!isOnline && (
           <div style={{
-            backgroundColor: '#FEF2F2', border: '1.5px solid #FECACA',
+            backgroundColor: COLORS.danger.bg, border: `1.5px solid ${COLORS.danger.border}`,
             borderRadius: 10, padding: '6px 10px', fontSize: 11,
-            color: '#991B1B', fontWeight: 800, whiteSpace: 'nowrap',
+            color: COLORS.danger.fg, fontWeight: 800, whiteSpace: 'nowrap',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
             <span>🔴</span> Offline
             {pendingCount > 0 && (
-              <span style={{ backgroundColor: '#EF4444', color: '#fff', borderRadius: 99, padding: '1px 6px', fontSize: 10 }}>
+              <span style={{ backgroundColor: COLORS.dangerSolid, color: '#fff', borderRadius: 99, padding: '1px 6px', fontSize: 10 }}>
                 {pendingCount}
               </span>
             )}
@@ -76,7 +76,7 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
       <div style={{
         display: 'flex', gap: 4, padding: '8px 16px',
         backgroundColor: COLORS.header,
-        borderTop: '1px solid rgba(0,0,0,0.08)',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
         position: 'sticky', top: 'max(60px, calc(env(safe-area-inset-top) + 60px))',
         zIndex: Z_INDEX.header,
       }}>
@@ -85,8 +85,8 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
             flex: 1, padding: '9px 4px', borderRadius: 10,
             border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             fontWeight: 800, fontSize: 13, textAlign: 'center',
-            backgroundColor: tab === t.id ? '#1A1A2E' : 'rgba(255,255,255,0.12)',
-            color: tab === t.id ? '#FAD2E1' : 'rgba(255,255,255,0.85)',
+            backgroundColor: tab === t.id ? COLORS.accent : 'rgba(255,255,255,0.12)',
+            color: tab === t.id ? COLORS.onAccent : COLORS.textPrimary,
             transition: 'background 0.2s',
           }}>
             {t.emoji} {t.label}
@@ -96,11 +96,11 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
 
       {isOnline && pendingCount > 0 && (
         <div style={{
-          backgroundColor: '#FFF7ED',
-          border: '1.5px solid #FED7AA',
+          backgroundColor: COLORS.warning.bg,
+          border: `1.5px solid ${COLORS.warning.border}`,
           padding: '8px 16px',
           fontSize: 12,
-          color: '#92400E',
+          color: COLORS.warning.fg,
           fontWeight: 700,
           textAlign: 'center',
         }}>
@@ -110,8 +110,8 @@ export default function ComercialScreen({ user, patterns = [], onBack }) {
 
       {error && (
         <div style={{
-          backgroundColor: '#FEF2F2', borderBottom: '1.5px solid #FECACA',
-          padding: '10px 16px', fontSize: 13, color: '#991B1B', fontWeight: 700,
+          backgroundColor: COLORS.danger.bg, borderBottom: `1.5px solid ${COLORS.danger.border}`,
+          padding: '10px 16px', fontSize: 13, color: COLORS.danger.fg, fontWeight: 700,
         }}>⚠️ {error}</div>
       )}
 

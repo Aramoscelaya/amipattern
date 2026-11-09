@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Z_INDEX, ANIMATION, COLORS_PALETTE } from '../lib/constants';
+import { Z_INDEX, ANIMATION, COLORS, COLORS_PALETTE } from '../lib/constants';
 import { StyledInput, StyledLabel, StyledTextarea, SelectRow } from './FormFields';
 
 const COLORS_HEX = [...COLORS_PALETTE, '#FFFFFF', '#1A1A2E', '#F97316', '#84CC16'];
@@ -80,7 +80,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
     }} onClick={e => e.target === e.currentTarget && onClose()}>
 
       <div style={{
-        backgroundColor:'#fff', borderRadius:'24px 24px 0 0',
+        backgroundColor:COLORS.card, borderRadius:'24px 24px 0 0',
         width:'100%', maxWidth:640, maxHeight:'94vh',
         display:'flex', flexDirection:'column',
         animation: ANIMATION.slideUp,
@@ -104,19 +104,19 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
             onChange={e => upd('nombre', e.target.value)}
             placeholder={isHilo ? 'Nombre del hilo' : 'Nombre del material'}
             style={{
-              flex:1, fontSize:18, fontWeight:900, color:'#1A1A2E',
+              flex:1, fontSize:18, fontWeight:900, color:COLORS.onAccent,
               background:'transparent', border:'none', outline:'none', fontFamily:'inherit',
             }}
           />
           <button onClick={onClose} style={{
             background:'rgba(255,255,255,0.35)', border:'none', borderRadius:10,
-            width:34, height:34, cursor:'pointer', fontSize:18, color:'#1A1A2E',
+            width:34, height:34, cursor:'pointer', fontSize:18, color:COLORS.onAccent,
           }}>×</button>
         </div>
 
         {/* Tabs Hilo / Material */}
         {!initial && (
-          <div style={{ display:'flex', gap:0, borderBottom:'1px solid #F3F4F6' }}>
+          <div style={{ display:'flex', gap:0, borderBottom:`1px solid ${COLORS.border}` }}>
             {[['hilo','🧶 Hilo'],['material','📦 Material']].map(([id, label]) => (
               <button key={id} onClick={() => {
                 setTab(id);
@@ -127,8 +127,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                 flex:1, padding:'12px 0', border:'none', cursor:'pointer',
                 fontFamily:'inherit', fontWeight:700, fontSize:14,
                 backgroundColor:'transparent',
-                color: tab === id ? '#1A1A2E' : '#9CA3AF',
-                borderBottom: tab === id ? '2.5px solid #1A1A2E' : '2.5px solid transparent',
+                color: tab === id ? COLORS.accent : COLORS.textMuted,
+                borderBottom: tab === id ? `2.5px solid ${COLORS.accent}` : '2.5px solid transparent',
               }}>{label}</button>
             ))}
           </div>
@@ -144,8 +144,8 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
               <button key={c} onClick={() => upd('color_hex', c)} style={{
                 width:28, height:28, borderRadius:14,
                 backgroundColor:c, padding:0, cursor:'pointer',
-                border:`2.5px solid ${f.color_hex===c ? '#1A1A2E' : 'transparent'}`,
-                boxShadow: c==='#FFFFFF' ? 'inset 0 0 0 1px #E5E7EB' : 'none',
+                border:`2.5px solid ${f.color_hex===c ? COLORS.textPrimary : 'transparent'}`,
+                boxShadow: c==='#FFFFFF' ? `inset 0 0 0 1px ${COLORS.border}` : 'none',
               }}/>
             ))}
           </div>
@@ -164,9 +164,9 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                 <button key={s} onClick={() => upd('subtipo', s)} style={{
                   padding:'6px 12px', borderRadius:99, fontSize:12, fontWeight:700,
                   cursor:'pointer', border:'1.5px solid', fontFamily:'inherit',
-                  backgroundColor: f.subtipo===s ? '#1A1A2E' : '#FAFAFA',
-                  borderColor:     f.subtipo===s ? '#1A1A2E' : '#E5E7EB',
-                  color:           f.subtipo===s ? '#fff' : '#6B7280',
+                  backgroundColor: f.subtipo===s ? COLORS.accent : COLORS.surface2,
+                  borderColor:     f.subtipo===s ? COLORS.accent : COLORS.border,
+                  color:           f.subtipo===s ? COLORS.onAccent : COLORS.textSecondary,
                 }}>{s}</button>
               ))}
             </div>
@@ -193,9 +193,9 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                 <button key={s.id} onClick={() => setSubtipoMat(s.id)} style={{
                   padding:'6px 10px', borderRadius:99, fontSize:12, fontWeight:700,
                   cursor:'pointer', border:'1.5px solid', fontFamily:'inherit',
-                  backgroundColor: f.subtipo===s.id ? '#1A1A2E' : '#FAFAFA',
-                  borderColor:     f.subtipo===s.id ? '#1A1A2E' : '#E5E7EB',
-                  color:           f.subtipo===s.id ? '#fff' : '#6B7280',
+                  backgroundColor: f.subtipo===s.id ? COLORS.accent : COLORS.surface2,
+                  borderColor:     f.subtipo===s.id ? COLORS.accent : COLORS.border,
+                  color:           f.subtipo===s.id ? COLORS.onAccent : COLORS.textSecondary,
                 }}>{s.label}</button>
               ))}
             </div>
@@ -207,10 +207,10 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
 
           {/* ── Sección de stock ── */}
           <div style={{
-            backgroundColor:'#F9FAFB', borderRadius:14,
-            border:'1.5px solid #F3F4F6', padding:'12px 14px', marginTop:16,
+            backgroundColor:COLORS.surface2, borderRadius:14,
+            border:`1.5px solid ${COLORS.border}`, padding:'12px 14px', marginTop:16,
           }}>
-            <div style={{ fontSize:12, fontWeight:800, color:'#374151', marginBottom:12 }}>
+            <div style={{ fontSize:12, fontWeight:800, color:COLORS.textSecondary, marginBottom:12 }}>
               📊 Stock
             </div>
 
@@ -222,7 +222,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                 value={f.stock_inicial}
                 onChange={e => upd('stock_inicial', e.target.value)}
                 placeholder={f.unidad==='g' ? 'ej: 200' : 'ej: 50'}
-                style={{ backgroundColor:'#fff' }}
+                style={{ backgroundColor:COLORS.card }}
               />
             </div>
 
@@ -235,9 +235,9 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                   value={f.entradas}
                   onChange={e => upd('entradas', e.target.value)}
                   placeholder="0"
-                  style={{ backgroundColor:'#FFF7ED', borderColor:'#FDE68A' }}
+                  style={{ backgroundColor:COLORS.warning.bg, borderColor:COLORS.warning.border }}
                 />
-                <div style={{ fontSize:11, color:'#92400E', marginTop:4 }}>
+                <div style={{ fontSize:11, color:COLORS.warning.fg, marginTop:4 }}>
                   ⚠️ Edita esto solo para corregir errores. Para reponer stock usa el botón 📥 en la tarjeta.
                 </div>
               </div>
@@ -252,9 +252,9 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                   value={f.stock_usado}
                   onChange={e => upd('stock_usado', e.target.value)}
                   placeholder="0"
-                  style={{ backgroundColor:'#FFF7ED', borderColor:'#FDE68A' }}
+                  style={{ backgroundColor:COLORS.warning.bg, borderColor:COLORS.warning.border }}
                 />
-                <div style={{ fontSize:11, color:'#92400E', marginTop:4 }}>
+                <div style={{ fontSize:11, color:COLORS.warning.fg, marginTop:4 }}>
                   ⚠️ Edita esto solo para corregir errores. Para usar stock usa el botón 📤 en la tarjeta.
                 </div>
               </div>
@@ -268,7 +268,7 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
                 value={f.alerta_minimo}
                 onChange={e => upd('alerta_minimo', e.target.value)}
                 placeholder={f.unidad==='g' ? 'ej: 30' : 'ej: 5'}
-                style={{ backgroundColor:'#fff' }}
+                style={{ backgroundColor:COLORS.card }}
               />
             </div>
 
@@ -276,13 +276,13 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
             {isEditing && (
               <div style={{
                 marginTop:12, padding:'10px 12px', borderRadius:10,
-                backgroundColor: disponible <= 0 ? '#FEF2F2' : disponible <= Number(f.alerta_minimo) ? '#FFF7ED' : '#F0FDF4',
-                border: `1px solid ${disponible <= 0 ? '#FECACA' : disponible <= Number(f.alerta_minimo) ? '#FDE68A' : '#BBF7D0'}`,
+                backgroundColor: disponible <= 0 ? COLORS.danger.bg : disponible <= Number(f.alerta_minimo) ? COLORS.warning.bg : COLORS.success.bg,
+                border: `1px solid ${disponible <= 0 ? COLORS.danger.border : disponible <= Number(f.alerta_minimo) ? COLORS.warning.border : COLORS.success.border}`,
                 fontSize:12, fontWeight:700,
-                color: disponible <= 0 ? '#DC2626' : disponible <= Number(f.alerta_minimo) ? '#92400E' : '#15803D',
+                color: disponible <= 0 ? COLORS.danger.fg : disponible <= Number(f.alerta_minimo) ? COLORS.warning.fg : COLORS.success.fg,
               }}>
                 Disponible actual: {Math.max(0, disponible)}{f.unidad === 'g' ? 'g' : ' uds'}
-                <span style={{ fontWeight:400, color:'#9CA3AF', marginLeft:8 }}>
+                <span style={{ fontWeight:400, color:COLORS.textMuted, marginLeft:8 }}>
                   = {f.stock_inicial||0} inicial + {f.entradas||0} entradas − {f.stock_usado||0} salidas
                 </span>
               </div>
@@ -295,9 +295,9 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
             onChange={e=>upd('costo_unitario',e.target.value)}
             placeholder="ej: 0.15"/>
           {Number(f.costo_unitario) > 0 && Number(f.stock_inicial) > 0 && (
-            <div style={{ fontSize:12, color:'#6B7280', marginTop:4 }}>
+            <div style={{ fontSize:12, color:COLORS.textSecondary, marginTop:4 }}>
               💰 Valor total del stock disponible:{' '}
-              <strong style={{color:'#1A1A2E'}}>
+              <strong style={{color:COLORS.textPrimary}}>
                 ${(Number(f.costo_unitario) * Math.max(0, disponible)).toFixed(2)}
               </strong>
             </div>
@@ -313,14 +313,14 @@ export default function InventoryModal({ visible, initial, onClose, onSave }) {
           <div style={{ display:'flex', gap:10, marginTop:22 }}>
             <button onClick={onClose} style={{
               flex:1, padding:14, borderRadius:12,
-              border:'2px solid #E5E7EB', backgroundColor:'transparent',
-              fontWeight:800, fontSize:14, color:'#6B7280',
+              border:`2px solid ${COLORS.border}`, backgroundColor:'transparent',
+              fontWeight:800, fontSize:14, color:COLORS.textSecondary,
               cursor:'pointer', fontFamily:'inherit',
             }}>Cancelar</button>
             <button onClick={handleSave} disabled={saving} style={{
               flex:2, padding:14, borderRadius:12,
-              backgroundColor:'#1A1A2E', border:'none',
-              color:'#fff', fontWeight:900, fontSize:14,
+              backgroundColor:COLORS.accent, border:'none',
+              color:COLORS.onAccent, fontWeight:900, fontSize:14,
               cursor: saving ? 'wait' : 'pointer', fontFamily:'inherit',
             }}>
               {saving ? '⏳ Guardando...' : '💾 Guardar'}

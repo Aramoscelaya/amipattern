@@ -9,6 +9,19 @@
 
 ---
 
+## Design Tokens
+
+Todos los colores viven en `src/lib/constants.js` (`COLORS`). La app es **dark-only**: no hay toggle ni CSS variables.
+
+- **Superficies:** `bg` (fondo app), `card` (tarjetas/modales), `surface2` (bloques internos e inputs), `border`.
+- **Texto:** `textPrimary`, `textSecondary`, `textMuted`.
+- **Marca/acento:** `header` (barra superior), `headerAccent` (texto secundario sobre header), `accent` (CTA/activo), `onAccent` (texto sobre accent), `teal`, `orange`.
+- **Estados semánticos:** `success`, `danger`, `warning`, `info` → `{ bg, fg, border }` para banners/badges; `successSolid`, `dangerSolid`, `warningSolid`, `infoSolid` para fondos sólidos.
+- **Externo:** `whatsapp`.
+- **No reemplazar:** `YARN_COLORS`, `COLORS_PALETTE`, `pattern.color`, `color_hex` (colores elegidos por el usuario).
+
+---
+
 ## Pages
 
 ### `DashboardScreen.jsx` (NUEVO)

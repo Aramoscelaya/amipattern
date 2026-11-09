@@ -8,24 +8,36 @@ export const DIFICULTADES = ['Principiante', 'Intermedio', 'Avanzado'];
 export const ESTADOS = ['En progreso', 'Completado'];
 
 export const COLORS = {
-  bg: '#F5F0EB',
-  card: '#FFFFFF',
-  header: '#b98d6f',
-  accent: '#FAD2E1',
-  teal: '#2A9D8F',
-  orange: '#F4A261',
-  textPrimary: '#1A1A2E',
-  textSecondary: '#6B7280',
-  textMuted: '#9CA3AF',
-  border: '#E5E7EB',
+  bg:            '#14141C',
+  card:          '#1E1E2B',
+  header:        '#4A3628',
+  headerAccent:  '#D9B08C',
+  accent:        '#FAD2E1',
+  teal:          '#2A9D8F',
+  orange:        '#F4A261',
+  textPrimary:   '#F2F2F7',
+  textSecondary: '#B4B4C7',
+  textMuted:     '#8A8AA3',
+  border:        '#363650',
+  surface2:      '#272738',
+  onAccent:      '#1A1A2E',
+  successSolid:  '#059669',
+  dangerSolid:   '#EF4444',
+  warningSolid:  '#F59E0B',
+  infoSolid:     '#3B82F6',
+  whatsapp:      '#25D366',
+  success: { bg: 'rgba(16,185,129,0.15)', fg: '#6EE7B7', border: 'rgba(16,185,129,0.35)' },
+  danger:  { bg: 'rgba(239,68,68,0.15)',  fg: '#FCA5A5', border: 'rgba(239,68,68,0.35)'  },
+  warning: { bg: 'rgba(245,158,11,0.15)', fg: '#FCD34D', border: 'rgba(245,158,11,0.35)' },
+  info:    { bg: 'rgba(59,130,246,0.15)', fg: '#93C5FD', border: 'rgba(59,130,246,0.35)' },
 };
 
 export const BADGE_COLORS = {
-  'Completado':   { bg: '#D1FAE5', fg: '#065F46' },
-  'En progreso':  { bg: '#FEF3C7', fg: '#92400E' },
-  'Principiante': { bg: '#F0FDF4', fg: '#166534' },
-  'Intermedio':   { bg: '#FFF7ED', fg: '#9A3412' },
-  'Avanzado':     { bg: '#FDF2F8', fg: '#9D174D' },
+  'Completado':   COLORS.success,
+  'En progreso':  COLORS.warning,
+  'Principiante': COLORS.success,
+  'Intermedio':   COLORS.warning,
+  'Avanzado':     COLORS.danger,
 };
 
 export const Z_INDEX = {

@@ -119,11 +119,11 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
         position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
         {onClose && (
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit' }}>←</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: COLORS.headerAccent, padding: '4px 4px 4px 0', fontFamily: 'inherit' }}>←</button>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ color: '#FAD2E1', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>Vendiendo en</div>
-          <div style={{ color: '#fff', fontSize: 16, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ color: COLORS.accent, fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>Vendiendo en</div>
+          <div style={{ color: COLORS.textPrimary, fontSize: 16, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {activeChannel ? `${activeChannel.nombre} · ${tipoLabel}` : 'Ningún canal'}
           </div>
         </div>
@@ -139,19 +139,19 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
         {/* Banner offline */}
         {!isOnline && (
           <div style={{
-            backgroundColor: '#FEF2F2', border: '1.5px solid #FECACA',
+            backgroundColor: COLORS.danger.bg, border: `1.5px solid ${COLORS.danger.border}`,
             borderRadius: 12, padding: '12px 16px', marginBottom: 12,
-            fontSize: 13, color: '#991B1B', fontWeight: 700,
+            fontSize: 13, color: COLORS.danger.fg, fontWeight: 700,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>🔴 Sin conexión — modo bazar activo</span>
               {pendingCount > 0 && (
-                <span style={{ backgroundColor: '#EF4444', color: '#fff', borderRadius: 99, padding: '2px 8px', fontSize: 11 }}>
+                <span style={{ backgroundColor: COLORS.dangerSolid, color: '#fff', borderRadius: 99, padding: '2px 8px', fontSize: 11 }}>
                   {pendingCount} pendiente{pendingCount !== 1 ? 's' : ''}
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 600, marginTop: 4, color: '#B91C1C' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, marginTop: 4, color: COLORS.danger.fg }}>
               Tus ventas se guardan localmente y se sincronizan al reconectar
             </div>
           </div>
@@ -159,8 +159,8 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
 
         {!activeChannel && (
           <div style={{
-            backgroundColor: '#EFF6FF', border: '1.5px solid #BFDBFE', borderRadius: 12,
-            padding: '12px 16px', marginBottom: 12, fontSize: 13, color: '#1D4ED8', fontWeight: 700,
+            backgroundColor: COLORS.info.bg, border: `1.5px solid ${COLORS.info.border}`, borderRadius: 12,
+            padding: '12px 16px', marginBottom: 12, fontSize: 13, color: COLORS.info.fg, fontWeight: 700,
           }}>
             Selecciona un canal para comenzar a vender →
           </div>
@@ -182,9 +182,9 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
               const precio = precioDe(activeChannel, p);
               return (
                 <div key={p.id} style={{
-                  backgroundColor: agotado ? '#FEF2F2' : '#fff',
+                  backgroundColor: agotado ? COLORS.danger.bg : COLORS.card,
                   borderRadius: 16, padding: 14,
-                  border: `1.5px solid ${agotado ? '#FECACA' : '#E5E7EB'}`,
+                  border: `1.5px solid ${agotado ? COLORS.danger.border : COLORS.border}`,
                   boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                   display: 'flex', flexDirection: 'column', gap: 8,
                   opacity: agotado ? 0.8 : 1,
@@ -197,20 +197,20 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
                     }}>{p.emoji}</div>
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ fontWeight: 800, fontSize: 12, color: COLORS.textPrimary, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</div>
-                      <div style={{ fontSize: 10, color: agotado ? '#EF4444' : COLORS.textMuted, fontWeight: 700, marginTop: 1 }}>
+                      <div style={{ fontSize: 10, color: agotado ? COLORS.danger.fg : COLORS.textMuted, fontWeight: 700, marginTop: 1 }}>
                         {agotado ? '⚠️ Agotado' : `${disp} disponibles`}
                       </div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: COLORS.success.fg }}>
                     ${precio.toFixed(2)}
                     <span style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted }}> c/u</span>
                   </div>
                   <button onClick={() => addToCart(p)} disabled={agotado || !activeChannel} style={{
                     width: '100%', padding: '8px 0', borderRadius: 10, border: 'none',
-                    backgroundColor: agotado || !activeChannel ? '#E5E7EB' : '#1A1A2E',
+                    backgroundColor: agotado || !activeChannel ? COLORS.surface2 : COLORS.accent,
                     fontWeight: 800, fontSize: 13, cursor: agotado || !activeChannel ? 'not-allowed' : 'pointer',
-                    fontFamily: 'inherit', color: agotado || !activeChannel ? '#9CA3AF' : '#FAD2E1',
+                    fontFamily: 'inherit', color: agotado || !activeChannel ? COLORS.textMuted : COLORS.onAccent,
                   }}>+ Agregar</button>
                 </div>
               );
@@ -221,8 +221,8 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
         {/* Resumen del evento */}
         {activeChannel && stats && (
           <div style={{
-            backgroundColor: '#fff', borderRadius: 16, padding: 14,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginTop: 16,
+            backgroundColor: COLORS.card, borderRadius: 16, padding: 14,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.25)', marginTop: 16,
           }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
               📊 Resumen de hoy · {activeChannel.nombre}
@@ -234,9 +234,9 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
                 { emoji: '🏦', val: `$${hoyTransfer.toFixed(0)}`, label: 'Transferencia' },
                 { emoji: '💰', val: `$${(hoyEfectivo + hoyTransfer).toFixed(0)}`, label: 'Total', green: true },
               ].map(s => (
-                <div key={s.label} style={{ flex: 1, backgroundColor: '#F9FAFB', borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
+                <div key={s.label} style={{ flex: 1, backgroundColor: COLORS.surface2, borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 16 }}>{s.emoji}</div>
-                  <div style={{ fontWeight: 900, fontSize: 13, color: s.green ? '#059669' : COLORS.textPrimary, marginTop: 2 }}>{s.val}</div>
+                  <div style={{ fontWeight: 900, fontSize: 13, color: s.green ? COLORS.success.fg : COLORS.textPrimary, marginTop: 2 }}>{s.val}</div>
                   <div style={{ fontSize: 9, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>{s.label}</div>
                 </div>
               ))}
@@ -250,14 +250,14 @@ export default function VenderTab({ products, channels, activeChannel, onSetChan
         <button onClick={() => setShowCarrito(true)} style={{
           position: 'fixed', bottom: 'max(48px, env(safe-area-inset-bottom, 24px))', right: 24,
           zIndex: Z_INDEX.fab,
-          backgroundColor: '#1A1A2E', border: 'none', borderRadius: 28,
+          backgroundColor: COLORS.accent, border: 'none', borderRadius: 28,
           padding: '14px 20px', cursor: 'pointer', fontFamily: 'inherit',
           display: 'flex', alignItems: 'center', gap: 8,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+          boxShadow: '0 4px 20px rgba(250,210,225,0.25)',
         }}>
           <span style={{ fontSize: 20 }}>🛒</span>
-          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{totalPiezas}</span>
-          <span style={{ fontSize: 14, fontWeight: 900, color: '#25D366' }}>${totalCarrito.toFixed(2)}</span>
+          <span style={{ fontSize: 14, fontWeight: 900, color: COLORS.onAccent }}>{totalPiezas}</span>
+          <span style={{ fontSize: 14, fontWeight: 900, color: COLORS.onAccent }}>${totalCarrito.toFixed(2)}</span>
         </button>
       )}
 

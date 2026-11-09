@@ -48,21 +48,21 @@ export default function WhatsAppCotizacionModal({ visible, initial = {}, telefon
     }} onClick={e => e.target === e.currentTarget && onClose()}>
 
       <div style={{
-        backgroundColor: '#fff', borderRadius: '24px 24px 0 0',
+        backgroundColor: COLORS.card, borderRadius: '24px 24px 0 0',
         width: '100%', maxWidth: 640, maxHeight: '95vh',
         display: 'flex', flexDirection: 'column',
         animation: ANIMATION.slideUp,
       }}>
 
         <div style={{
-          background: 'linear-gradient(135deg, #1A1A2E 0%, #2D2D4E 100%)',
+          background: `linear-gradient(135deg, ${COLORS.header} 0%, ${COLORS.surface2} 100%)`,
           padding: '18px 20px 14px', borderRadius: '24px 24px 0 0',
           display: 'flex', alignItems: 'center', gap: 12,
         }}>
           <span style={{ fontSize: 26 }}>💬</span>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 900, fontSize: 17, color: '#fff' }}>Cotización por WhatsApp</div>
-            <div style={{ fontSize: 12, color: '#9CA3AF' }}>Ajusta los datos antes de enviar</div>
+            <div style={{ fontSize: 12, color: COLORS.headerAccent }}>Ajusta los datos antes de enviar</div>
           </div>
           <button onClick={onClose} style={{
             background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 10,
@@ -75,13 +75,13 @@ export default function WhatsAppCotizacionModal({ visible, initial = {}, telefon
           {telManual ? (
             <StyledInput value={f.telefono} onChange={e => { upd('telefono', e.target.value); setErr(false); }}
               placeholder="Ej: 55 1234 5678" type="tel" inputMode="tel"
-              style={{ marginBottom: 12, borderColor: err && f.telefono.replace(/\D/g, '').length < 10 ? '#EF4444' : undefined }} />
+              style={{ marginBottom: 12, borderColor: err && f.telefono.replace(/\D/g, '').length < 10 ? COLORS.dangerSolid : undefined }} />
           ) : (
             <div style={{
               marginBottom: 12, padding: '10px 12px', borderRadius: 10,
-              backgroundColor: '#F3F4F6', fontSize: 14, fontWeight: 700,
-              color: COLORS.textPrimary, border: '1.5px solid #E5E7EB',
-            }}>📱 {f.telefono} <span style={{ color: '#9CA3AF', fontWeight: 600, fontSize: 11 }}>(del pedido)</span></div>
+              backgroundColor: COLORS.surface2, fontSize: 14, fontWeight: 700,
+              color: COLORS.textPrimary, border: `1.5px solid ${COLORS.border}`,
+            }}>📱 {f.telefono} <span style={{ color: COLORS.textMuted, fontWeight: 600, fontSize: 11 }}>(del pedido)</span></div>
           )}
 
           <StyledLabel>🧶 Nombre del producto</StyledLabel>
@@ -98,9 +98,9 @@ export default function WhatsAppCotizacionModal({ visible, initial = {}, telefon
 
           <StyledLabel>⏱️ Tiempo de entrega</StyledLabel>
           <StyledInput value={f.tiempoEntrega} onChange={e => { upd('tiempoEntrega', e.target.value); setErr(false); }}
-            placeholder="Ej: 7 días" style={{ marginBottom: 12, borderColor: err ? '#EF4444' : undefined }} />
+            placeholder="Ej: 7 días" style={{ marginBottom: 12, borderColor: err ? COLORS.dangerSolid : undefined }} />
           {err && (
-            <div style={{ fontSize: 12, color: '#EF4444', fontWeight: 700, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: COLORS.danger.fg, fontWeight: 700, marginBottom: 12 }}>
               {!f.tiempoEntrega.trim()
                 ? '⚠️ Agrega un tiempo de entrega para continuar'
                 : '⚠️ Ingresa un teléfono válido (10 dígitos)'}
@@ -114,13 +114,13 @@ export default function WhatsAppCotizacionModal({ visible, initial = {}, telefon
           <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
             <button onClick={onClose} style={{
               flex: 1, padding: 14, borderRadius: 12,
-              border: '2px solid #E5E7EB', backgroundColor: 'transparent',
-              fontWeight: 800, fontSize: 14, color: '#6B7280',
+              border: `2px solid ${COLORS.border}`, backgroundColor: 'transparent',
+              fontWeight: 800, fontSize: 14, color: COLORS.textSecondary,
               cursor: 'pointer', fontFamily: 'inherit',
             }}>Cancelar</button>
             <button onClick={handleOpen} style={{
               flex: 2, padding: 14, borderRadius: 12,
-              backgroundColor: '#25D366', border: 'none',
+              backgroundColor: COLORS.whatsapp, border: 'none',
               color: '#fff', fontWeight: 900, fontSize: 14,
               cursor: 'pointer', fontFamily: 'inherit',
             }}>💬 Abrir WhatsApp</button>

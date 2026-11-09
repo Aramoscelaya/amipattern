@@ -4,9 +4,9 @@ import { COLORS } from '../lib/constants';
 import { calcPreciosCanal } from '../lib/pricing';
 
 const ESTADO_CFG = {
-  activo:         { label: '🟢 Activo',        bg: '#D1FAE5', fg: '#065F46' },
-  bajo_pedido:    { label: '🟡 Bajo pedido',   bg: '#FEF3C7', fg: '#92400E' },
-  descontinuado:  { label: '🔴 Descontinuado', bg: '#FEE2E2', fg: '#991B1B' },
+  activo:         { label: '🟢 Activo',        bg: COLORS.success.bg, fg: COLORS.success.fg },
+  bajo_pedido:    { label: '🟡 Bajo pedido',   bg: COLORS.warning.bg, fg: COLORS.warning.fg },
+  descontinuado:  { label: '🔴 Descontinuado', bg: COLORS.danger.bg,  fg: COLORS.danger.fg },
 };
 
 export default function CatalogoProductCard({ product, config, onEdit, onDelete, onAddStock }) {
@@ -37,9 +37,9 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
 
   return (
     <div style={{
-      backgroundColor: '#fff', borderRadius: 16, padding: 14,
-      border: '1.5px solid #E5E7EB',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+      backgroundColor: COLORS.card, borderRadius: 16, padding: 14,
+      border: `1.5px solid ${COLORS.border}`,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
       display: 'flex', flexDirection: 'column', gap: 8,
     }}>
       {/* Header */}
@@ -67,12 +67,12 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
       <div style={{ display: 'flex', gap: 6 }}>
         <span style={{
           flex: 1, textAlign: 'center', fontSize: 11, fontWeight: 800,
-          backgroundColor: disponible <= 0 ? '#FEF2F2' : '#F0FDF4',
-          color: disponible <= 0 ? '#EF4444' : '#059669', borderRadius: 8, padding: '5px 0',
+          backgroundColor: disponible <= 0 ? COLORS.danger.bg : COLORS.success.bg,
+          color: disponible <= 0 ? COLORS.danger.fg : COLORS.success.fg, borderRadius: 8, padding: '5px 0',
         }}>📦 {Math.max(0, disponible)} disp.</span>
         <span style={{
           flex: 1, textAlign: 'center', fontSize: 11, fontWeight: 800,
-          backgroundColor: '#F3F4F6', color: COLORS.textSecondary, borderRadius: 8, padding: '5px 0',
+          backgroundColor: COLORS.surface2, color: COLORS.textSecondary, borderRadius: 8, padding: '5px 0',
         }}>🔄 {(product.stock_vendido || 0)} vend.</span>
       </div>
 
@@ -83,23 +83,23 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
 
       {/* Precios por canal */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F9FAFB', borderRadius: 10, padding: '8px 10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: COLORS.surface2, borderRadius: 10, padding: '8px 10px' }}>
           <div>
             <div style={{ fontSize: 9, fontWeight: 800, color: COLORS.textMuted, textTransform: 'uppercase' }}>Público</div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#1D4ED8' }}>${pubFinal.toFixed(2)}</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: COLORS.info.fg }}>${pubFinal.toFixed(2)}</div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 10, fontWeight: 700 }}>
-            <div style={{ color: '#16A34A' }}>+${Math.max(0, utilPub).toFixed(2)}</div>
+            <div style={{ color: COLORS.success.fg }}>+${Math.max(0, utilPub).toFixed(2)}</div>
             <div style={{ color: COLORS.textMuted }}>{margenPub.toFixed(0)}% util.</div>
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F9FAFB', borderRadius: 10, padding: '8px 10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: COLORS.surface2, borderRadius: 10, padding: '8px 10px' }}>
           <div>
             <div style={{ fontSize: 9, fontWeight: 800, color: COLORS.textMuted, textTransform: 'uppercase' }}>Boutique</div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>${boutFinal.toFixed(2)}</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: COLORS.success.fg }}>${boutFinal.toFixed(2)}</div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 10, fontWeight: 700 }}>
-            <div style={{ color: '#16A34A' }}>+${Math.max(0, utilBout).toFixed(2)}</div>
+            <div style={{ color: COLORS.success.fg }}>+${Math.max(0, utilBout).toFixed(2)}</div>
             <div style={{ color: COLORS.textMuted }}>{margenBout.toFixed(0)}% util.</div>
           </div>
         </div>
@@ -116,18 +116,18 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
       <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
         <button onClick={() => { setStockModal(true); setStockQty(''); }} style={{
           flex: 1, padding: '8px 0', borderRadius: 10,
-          border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
-          fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: '#6B7280',
+          border: `1.5px solid ${COLORS.border}`, backgroundColor: COLORS.surface2,
+          fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: COLORS.textSecondary,
         }}>+ Stock</button>
         <button onClick={() => onEdit(product)} style={{
           flex: 1, padding: '8px 0', borderRadius: 10,
-          border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
+          border: `1.5px solid ${COLORS.border}`, backgroundColor: COLORS.surface2,
           fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: COLORS.textSecondary,
         }}>✏️ Editar</button>
         <button onClick={() => onDelete(product.id)} style={{
           flex: 1, padding: '8px 0', borderRadius: 10,
-          border: '1.5px solid #FECACA', backgroundColor: '#FEF2F2',
-          fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: '#EF4444',
+          border: `1.5px solid ${COLORS.danger.border}`, backgroundColor: COLORS.danger.bg,
+          fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', color: COLORS.danger.fg,
         }}>🗑 Eliminar</button>
       </div>
 
@@ -135,12 +135,12 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
         <div style={{ position: 'fixed', inset: 0, zIndex: 800,
           backgroundColor: 'rgba(0,0,0,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 20,
+          <div style={{ backgroundColor: COLORS.card, borderRadius: 20,
             padding: 24, maxWidth: 320, width: '100%' }}>
-            <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 6 }}>
+            <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 6, color: COLORS.textPrimary }}>
               Agregar stock
             </div>
-            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 16 }}>
+            <div style={{ fontSize: 13, color: COLORS.textSecondary, marginBottom: 16 }}>
               {product.emoji} {product.nombre} · actualmente {(product.stock_inicial || 0) - (product.stock_vendido || 0)} disponibles
             </div>
             <input
@@ -153,16 +153,17 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
               style={{
                 width: '100%', boxSizing: 'border-box',
                 padding: '11px 14px', borderRadius: 10,
-                border: '1.5px solid #E5E7EB',
+                border: `1.5px solid ${COLORS.border}`,
                 fontSize: 15, fontFamily: 'inherit',
                 outline: 'none', marginBottom: 16,
+                backgroundColor: COLORS.surface2, color: COLORS.textPrimary,
               }}
             />
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => { setStockModal(false); setStockQty(''); }}
                 style={{ flex: 1, padding: 12, borderRadius: 12,
-                  border: '2px solid #E5E7EB', background: 'transparent',
-                  fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  border: `2px solid ${COLORS.border}`, background: 'transparent',
+                  fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: COLORS.textSecondary }}>
                 Cancelar
               </button>
               <button onClick={async () => {
@@ -173,8 +174,8 @@ export default function CatalogoProductCard({ product, config, onEdit, onDelete,
                   setStockQty('');
                 }}
                 style={{ flex: 2, padding: 12, borderRadius: 12,
-                  backgroundColor: '#1A1A2E', border: 'none',
-                  color: '#fff', fontWeight: 800,
+                  backgroundColor: COLORS.accent, border: 'none',
+                  color: COLORS.onAccent, fontWeight: 800,
                   cursor: 'pointer', fontFamily: 'inherit' }}>
                 + Agregar
               </button>

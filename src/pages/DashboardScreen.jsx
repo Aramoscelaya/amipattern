@@ -52,16 +52,16 @@ export default function DashboardScreen({ user, patterns = [], items = [], order
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <div style={{ color: '#FAD2E1', fontSize: 22, fontWeight: 900 }}>🧶 AmiPattern</div>
-            <div style={{ color: '#4B5563', fontSize: 13, marginTop: 2 }}>Hola, {displayName} 👋</div>
+            <div style={{ color: COLORS.accent, fontSize: 22, fontWeight: 900 }}>🧶 AmiPattern</div>
+            <div style={{ color: COLORS.headerAccent, fontSize: 13, marginTop: 2 }}>Hola, {displayName} 👋</div>
           </div>
 
           {/* Avatar + menú */}
           <div style={{ position: 'relative' }}>
             <button onClick={() => setShowMenu(m => !m)} style={{
               width: 40, height: 40, borderRadius: 20, padding: 0,
-              border: '2px solid #374151', cursor: 'pointer',
-              overflow: 'hidden', backgroundColor: '#374151',
+              border: `2px solid ${COLORS.border}`, cursor: 'pointer',
+              overflow: 'hidden', backgroundColor: COLORS.surface2,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               {avatarUrl
@@ -73,20 +73,20 @@ export default function DashboardScreen({ user, patterns = [], items = [], order
               <div onClick={() => setShowMenu(false)} style={{position:'fixed',inset:0,zIndex:Z_INDEX.modal}}/>
               <div style={{
                 position:'absolute', right:0, top:48, zIndex:Z_INDEX.header,
-                backgroundColor:'#fff', borderRadius:14,
+                backgroundColor: COLORS.card, borderRadius:14,
                 boxShadow:'0 8px 32px rgba(0,0,0,0.15)',
                 minWidth:180, padding:8,
               }}>
-                <div style={{padding:'8px 14px 10px',borderBottom:'1px solid #F3F4F6'}}>
-                  <div style={{fontWeight:800,fontSize:13,color:'#1A1A2E'}}>
+                <div style={{padding:'8px 14px 10px',borderBottom:`1px solid ${COLORS.border}`}}>
+                  <div style={{fontWeight:800,fontSize:13,color:COLORS.textPrimary}}>
                     {user?.user_metadata?.full_name||'Usuario'}
                   </div>
-                  <div style={{fontSize:11,color:'#9CA3AF',marginTop:2}}>{user?.email}</div>
+                  <div style={{fontSize:11,color:COLORS.textMuted,marginTop:2}}>{user?.email}</div>
                 </div>
                 <button onClick={()=>{setShowMenu(false);onSignOut();}} style={{
                   width:'100%',padding:'10px 14px',border:'none',
                   backgroundColor:'transparent',textAlign:'left',
-                  color:'#EF4444',fontWeight:700,fontSize:13,
+                  color:COLORS.danger.fg,fontWeight:700,fontSize:13,
                   cursor:'pointer',fontFamily:'inherit',borderRadius:8,
                 }}>🚪 Cerrar sesión</button>
               </div>
@@ -133,13 +133,13 @@ export default function DashboardScreen({ user, patterns = [], items = [], order
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 20 }}>
           {stats.map(s => (
             <div key={s.label} style={{
-              backgroundColor: '#fff', borderRadius: 14, padding: '12px 10px', textAlign: 'center',
+              backgroundColor: COLORS.card, borderRadius: 14, padding: '12px 10px', textAlign: 'center',
               boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}>
               <div style={{ fontSize: 20 }}>{s.emoji}</div>
               <div style={{
                 fontWeight: 900, fontSize: 18, marginTop: 2,
-                color: s.warn && s.val > 0 ? '#EF4444' : COLORS.textPrimary,
+                color: s.warn && s.val > 0 ? COLORS.danger.fg : COLORS.textPrimary,
               }}>{s.val}</div>
               <div style={{ fontSize: 10, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>{s.label}</div>
             </div>
@@ -157,13 +157,13 @@ export default function DashboardScreen({ user, patterns = [], items = [], order
                 const disp = (i.stock_inicial || 0) + (i.entradas || 0) - (i.stock_usado || 0);
                 return (
                   <div key={i.id} style={{
-                    backgroundColor: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 12,
+                    backgroundColor: COLORS.danger.bg, border: `1.5px solid ${COLORS.danger.border}`, borderRadius: 12,
                     padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
                   }}>
                     <span style={{ fontSize: 16 }}>🧵</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 800, fontSize: 13, color: '#991B1B' }}>{i.nombre}</div>
-                      <div style={{ fontSize: 11, color: '#B91C1C' }}>
+                      <div style={{ fontWeight: 800, fontSize: 13, color: COLORS.danger.fg }}>{i.nombre}</div>
+                      <div style={{ fontSize: 11, color: COLORS.danger.fg }}>
                         Stock bajo: {Math.max(0, disp)} {i.unidad || 'ud'} (mín: {i.alerta_minimo || 0})
                       </div>
                     </div>
@@ -172,13 +172,13 @@ export default function DashboardScreen({ user, patterns = [], items = [], order
               })}
               {proximasEntregas.map(o => (
                 <div key={o.id} style={{
-                  backgroundColor: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 12,
+                  backgroundColor: COLORS.warning.bg, border: `1.5px solid ${COLORS.warning.border}`, borderRadius: 12,
                   padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
                 }}>
                   <span style={{ fontSize: 16 }}>📦</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 800, fontSize: 13, color: '#92400E' }}>{o.cliente_nombre}</div>
-                    <div style={{ fontSize: 11, color: '#78350F' }}>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: COLORS.warning.fg }}>{o.cliente_nombre}</div>
+                    <div style={{ fontSize: 11, color: COLORS.warning.fg }}>
                       {o.patron_nombre} · Entrega: {o.fecha_entrega ? new Date(o.fecha_entrega).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) : '—'}
                     </div>
                   </div>

@@ -1,12 +1,13 @@
 import React from 'react';
-import { BADGE_COLORS } from '../lib/constants';
+import { BADGE_COLORS, COLORS } from '../lib/constants';
 
 export default function Badge({ text }) {
-  const c = BADGE_COLORS[text] || { bg: '#F3F4F6', fg: '#374151' };
+  const c = BADGE_COLORS[text] || { bg: COLORS.surface2, fg: COLORS.textSecondary, border: COLORS.border };
   return (
     <span style={{
       backgroundColor: c.bg,
       color: c.fg,
+      border: c.border ? `1px solid ${c.border}` : 'none',
       borderRadius: 99,
       padding: '3px 10px',
       fontSize: 12,

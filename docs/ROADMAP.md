@@ -37,7 +37,7 @@
 - [ ] Exportar a CSV/PDF
 
 ### 3. Mejoras en UX
-- [ ] Dark mode
+- [x] Dark mode (tema oscuro permanente)
 - [ ] Pull-to-refresh en todas las pantallas
 - [ ] Skeleton loaders mientras carga data
 - [ ] Drag & drop para reordenar pasos (actualmente botones up/down)

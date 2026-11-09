@@ -123,16 +123,16 @@ function MaterialesTab({ inventory }) {
             { emoji:'💰', val:`$${valorTotal.toFixed(0)}`, label:'En stock' },
           ].map(s => (
             <div key={s.label} style={{
-              flex:1, backgroundColor: s.alert ? '#FEF2F2' : '#fff',
+              flex:1, backgroundColor: s.alert ? COLORS.danger.bg : COLORS.card,
               borderRadius:14, padding:'10px 8px', textAlign:'center',
               boxShadow:'0 2px 8px rgba(0,0,0,0.05)',
-              border: s.alert ? '1.5px solid #FECACA' : '1.5px solid transparent',
+              border: s.alert ? `1.5px solid ${COLORS.danger.border}` : '1.5px solid transparent',
             }}>
               <div style={{ fontSize:18 }}>{s.emoji}</div>
-              <div style={{ fontWeight:900, fontSize:18, color: s.alert ? '#EF4444' : '#1A1A2E', marginTop:2 }}>
+              <div style={{ fontWeight:900, fontSize:18, color: s.alert ? COLORS.danger.fg : COLORS.textPrimary, marginTop:2 }}>
                 {s.val}
               </div>
-              <div style={{ fontSize:9, color:'#9CA3AF', fontWeight:800, textTransform:'uppercase' }}>
+              <div style={{ fontSize:9, color:COLORS.textMuted, fontWeight:800, textTransform:'uppercase' }}>
                 {s.label}
               </div>
             </div>
@@ -145,9 +145,9 @@ function MaterialesTab({ inventory }) {
           placeholder="🔍 Buscar por nombre o marca…"
           style={{
             width:'100%', boxSizing:'border-box',
-            backgroundColor:'#fff', borderRadius:12,
-            border:'1.5px solid #E5E7EB',
-            padding:'10px 14px', fontSize:14, color:'#1A1A2E',
+            backgroundColor:COLORS.surface2, borderRadius:12,
+            border:`1.5px solid ${COLORS.border}`,
+            padding:'10px 14px', fontSize:14, color:COLORS.textPrimary,
             marginBottom:10, outline:'none', fontFamily:'inherit',
           }}
         />
@@ -159,14 +159,14 @@ function MaterialesTab({ inventory }) {
               padding:'7px 14px', borderRadius:99, whiteSpace:'nowrap',
               border:'1.5px solid', cursor:'pointer', fontFamily:'inherit',
               fontWeight:700, fontSize:12,
-              backgroundColor: filtro===f.id ? '#1A1A2E' : '#fff',
-              borderColor:     filtro===f.id ? '#1A1A2E' : '#E5E7EB',
-              color:           filtro===f.id ? '#fff' : '#6B7280',
+              backgroundColor: filtro===f.id ? COLORS.accent : COLORS.card,
+              borderColor:     filtro===f.id ? COLORS.accent : COLORS.border,
+              color:           filtro===f.id ? COLORS.onAccent : COLORS.textSecondary,
             }}>
               {f.label}
               {f.id === 'alerta' && alertaCount > 0 && (
                 <span style={{
-                  marginLeft:5, backgroundColor:'#EF4444', color:'#fff',
+                  marginLeft:5, backgroundColor:COLORS.dangerSolid, color:'#fff',
                   borderRadius:99, padding:'1px 6px', fontSize:10, fontWeight:900,
                 }}>{alertaCount}</span>
               )}
@@ -176,25 +176,25 @@ function MaterialesTab({ inventory }) {
 
         {error && (
           <div style={{
-            backgroundColor:'#FEF2F2', border:'1.5px solid #FECACA',
-            borderRadius:12, padding:14, marginBottom:14, color:'#991B1B', fontSize:14,
+            backgroundColor:COLORS.danger.bg, border:`1.5px solid ${COLORS.danger.border}`,
+            borderRadius:12, padding:14, marginBottom:14, color:COLORS.danger.fg, fontSize:14,
           }}>⚠️ {error}</div>
         )}
 
         {loading ? (
-          <div style={{ textAlign:'center', padding:'60px 0', color:'#9CA3AF' }}>
+          <div style={{ textAlign:'center', padding:'60px 0', color:COLORS.textMuted }}>
             <div style={{ fontSize:48 }}>🧵</div>
             <div style={{ fontWeight:700, marginTop:10 }}>Cargando inventario…</div>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign:'center', padding:'60px 0' }}>
             <div style={{ fontSize:48 }}>📦</div>
-            <div style={{ fontWeight:800, fontSize:15, color:'#9CA3AF', marginTop:10 }}>
+            <div style={{ fontWeight:800, fontSize:15, color:COLORS.textMuted, marginTop:10 }}>
               {items.length === 0 ? '¡Agrega tu primer item!' : 'Sin resultados'}
             </div>
             {items.length === 0 && (
               <button onClick={() => { setEditing(null); setModal(true); }} style={{
-                marginTop:16, backgroundColor:'#1A1A2E', color:'#fff',
+                marginTop:16, backgroundColor:COLORS.accent, color:COLORS.onAccent,
                 border:'none', borderRadius:12, padding:'12px 24px',
                 fontWeight:800, fontSize:14, cursor:'pointer', fontFamily:'inherit',
               }}>+ Agregar primer item</button>
@@ -228,8 +228,8 @@ function MaterialesTab({ inventory }) {
           position:'fixed', bottom:'max(24px, calc(env(safe-area-inset-bottom) + 92px))',
           right:24, zIndex:Z_INDEX.fab,
           width:54, height:54, borderRadius:27,
-          backgroundColor:'#FAD2E1', border:'none',
-          boxShadow:'0 4px 20px #a8a8ca',
+          backgroundColor:COLORS.accent, border:'none',
+          boxShadow:'0 4px 20px rgba(250,210,225,0.25)',
           cursor:'pointer', fontSize:24,
           display:'flex', alignItems:'center', justifyContent:'center',
         }}
@@ -329,16 +329,16 @@ function PedidosTab({ ordersHook, inventoryItems }) {
         {/* ── Banner urgentes ── */}
         {proximosVencer.length > 0 && (
           <div style={{
-            backgroundColor:'#FEF2F2', border:'1.5px solid #FECACA',
+            backgroundColor:COLORS.danger.bg, border:`1.5px solid ${COLORS.danger.border}`,
             borderRadius:14, padding:'12px 16px', marginBottom:14,
             display:'flex', alignItems:'center', gap:10,
           }}>
             <span style={{ fontSize:22 }}>🔔</span>
             <div>
-              <div style={{ fontWeight:800, fontSize:13, color:'#991B1B' }}>
+              <div style={{ fontWeight:800, fontSize:13, color:COLORS.danger.fg }}>
                 {proximosVencer.length} entrega{proximosVencer.length>1?'s':''} próxima{proximosVencer.length>1?'s':''}
               </div>
-              <div style={{ fontSize:12, color:'#B91C1C' }}>
+              <div style={{ fontSize:12, color:COLORS.danger.fg }}>
                 {proximosVencer.map(o=>`${o.patron_emoji} ${o.patron_nombre} (${o.cliente_nombre})`).join(' · ')}
               </div>
             </div>
@@ -357,15 +357,15 @@ function PedidosTab({ ordersHook, inventoryItems }) {
           ].map(s => (
             <div key={s.label} style={{
               flex:'0 0 auto', minWidth:70,
-              backgroundColor: s.alert ? '#FFFBEB' : '#fff',
+              backgroundColor: s.alert ? COLORS.warning.bg : COLORS.card,
               borderRadius:14, padding:'10px 8px', textAlign:'center',
-              boxShadow:'0 2px 8px rgba(0,0,0,0.05)',
-              border: s.alert ? '1.5px solid #FDE68A' : '1.5px solid transparent',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              border: s.alert ? `1.5px solid ${COLORS.warning.border}` : '1.5px solid transparent',
             }}>
               <div style={{ fontSize:18 }}>{s.emoji}</div>
               <div style={{ fontWeight:900, fontSize:16,
-                color: s.alert ? '#92400E' : '#1A1A2E', marginTop:2 }}>{s.val}</div>
-              <div style={{ fontSize:9, color:'#9CA3AF', fontWeight:800, textTransform:'uppercase' }}>
+                color: s.alert ? COLORS.warning.fg : COLORS.textPrimary, marginTop:2 }}>{s.val}</div>
+              <div style={{ fontSize:9, color:COLORS.textMuted, fontWeight:800, textTransform:'uppercase' }}>
                 {s.label}
               </div>
             </div>
@@ -375,18 +375,18 @@ function PedidosTab({ ordersHook, inventoryItems }) {
           {stats.gananciaExtra !== undefined && (
             <div style={{
               flex: '0 0 auto', minWidth: 80,
-              backgroundColor: stats.gananciaExtra >= 0 ? '#F0FDF4' : '#FEF2F2',
+              backgroundColor: stats.gananciaExtra >= 0 ? COLORS.success.bg : COLORS.danger.bg,
               borderRadius: 14, padding: '10px 8px', textAlign: 'center',
               boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}>
               <div style={{ fontSize: 18 }}>{stats.gananciaExtra >= 0 ? '⬆' : '⬇'}</div>
               <div style={{
                 fontWeight: 900, fontSize: 14, marginTop: 2,
-                color: stats.gananciaExtra >= 0 ? '#059669' : '#EF4444',
+                color: stats.gananciaExtra >= 0 ? COLORS.success.fg : COLORS.danger.fg,
               }}>
                 {stats.gananciaExtra >= 0 ? '+' : ''}${Math.abs(stats.gananciaExtra).toFixed(0)}
               </div>
-              <div style={{ fontSize: 9, color: '#6B7280', fontWeight: 800, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 9, color: COLORS.textSecondary, fontWeight: 800, textTransform: 'uppercase' }}>
                 Extra
               </div>
             </div>
@@ -396,15 +396,15 @@ function PedidosTab({ ordersHook, inventoryItems }) {
           {stats.ingresosSugeridos !== undefined && stats.ingresosSugeridos > 0 && (
             <div style={{
               flex: '0 0 auto', minWidth: 80,
-              backgroundColor: '#fff',
+              backgroundColor: COLORS.card,
               borderRadius: 14, padding: '10px 8px', textAlign: 'center',
               boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}>
               <div style={{ fontSize: 18 }}>📊</div>
-              <div style={{ fontWeight: 900, fontSize: 14, color: '#1A1A2E', marginTop: 2 }}>
+              <div style={{ fontWeight: 900, fontSize: 14, color: COLORS.textPrimary, marginTop: 2 }}>
                 ${stats.ingresosSugeridos.toFixed(0)}
               </div>
-              <div style={{ fontSize: 9, color: '#6B7280', fontWeight: 800, textTransform: 'uppercase' }}>
+              <div style={{ fontSize: 9, color: COLORS.textSecondary, fontWeight: 800, textTransform: 'uppercase' }}>
                 Min. sugerido
               </div>
             </div>
@@ -416,9 +416,9 @@ function PedidosTab({ ordersHook, inventoryItems }) {
           placeholder="🔍 Buscar por cliente o amigurumi…"
           style={{
             width:'100%', boxSizing:'border-box',
-            backgroundColor:'#fff', borderRadius:12,
-            border:'1.5px solid #E5E7EB',
-            padding:'10px 14px', fontSize:14, color:'#1A1A2E',
+            backgroundColor:COLORS.surface2, borderRadius:12,
+            border:`1.5px solid ${COLORS.border}`,
+            padding:'10px 14px', fontSize:14, color:COLORS.textPrimary,
             marginBottom:10, outline:'none', fontFamily:'inherit',
           }}/>
 
@@ -429,14 +429,14 @@ function PedidosTab({ ordersHook, inventoryItems }) {
               padding:'7px 14px', borderRadius:99, whiteSpace:'nowrap',
               border:'1.5px solid', cursor:'pointer', fontFamily:'inherit',
               fontWeight:700, fontSize:12,
-              backgroundColor: filtro===f.id ? '#1A1A2E' : '#fff',
-              borderColor:     filtro===f.id ? '#1A1A2E' : '#E5E7EB',
-              color:           filtro===f.id ? '#fff'    : '#6B7280',
+              backgroundColor: filtro===f.id ? COLORS.accent : COLORS.card,
+              borderColor:     filtro===f.id ? COLORS.accent : COLORS.border,
+              color:           filtro===f.id ? COLORS.onAccent : COLORS.textSecondary,
             }}>
               {f.label}
               {f.id==='urgentes' && proximosVencer.length>0 && (
                 <span style={{
-                  marginLeft:5, backgroundColor:'#EF4444', color:'#fff',
+                  marginLeft:5, backgroundColor:COLORS.dangerSolid, color:'#fff',
                   borderRadius:99, padding:'1px 6px', fontSize:10, fontWeight:900,
                 }}>{proximosVencer.length}</span>
               )}
@@ -445,25 +445,25 @@ function PedidosTab({ ordersHook, inventoryItems }) {
         </div>
 
         {error && (
-          <div style={{ backgroundColor:'#FEF2F2', border:'1.5px solid #FECACA',
-            borderRadius:12, padding:14, marginBottom:14, color:'#991B1B', fontSize:14,
+          <div style={{ backgroundColor:COLORS.danger.bg, border:`1.5px solid ${COLORS.danger.border}`,
+            borderRadius:12, padding:14, marginBottom:14, color:COLORS.danger.fg, fontSize:14,
           }}>⚠️ {error}</div>
         )}
 
         {loading ? (
-          <div style={{ textAlign:'center', padding:'60px 0', color:'#9CA3AF' }}>
+          <div style={{ textAlign:'center', padding:'60px 0', color:COLORS.textMuted }}>
             <div style={{ fontSize:48 }}>💼</div>
             <div style={{ fontWeight:700, marginTop:10 }}>Cargando pedidos…</div>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign:'center', padding:'60px 0' }}>
             <div style={{ fontSize:48 }}>📋</div>
-            <div style={{ fontWeight:800, fontSize:15, color:'#9CA3AF', marginTop:10 }}>
+            <div style={{ fontWeight:800, fontSize:15, color:COLORS.textMuted, marginTop:10 }}>
               {orders.length === 0 ? '¡Registra tu primer pedido!' : 'Sin resultados'}
             </div>
             {orders.length === 0 && (
               <button onClick={()=>{setEditing(null);setModal(true);}} style={{
-                marginTop:16, backgroundColor:'#1A1A2E', color:'#fff',
+                marginTop:16, backgroundColor:COLORS.accent, color:COLORS.onAccent,
                 border:'none', borderRadius:12, padding:'12px 24px',
                 fontWeight:800, fontSize:14, cursor:'pointer', fontFamily:'inherit',
               }}>+ Nuevo pedido</button>
@@ -494,8 +494,8 @@ function PedidosTab({ ordersHook, inventoryItems }) {
         bottom:'max(24px, calc(env(safe-area-inset-bottom) + 92px))',
         right:24, zIndex:Z_INDEX.fab,
         width:54, height:54, borderRadius:27,
-        backgroundColor:'#FAD2E1', border:'none',
-        boxShadow:'0 4px 20px #a8a8ca',
+        backgroundColor:COLORS.accent, border:'none',
+        boxShadow:'0 4px 20px rgba(250,210,225,0.25)',
         cursor:'pointer', fontSize:24,
         display:'flex', alignItems:'center', justifyContent:'center',
       }}>➕</button>
@@ -527,11 +527,11 @@ export default function InventarioPedidosScreen({ user, inventory, orders, onBac
       }}>
         <button onClick={onBack} style={{
           background: 'none', border: 'none', fontSize: 20, cursor: 'pointer',
-          color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit',
+          color: COLORS.headerAccent, padding: '4px 4px 4px 0', fontFamily: 'inherit',
         }}>←</button>
         <div style={{ flex: 1 }}>
-          <div style={{ color: '#FAD2E1', fontSize: 18, fontWeight: 900 }}>📦 Inventario & Pedidos</div>
-          <div style={{ color: '#4B5563', fontSize: 11, marginTop: 1 }}>Materiales y pedidos de clientes</div>
+          <div style={{ color: COLORS.accent, fontSize: 18, fontWeight: 900 }}>📦 Inventario & Pedidos</div>
+          <div style={{ color: COLORS.headerAccent, fontSize: 11, marginTop: 1 }}>Materiales y pedidos de clientes</div>
         </div>
       </div>
 
@@ -539,7 +539,7 @@ export default function InventarioPedidosScreen({ user, inventory, orders, onBac
       <div style={{
         display: 'flex', gap: 4, padding: '8px 16px',
         backgroundColor: COLORS.header,
-        borderTop: '1px solid rgba(0,0,0,0.08)',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
         position: 'sticky', top: 'max(60px, calc(env(safe-area-inset-top) + 60px))',
         zIndex: Z_INDEX.header,
       }}>
@@ -548,8 +548,8 @@ export default function InventarioPedidosScreen({ user, inventory, orders, onBac
             flex: 1, padding: '9px 4px', borderRadius: 10,
             border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             fontWeight: 800, fontSize: 13, textAlign: 'center',
-            backgroundColor: tab === t.id ? '#1A1A2E' : 'rgba(255,255,255,0.12)',
-            color: tab === t.id ? '#FAD2E1' : 'rgba(255,255,255,0.85)',
+            backgroundColor: tab === t.id ? COLORS.accent : 'rgba(255,255,255,0.12)',
+            color: tab === t.id ? COLORS.onAccent : COLORS.textPrimary,
             transition: 'background 0.2s',
           }}>
             {t.emoji} {t.label}

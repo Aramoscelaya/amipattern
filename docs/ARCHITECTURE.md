@@ -141,3 +141,4 @@ App mount → AuthContext.getSession()
 - **Sin router**: Mantiene simplicidad, la app usa `view` state + tab bars internas
 - **Hooks por módulo**: `useCommerce` (Módulo 3) centraliza catálogo/canales/ventas/costings con cola offline; `useInventory`/`useOrders` se mantienen para Módulo 2
 - **Offline first en ventas**: Ventas y reposiciones de stock se guardan en cola local y sincronizan al reconectar
+- **Tema oscuro permanente**: La app usa una paleta oscura fija definida en `COLORS` (`bg`, `card`, `surface2`, `border`, `textPrimary/Secondary/Muted`) más estados semánticos (`success/danger/warning/info`) y acentos (`accent`, `header`, `headerAccent`, `onAccent`). No hay toggle de tema ni CSS variables: todos los colores se consumen desde `constants.js`. Los colores elegidos por el usuario (`pattern.color`, `color_hex`, `COLORS_PALETTE`, `YARN_COLORS`) se mantienen intactos.

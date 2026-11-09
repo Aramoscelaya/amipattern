@@ -9,6 +9,15 @@ import { COLORS, Z_INDEX } from '../lib/constants';
 const progress = p =>
   !p.pasos?.length ? 0 : Math.round(p.pasos.filter(s => s.hecho).length / p.pasos.length * 100);
 
+const isLightColor = hex => {
+  const h = (hex || '').replace('#', '');
+  if (h.length !== 6) return true;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62;
+};
+
 export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, onToggleStep, onResetPattern, onGoToInventory }) {
   const { config: priceConfig } = usePriceConfig(user?.id);
   const { saveCosting } = useCommerce(user?.id);
@@ -34,55 +43,71 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
   const pct      = progress(pattern);
   const barColor = pct === 100 ? COLORS.teal : COLORS.orange;
 
+  const heroLight  = isLightColor(pattern.color);
+  const heroInk    = heroLight ? COLORS.onAccent : COLORS.textPrimary;
+  const heroOverlay = heroLight ? 'rgba(255,255,255,0.42)' : 'rgba(255,255,255,0.16)';
+  const cardStyle = {
+    backgroundColor: COLORS.card,
+    borderRadius: 18,
+    padding: 20,
+    border: `1px solid ${COLORS.border}`,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg }}>
 
       {/* Sticky top bar — con safe area para móvil */}
       <div style={{
-        backgroundColor: pattern.color,
+        backgroundColor: COLORS.bg,
+        borderBottom: `1px solid ${COLORS.border}`,
         paddingTop: 'max(12px, env(safe-area-inset-top))',
         paddingBottom: 10,
         paddingLeft: 16,
         paddingRight: 16,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
-        <button onClick={onBack} style={{
-          backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-          padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
-          color: '#1A1A2E', fontFamily: 'inherit',
-          minHeight: 40, minWidth: 80,           // área táctil mínima
-        }}>← Volver</button>
+        <div style={{
+          maxWidth: 720, margin: '0 auto',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+        }}>
+          <button onClick={onBack} style={{
+            backgroundColor: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 10,
+            padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+            color: COLORS.textPrimary, fontFamily: 'inherit',
+            minHeight: 40, whiteSpace: 'nowrap', flexShrink: 0,
+          }}>← Volver</button>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => { setProdInitial({
-            nombre: pattern.nombre,
-            emoji: pattern.emoji,
-            patron_id: pattern.id,
-            patron_nombre: pattern.nombre,
-          }); setProdModal(true); }} style={{
-            backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-            padding: '8px 10px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
-            color: '#1A1A2E', fontFamily: 'inherit',
-            minHeight: 40, whiteSpace: 'nowrap',
-          }}>📦 Crear</button>
-          <button onClick={onEdit} style={{
-            backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-            padding: '8px 10px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
-            color: '#1A1A2E', fontFamily: 'inherit',
-            minHeight: 40,
-          }}>✏️</button>
-          <button onClick={() => setConfirmReset(true)} style={{
-            backgroundColor: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 10,
-            padding: '8px 10px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
-            color: '#1A1A2E', fontFamily: 'inherit',
-            minHeight: 40, whiteSpace: 'nowrap',
-          }}>🔄 Repetir</button>
-          <button onClick={() => setConfirmDel(true)} style={{
-            backgroundColor: 'rgba(239,68,68,0.15)', border: 'none', borderRadius: 10,
-            padding: '8px 10px', cursor: 'pointer', fontSize: 18,
-            minHeight: 40, minWidth: 40,
-          }}>🗑</button>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <button onClick={() => { setProdInitial({
+              nombre: pattern.nombre,
+              emoji: pattern.emoji,
+              patron_id: pattern.id,
+              patron_nombre: pattern.nombre,
+            }); setProdModal(true); }} style={{
+              backgroundColor: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 10,
+              padding: '8px 10px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+              color: COLORS.textSecondary, fontFamily: 'inherit',
+              minHeight: 40, whiteSpace: 'nowrap',
+            }}>📦 Crear</button>
+            <button onClick={onEdit} style={{
+              backgroundColor: COLORS.accent, border: 'none', borderRadius: 10,
+              padding: '8px 10px', fontWeight: 800, fontSize: 13, cursor: 'pointer',
+              color: COLORS.onAccent, fontFamily: 'inherit',
+              minHeight: 40, whiteSpace: 'nowrap',
+            }}>✏️ Editar</button>
+            <button onClick={() => setConfirmReset(true)} style={{
+              backgroundColor: COLORS.surface2, border: `1px solid ${COLORS.border}`, borderRadius: 10,
+              padding: '8px 10px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+              color: COLORS.textSecondary, fontFamily: 'inherit',
+              minHeight: 40, whiteSpace: 'nowrap',
+            }}>🔄 Repetir</button>
+            <button onClick={() => setConfirmDel(true)} style={{
+              backgroundColor: COLORS.danger.bg, border: `1px solid ${COLORS.danger.border}`, borderRadius: 10,
+              padding: '8px 10px', cursor: 'pointer', fontSize: 16, color: COLORS.danger.fg,
+              minHeight: 40, minWidth: 40,
+            }}>🗑</button>
+          </div>
         </div>
       </div>
 
@@ -108,41 +133,55 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
         onCancel={() => setConfirmReset(false)}
       />
 
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: 16 }}>
         {/* Hero */}
-        <div style={{ backgroundColor: pattern.color, padding: '0 20px 24px' }}>
+        <div style={{
+          backgroundColor: pattern.color,
+          borderRadius: 20,
+          padding: 20,
+          marginBottom: 14,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+          overflow: 'hidden',
+        }}>
           {pattern.imagen_url && (
             <img src={pattern.imagen_url} alt={pattern.nombre}
-              style={{ width: '100%', height: 220, objectFit: 'cover', borderRadius: 16, marginBottom: 14, display: 'block' }} />
+              style={{ width: '100%', height: 220, objectFit: 'cover', borderRadius: 14, marginBottom: 16, display: 'block' }} />
           )}
-          <div style={{ fontSize: 44 }}>{pattern.emoji}</div>
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#1A1A2E', marginTop: 4, lineHeight: 1.2 }}>
-            {pattern.nombre}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+              backgroundColor: heroOverlay,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30,
+            }}>{pattern.emoji}</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: heroInk, lineHeight: 1.2, minWidth: 0 }}>
+              {pattern.nombre}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
             <Badge text={pattern.estado} />
             <Badge text={pattern.dificultad} />
           </div>
         </div>
 
-        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Info grid */}
-          <div style={{
-            backgroundColor: '#fff', borderRadius: 16, padding: 16,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+          <div style={cardStyle}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
                 { l: '📏 Talla',  v: pattern.talla || '—' },
                 { l: '🪝 Aguja', v: pattern.aguja || '—' },
                 { l: '📅 Inicio', v: pattern.fecha || '—' },
                 { l: '🧵 Hilos',  v: pattern.hilos?.length ? pattern.hilos.join(', ') : '—' },
               ].map(x => (
-                <div key={x.l} style={{ minWidth: '40%', flex: 1 }}>
-                  <div style={{ fontSize: 10, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase', marginBottom: 2 }}>
+                <div key={x.l} style={{
+                  minWidth: 0, backgroundColor: COLORS.surface2,
+                  border: `1px solid ${COLORS.border}`, borderRadius: 12,
+                  padding: '10px 12px',
+                }}>
+                  <div style={{ fontSize: 9, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 3 }}>
                     {x.l}
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary }}>{x.v}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, lineHeight: 1.4, wordBreak: 'break-word' }}>{x.v}</div>
                 </div>
               ))}
             </div>
@@ -150,30 +189,34 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
 
           {/* Materiales */}
           {!!pattern.materiales && (
-            <div style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+            <div style={cardStyle}>
               <div style={{ fontSize: 12, fontWeight: 800, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
                 🧰 Materiales
               </div>
-              <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{pattern.materiales}</div>
+              <div style={{ fontSize: 14, color: COLORS.textPrimary, lineHeight: 1.6 }}>{pattern.materiales}</div>
               <button onClick={onGoToInventory} style={{
                 marginTop: 10, background: 'none', border: 'none', padding: 0,
-                color: '#1D4ED8', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
+                color: COLORS.accent, fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
               }}>→ Ver inventario</button>
             </div>
           )}
 
           {/* Pasos */}
           {pattern.pasos?.length > 0 && (
-            <div style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   📋 Patrón paso a paso
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.teal }}>
+                <span style={{
+                  fontSize: 12, fontWeight: 800, color: COLORS.success.fg,
+                  backgroundColor: COLORS.surface2, border: `1px solid ${COLORS.border}`,
+                  borderRadius: 99, padding: '3px 10px', whiteSpace: 'nowrap',
+                }}>
                   {pattern.pasos.filter(s => s.hecho).length}/{pattern.pasos.length}
                 </span>
               </div>
-              <div style={{ height: 6, backgroundColor: '#F3F4F6', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
+              <div style={{ height: 8, backgroundColor: COLORS.border, borderRadius: 99, overflow: 'hidden', marginBottom: 14 }}>
                 <div style={{ height: '100%', width: `${pct}%`, backgroundColor: barColor, borderRadius: 99, transition: 'width 0.4s ease' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -182,26 +225,28 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
                     key={p.id}
                     onClick={() => onToggleStep(p.id)}
                     style={{
-                      display: 'flex', alignItems: 'flex-start', gap: 10,
-                      padding: 10, borderRadius: 12, cursor: 'pointer',
-                      border: `1.5px solid ${p.hecho ? '#BBF7D0' : '#F3F4F6'}`,
-                      backgroundColor: p.hecho ? '#F0FDF4' : '#FAFAFA',
+                      display: 'flex', alignItems: 'flex-start', gap: 12,
+                      padding: '12px 14px', borderRadius: 12, cursor: 'pointer',
+                      border: `1.5px solid ${p.hecho ? COLORS.success.border : COLORS.border}`,
+                      backgroundColor: p.hecho ? COLORS.success.bg : COLORS.surface2,
                       textAlign: 'left', width: '100%', fontFamily: 'inherit',
+                      transition: 'background 0.15s ease, border-color 0.15s ease',
                     }}
                   >
                     <div style={{
-                      width: 22, height: 22, borderRadius: 11, flexShrink: 0, marginTop: 1,
-                      backgroundColor: p.hecho ? COLORS.teal : '#E5E7EB',
+                      width: 24, height: 24, borderRadius: 12, flexShrink: 0, marginTop: 1,
+                      backgroundColor: p.hecho ? COLORS.teal : COLORS.bg,
+                      border: `1px solid ${p.hecho ? COLORS.teal : COLORS.border}`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      {p.hecho && <span style={{ color: '#fff', fontSize: 11, fontWeight: 900 }}>✓</span>}
+                      {p.hecho && <span style={{ color: '#fff', fontSize: 12, fontWeight: 900 }}>✓</span>}
                     </div>
                     <span style={{
-                      fontSize: 14, lineHeight: 1.5,
-                      color: p.hecho ? '#9CA3AF' : '#374151',
+                      fontSize: 14, lineHeight: 1.55,
+                      color: p.hecho ? COLORS.textMuted : COLORS.textPrimary,
                       textDecoration: p.hecho ? 'line-through' : 'none',
                     }}>
-                      <strong style={{ color: '#D1D5DB' }}>{i + 1}. </strong>{p.texto}
+                      <strong style={{ color: p.hecho ? COLORS.textMuted : COLORS.textSecondary }}>{i + 1}. </strong>{p.texto}
                     </span>
                   </button>
                 ))}
@@ -212,13 +257,13 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
           {/* Notas */}
           {!!pattern.notas && (
             <div style={{
-              backgroundColor: '#FFFBEB', border: '1.5px solid #FDE68A',
-              borderRadius: 16, padding: 16,
+              ...cardStyle,
+              backgroundColor: COLORS.warning.bg, border: `1.5px solid ${COLORS.warning.border}`,
             }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#92400E', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: COLORS.warning.fg, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
                 💡 Notas
               </div>
-              <div style={{ fontSize: 14, color: '#78350F', lineHeight: 1.6 }}>{pattern.notas}</div>
+              <div style={{ fontSize: 14, color: COLORS.warning.fg, lineHeight: 1.6 }}>{pattern.notas}</div>
             </div>
           )}
 
@@ -235,8 +280,8 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
           bottom: 'max(48px, env(safe-area-inset-bottom, 24px))',
           right: 24, zIndex: Z_INDEX.fab,
           width: 56, height: 56, borderRadius: 28,
-          backgroundColor: "#687c8f", border: 'none',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+          backgroundColor: COLORS.accent, border: 'none',
+          boxShadow: '0 4px 20px rgba(250,210,225,0.25)',
           cursor: 'pointer', fontSize: 22,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'transform 0.2s ease',
@@ -250,7 +295,7 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
           position: 'fixed',
           bottom: 'max(90px, calc(env(safe-area-inset-bottom, 0px) + 90px))',
           right: 24, zIndex: Z_INDEX.fab,
-          backgroundColor: '#fff',
+          backgroundColor: COLORS.card,
           borderRadius: 20,
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
           padding: '20px 24px',
@@ -265,7 +310,7 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
             🧶 Contador de puntos
           </div>
           <div style={{
-            fontSize: 64, fontWeight: 900, color: COLORS.header,
+            fontSize: 64, fontWeight: 900, color: COLORS.accent,
             lineHeight: 1, marginBottom: 16,
             fontVariantNumeric: 'tabular-nums',
           }}>
@@ -276,9 +321,9 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
               onClick={() => setCounter(c => Math.max(0, c - 1))}
               style={{
                 flex: 1, height: 48, borderRadius: 14,
-                border: '2px solid #E5E7EB', backgroundColor: '#F9FAFB',
+                border: `2px solid ${COLORS.border}`, backgroundColor: COLORS.surface2,
                 fontSize: 24, fontWeight: 900, cursor: 'pointer',
-                color: counter === 0 ? '#D1D5DB' : '#1A1A2E',
+                color: counter === 0 ? COLORS.textMuted : COLORS.textPrimary,
                 fontFamily: 'inherit',
               }}
             >−</button>
@@ -286,9 +331,9 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
               onClick={() => setCounter(c => c + 1)}
               style={{
                 flex: 1, height: 48, borderRadius: 14,
-                border: 'none', backgroundColor: '#aa798b',
+                border: 'none', backgroundColor: COLORS.accent,
                 fontSize: 24, fontWeight: 900, cursor: 'pointer',
-                color: '#fff', fontFamily: 'inherit',
+                color: COLORS.onAccent, fontFamily: 'inherit',
               }}
             >+</button>
           </div>
@@ -298,7 +343,7 @@ export default function DetailScreen({ user, pattern, onBack, onEdit, onDelete, 
             style={{
               width: '100%', padding: '8px 0', borderRadius: 10,
               border: 'none', backgroundColor: 'transparent',
-              color: '#EF4444', fontWeight: 700, fontSize: 13,
+              color: COLORS.danger.fg, fontWeight: 700, fontSize: 13,
               cursor: counter === 0 ? 'default' : 'pointer',
               fontFamily: 'inherit', opacity: counter === 0 ? 0.4 : 1,
             }}

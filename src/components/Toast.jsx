@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import { Z_INDEX } from '../lib/constants';
+import { COLORS, Z_INDEX } from '../lib/constants';
 
 const ToastContext = createContext(null);
 
@@ -28,7 +28,8 @@ export function ToastProvider({ children }) {
       {state.visible && (
         <div style={{
           position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
-          backgroundColor: '#1A1A2E', color: '#fff',
+          backgroundColor: COLORS.surface2, color: COLORS.textPrimary,
+          border: `1px solid ${COLORS.border}`,
           padding: '10px 20px', borderRadius: 99,
           fontWeight: 700, fontSize: 14,
           boxShadow: '0 4px 20px rgba(0,0,0,0.25)',

@@ -87,13 +87,13 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
         position: 'sticky', top: 0, zIndex: Z_INDEX.header,
       }}>
         {onClose && (
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#4B5563', padding: '4px 4px 4px 0', fontFamily: 'inherit' }}>←</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: COLORS.headerAccent, padding: '4px 4px 4px 0', fontFamily: 'inherit' }}>←</button>
         )}
-        <div style={{ color: '#FAD2E1', fontSize: 18, fontWeight: 900, flex: 1 }}>📚 Catálogo</div>
+        <div style={{ color: COLORS.accent, fontSize: 18, fontWeight: 900, flex: 1 }}>📚 Catálogo</div>
         <button onClick={() => setShowConfig(true)} style={{
           backgroundColor: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 10,
           padding: '8px 12px', fontWeight: 700, fontSize: 12, cursor: 'pointer',
-          color: '#fff', fontFamily: 'inherit', minHeight: 40,
+          color: COLORS.textPrimary, fontFamily: 'inherit', minHeight: 40,
         }}>⚙️ Precios</button>
       </div>
 
@@ -101,13 +101,13 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
 
         {!isOnline && (
           <div style={{
-            backgroundColor: '#FEF2F2',
-            border: '1.5px solid #FECACA',
+            backgroundColor: COLORS.danger.bg,
+            border: `1.5px solid ${COLORS.danger.border}`,
             borderRadius: 12,
             padding: '10px 16px',
             marginBottom: 12,
             fontSize: 13,
-            color: '#991B1B',
+            color: COLORS.danger.fg,
             fontWeight: 700,
           }}>
             Sin conexion — solo puedes agregar stock a productos existentes
@@ -116,8 +116,8 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
 
         {/* Barra de config */}
         <div style={{
-          backgroundColor: '#fff', borderRadius: 16, padding: '12px 16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: 14,
+          backgroundColor: COLORS.card, borderRadius: 16, padding: '12px 16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.25)', marginBottom: 14,
           display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
         }}>
           {[
@@ -140,9 +140,9 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
             { emoji: '📦', val: products.length, label: 'Total productos' },
             { emoji: '💰', val: `$${valorCatalogo.toFixed(0)}`, label: 'Valor catálogo', green: true },
           ].map(s => (
-            <div key={s.label} style={{ flex: 1, backgroundColor: '#fff', borderRadius: 14, padding: '10px 8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+            <div key={s.label} style={{ flex: 1, backgroundColor: COLORS.card, borderRadius: 14, padding: '10px 8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
               <div style={{ fontSize: 16 }}>{s.emoji}</div>
-              <div style={{ fontWeight: 900, fontSize: 14, color: s.green ? '#059669' : COLORS.textPrimary, marginTop: 2 }}>{s.val}</div>
+              <div style={{ fontWeight: 900, fontSize: 14, color: s.green ? COLORS.success.fg : COLORS.textPrimary, marginTop: 2 }}>{s.val}</div>
               <div style={{ fontSize: 9, color: COLORS.textMuted, fontWeight: 800, textTransform: 'uppercase' }}>{s.label}</div>
             </div>
           ))}
@@ -150,7 +150,7 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
 
         {/* Buscador */}
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Buscar producto…"
-          style={{ width: '100%', boxSizing: 'border-box', backgroundColor: '#fff', borderRadius: 12, border: '1.5px solid #E5E7EB', padding: '10px 14px', fontSize: 14, color: COLORS.textPrimary, marginBottom: 10, outline: 'none', fontFamily: 'inherit' }}
+          style={{ width: '100%', boxSizing: 'border-box', backgroundColor: COLORS.card, borderRadius: 12, border: `1.5px solid ${COLORS.border}`, padding: '10px 14px', fontSize: 14, color: COLORS.textPrimary, marginBottom: 10, outline: 'none', fontFamily: 'inherit' }}
         />
 
         {/* Filtros categoría */}
@@ -159,9 +159,9 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
             <button key={f.id} onClick={() => setFiltroCat(f.id)} style={{
               padding: '7px 14px', borderRadius: 99, whiteSpace: 'nowrap',
               border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 12,
-              backgroundColor: filtroCat === f.id ? COLORS.header : '#fff',
-              borderColor:     filtroCat === f.id ? COLORS.header : '#E5E7EB',
-              color:           filtroCat === f.id ? '#fff' : COLORS.textSecondary,
+              backgroundColor: filtroCat === f.id ? COLORS.accent : COLORS.card,
+              borderColor:     filtroCat === f.id ? COLORS.accent : COLORS.border,
+              color:           filtroCat === f.id ? COLORS.onAccent : COLORS.textSecondary,
             }}>{f.label}</button>
           ))}
         </div>
@@ -172,9 +172,9 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
             <button key={f.id} onClick={() => setFiltroEstado(f.id)} style={{
               padding: '7px 14px', borderRadius: 99, whiteSpace: 'nowrap',
               border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 12,
-              backgroundColor: filtroEstado === f.id ? '#1A1A2E' : '#fff',
-              borderColor:     filtroEstado === f.id ? '#1A1A2E' : '#E5E7EB',
-              color:           filtroEstado === f.id ? '#FAD2E1' : COLORS.textSecondary,
+              backgroundColor: filtroEstado === f.id ? COLORS.accent : COLORS.card,
+              borderColor:     filtroEstado === f.id ? COLORS.accent : COLORS.border,
+              color:           filtroEstado === f.id ? COLORS.onAccent : COLORS.textSecondary,
             }}>{f.label}</button>
           ))}
         </div>
@@ -188,7 +188,7 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
             </div>
             {isOnline && (
               <button onClick={() => { setEditing(null); setShowModal(true); }} style={{
-                marginTop: 16, backgroundColor: '#1A1A2E', color: '#fff',
+                marginTop: 16, backgroundColor: COLORS.accent, color: COLORS.onAccent,
                 border: 'none', borderRadius: 12, padding: '12px 24px',
                 fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
               }}>+ Agregar producto</button>
@@ -218,8 +218,8 @@ export default function CatalogoTab({ products, config, onSaveProduct, onDeleteP
           position: 'fixed', bottom: 'max(48px, env(safe-area-inset-bottom, 24px))', right: 24,
           zIndex: Z_INDEX.fab,
           width: 56, height: 56, borderRadius: 28,
-          backgroundColor: '#1A1A2E', border: 'none',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+          backgroundColor: COLORS.accent, border: 'none',
+          boxShadow: '0 4px 20px rgba(250,210,225,0.25)',
           cursor: 'pointer', fontSize: 24,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>+</button>

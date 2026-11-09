@@ -1,14 +1,15 @@
 import React from 'react';
+import { COLORS } from '../lib/constants';
 
 const baseInput = {
   width: '100%', boxSizing: 'border-box',
-  backgroundColor: '#F9FAFB', borderRadius: 10,
-  border: '1.5px solid #E5E7EB',
-  padding: '10px 12px', fontSize: 14, color: '#1A1A2E',
+  backgroundColor: COLORS.surface2, borderRadius: 10,
+  border: `1.5px solid ${COLORS.border}`,
+  padding: '10px 12px', fontSize: 14, color: COLORS.textPrimary,
   outline: 'none', fontFamily: 'inherit',
 };
 const baseLabel = {
-  fontSize: 12, fontWeight: 800, color: '#6B7280',
+  fontSize: 12, fontWeight: 800, color: COLORS.textSecondary,
   marginBottom: 4, display: 'block',
   textTransform: 'uppercase', letterSpacing: 0.5,
 };

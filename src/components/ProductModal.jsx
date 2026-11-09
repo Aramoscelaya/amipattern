@@ -27,33 +27,33 @@ function MatRow({ mat, onChange, onDelete }) {
     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
       <input value={mat.nombre} onChange={e => onChange({ ...mat, nombre: e.target.value })}
         placeholder="Material"
-        style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 13, fontFamily: 'inherit', outline: 'none', backgroundColor: '#F9FAFB' }}
+        style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: `1.5px solid ${COLORS.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }}
       />
       <input type="number" inputMode="decimal" value={mat.cantidad}
         onChange={e => onChange({ ...mat, cantidad: e.target.value })}
         placeholder="Cant"
-        style={{ width: 52, padding: '8px 6px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'center', backgroundColor: '#F9FAFB' }}
+        style={{ width: 52, padding: '8px 6px', borderRadius: 8, border: `1.5px solid ${COLORS.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'center', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }}
       />
       <input type="number" inputMode="decimal" value={mat.costo_unit}
         onChange={e => onChange({ ...mat, costo_unit: e.target.value })}
         placeholder="$/u"
-        style={{ width: 60, padding: '8px 6px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'right', backgroundColor: '#F9FAFB' }}
+        style={{ width: 60, padding: '8px 6px', borderRadius: 8, border: `1.5px solid ${COLORS.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'right', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }}
       />
-      <button onClick={onDelete} style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#EF4444', padding: '4px 2px', flexShrink: 0 }}>✕</button>
+      <button onClick={onDelete} style={{ background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: COLORS.danger.fg, padding: '4px 2px', flexShrink: 0 }}>✕</button>
     </div>
   );
 }
 
 function Toggle({ label, value, onChange }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: '#F9FAFB', borderRadius: 12, border: '1.5px solid #E5E7EB' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', backgroundColor: COLORS.surface2, borderRadius: 12, border: `1.5px solid ${COLORS.border}` }}>
       <span style={{ fontWeight: 700, fontSize: 13, color: COLORS.textPrimary }}>{label}</span>
       <button onClick={() => onChange(!value)} style={{
         width: 48, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer', position: 'relative',
-        backgroundColor: value ? '#1A1A2E' : '#D1D5DB', transition: 'background 0.2s',
+        backgroundColor: value ? COLORS.accent : COLORS.border, transition: 'background 0.2s',
       }}>
         <div style={{
-          width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff', position: 'absolute', top: 3,
+          width: 20, height: 20, borderRadius: 10, backgroundColor: value ? COLORS.onAccent : COLORS.textPrimary, position: 'absolute', top: 3,
           left: value ? 25 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
         }} />
       </button>
@@ -254,7 +254,7 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
     <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '94vh', overflowY: 'auto',
-        backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
+        backgroundColor: COLORS.card, borderRadius: '20px 20px 0 0',
         padding: '0 0 48px',
         animation: ANIMATION.slideUp,
       }}>
@@ -263,7 +263,7 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
           <div style={{ fontWeight: 900, fontSize: 18, color: COLORS.textPrimary }}>
             🧮 {initial ? 'Editar' : 'Nuevo producto'}
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#9CA3AF' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: COLORS.textMuted }}>✕</button>
         </div>
 
         <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -281,12 +281,12 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
               <StyledLabel>Emoji</StyledLabel>
               <button onClick={() => setEmojiOpen(e => !e)} style={{
                 width: 52, height: 44, borderRadius: 10,
-                border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
+                border: `1.5px solid ${COLORS.border}`, backgroundColor: COLORS.surface2,
                 fontSize: 24, cursor: 'pointer',
               }}>{form.emoji}</button>
               {emojiOpen && (
                 <div style={{
-                  position: 'absolute', zIndex: 10, backgroundColor: '#fff', borderRadius: 14,
+                  position: 'absolute', zIndex: 10, backgroundColor: COLORS.card, borderRadius: 14,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
                   padding: 10, display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 220,
                 }}>
@@ -315,9 +315,9 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
                   padding: '7px 14px', borderRadius: 99,
                   border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
                   fontWeight: 700, fontSize: 12,
-                  backgroundColor: form.categoria === c.id ? COLORS.header : '#F9FAFB',
-                  borderColor: form.categoria === c.id ? COLORS.header : '#E5E7EB',
-                  color: form.categoria === c.id ? '#fff' : COLORS.textSecondary,
+                  backgroundColor: form.categoria === c.id ? COLORS.accent : COLORS.surface2,
+                  borderColor: form.categoria === c.id ? COLORS.accent : COLORS.border,
+                  color: form.categoria === c.id ? COLORS.onAccent : COLORS.textSecondary,
                 }}>{c.emoji} {c.label}</button>
               ))}
             </div>
@@ -360,19 +360,19 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 8 }}>
               <input value={newMat.nombre} onChange={e => setNewMat(m => ({ ...m, nombre: e.target.value }))}
                 placeholder="+ Material" onKeyDown={e => e.key === 'Enter' && addMat()}
-                style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: '1.5px dashed #D1D5DB', fontSize: 13, fontFamily: 'inherit', outline: 'none', backgroundColor: '#FAFAFA' }} />
+                style={{ flex: 2, padding: '8px 10px', borderRadius: 8, border: `1.5px dashed ${COLORS.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }} />
               <input type="number" inputMode="decimal" value={newMat.cantidad}
                 onChange={e => setNewMat(m => ({ ...m, cantidad: e.target.value }))}
                 placeholder="Cant"
-                style={{ width: 52, padding: '8px 6px', borderRadius: 8, border: '1.5px dashed #D1D5DB', fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'center', backgroundColor: '#FAFAFA' }} />
+                style={{ width: 52, padding: '8px 6px', borderRadius: 8, border: `1.5px dashed ${COLORS.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'center', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }} />
               <input type="number" inputMode="decimal" value={newMat.costo_unit}
                 onChange={e => setNewMat(m => ({ ...m, costo_unit: e.target.value }))}
                 placeholder="$/u"
-                style={{ width: 60, padding: '8px 6px', borderRadius: 8, border: '1.5px dashed #D1D5DB', fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'right', backgroundColor: '#FAFAFA' }} />
+                style={{ width: 60, padding: '8px 6px', borderRadius: 8, border: `1.5px dashed ${COLORS.border}`, fontSize: 13, fontFamily: 'inherit', outline: 'none', textAlign: 'right', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }} />
               <button onClick={addMat} style={{
                 width: 30, height: 30, borderRadius: 15, flexShrink: 0,
-                backgroundColor: COLORS.header, border: 'none',
-                color: '#fff', fontSize: 18, cursor: 'pointer', lineHeight: 1,
+                backgroundColor: COLORS.accent, border: 'none',
+                color: COLORS.onAccent, fontSize: 18, cursor: 'pointer', lineHeight: 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>+</button>
             </div>
@@ -407,7 +407,7 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
           </div>
 
           {/* Desglose costing */}
-          <div style={{ backgroundColor: '#F5F0EB', borderRadius: 14, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ backgroundColor: COLORS.surface2, borderRadius: 14, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontWeight: 800, fontSize: 12, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
               🧮 Desglose de costos
             </div>
@@ -415,17 +415,17 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
               { label: `Materiales (${form.materiales.length} items)`,  val: costingCalc.costoMateriales, color: COLORS.textPrimary },
               { label: `Mano de obra (${form.horas || 0}h × $${form.costo_hora || 60})`, val: costoMO, color: COLORS.textPrimary },
               { label: 'Subtotal',                                        val: costingCalc.subtotal,   color: COLORS.textPrimary, border: true },
-              { label: `Overhead (${form.overhead_pct || 10}%)`,         val: overAmt,                  color: '#92400E' },
-              { label: `Ganancia (${form.margen_pct || 30}%)`,           val: gainAmt,                  color: '#065F46' },
+              { label: `Overhead (${form.overhead_pct || 10}%)`,         val: overAmt,                  color: COLORS.warning.fg },
+              { label: `Ganancia (${form.margen_pct || 30}%)`,           val: gainAmt,                  color: COLORS.success.fg },
             ].map(r => (
-              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderTop: r.border ? '1px solid #D1D5DB' : 'none', paddingTop: r.border ? 6 : 0, marginTop: r.border ? 2 : 0 }}>
+              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderTop: r.border ? `1px solid ${COLORS.border}` : 'none', paddingTop: r.border ? 6 : 0, marginTop: r.border ? 2 : 0 }}>
                 <span style={{ color: COLORS.textSecondary }}>{r.label}</span>
                 <span style={{ fontWeight: r.bold ? 900 : 700, color: r.color }}>${r.val.toFixed(2)}</span>
               </div>
             ))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #1A1A2E', paddingTop: 8, marginTop: 4 }}>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#1A1A2E' }}>Precio sugerido</span>
-              <span style={{ fontSize: 20, fontWeight: 900, color: '#1A1A2E' }}>${suggestedPrice.toFixed(2)}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: `2px solid ${COLORS.border}`, paddingTop: 8, marginTop: 4 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: COLORS.textPrimary }}>Precio sugerido</span>
+              <span style={{ fontSize: 20, fontWeight: 900, color: COLORS.textPrimary }}>${suggestedPrice.toFixed(2)}</span>
             </div>
           </div>
 
@@ -436,7 +436,7 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
               {form.precio_manual && (
                 <button onClick={() => set('precio_manual', false)} style={{
                   background: 'none', border: 'none', fontSize: 11, fontWeight: 800,
-                  color: COLORS.header, cursor: 'pointer', fontFamily: 'inherit',
+                  color: COLORS.accent, cursor: 'pointer', fontFamily: 'inherit',
                 }}>↩ Usar sugerido</button>
               )}
             </div>
@@ -445,8 +445,8 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
               placeholder={String(suggestedPrice)}
               style={{
                 fontSize: 20, fontWeight: 900,
-                borderColor: form.precio_manual ? COLORS.header : '#E5E7EB',
-                color: form.precio_manual ? COLORS.header : '#059669',
+                borderColor: form.precio_manual ? COLORS.accent : COLORS.border,
+                color: form.precio_manual ? COLORS.accent : COLORS.success.fg,
               }} />
             {form.precio_manual && (
               <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 4 }}>
@@ -474,7 +474,7 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
                     {COLORS_PALETTE.map(c => (
                       <button key={c} onClick={() => set('color_hex', c)} style={{
                         width: 26, height: 26, borderRadius: 13, backgroundColor: c,
-                        border: form.color_hex === c ? '3px solid #1A1A2E' : '2px solid #E5E7EB',
+                        border: form.color_hex === c ? `3px solid ${COLORS.accent}` : `2px solid ${COLORS.border}`,
                         cursor: 'pointer',
                       }} />
                     ))}
@@ -516,15 +516,15 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
 
               {/* Desglose boutique */}
               {boutiqueCalc && (
-                <div style={{ backgroundColor: '#F5F0EB', borderRadius: 14, padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ backgroundColor: COLORS.surface2, borderRadius: 14, padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ fontWeight: 800, fontSize: 11, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
                     Precios calculados (boutique)
                   </div>
                   {[
                     { label: 'Costo total',       val: boutiqueCalc.costo_total,     color: COLORS.textPrimary },
-                    { label: '→ Precio boutique', val: boutiqueCalc.precio_boutique, color: '#059669', bold: true },
-                    { label: '→ Precio público',  val: boutiqueCalc.precio_publico,  color: '#1D4ED8', bold: true },
-                    { label: 'Tu utilidad',       val: boutiqueCalc.utilidad_tuya,   color: '#92400E' },
+                    { label: '→ Precio boutique', val: boutiqueCalc.precio_boutique, color: COLORS.success.fg, bold: true },
+                    { label: '→ Precio público',  val: boutiqueCalc.precio_publico,  color: COLORS.info.fg, bold: true },
+                    { label: 'Tu utilidad',       val: boutiqueCalc.utilidad_tuya,   color: COLORS.warning.fg },
                   ].map(r => (
                     <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                       <span style={{ color: COLORS.textSecondary }}>{r.label}</span>
@@ -547,13 +547,13 @@ export default function ProductModal({ visible, initial, patterns = [], priceCon
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onClose} style={{
               flex: 1, padding: 14, borderRadius: 12,
-              border: '2px solid #E5E7EB', background: 'transparent',
-              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14,
+              border: `2px solid ${COLORS.border}`, background: 'transparent',
+              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, color: COLORS.textSecondary,
             }}>Cancelar</button>
             <button onClick={handleSave} disabled={saving} style={{
               flex: 2, padding: 14, borderRadius: 12,
-              backgroundColor: '#1A1A2E', border: 'none',
-              color: '#FAD2E1', fontWeight: 800, cursor: 'pointer',
+              backgroundColor: COLORS.accent, border: 'none',
+              color: COLORS.onAccent, fontWeight: 800, cursor: 'pointer',
               fontFamily: 'inherit', fontSize: 14, opacity: saving ? 0.7 : 1,
             }}>{saving ? 'Guardando…' : '💾 Guardar'}</button>
           </div>

@@ -82,7 +82,7 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
     <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '92vh', overflowY: 'auto',
-        backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
+        backgroundColor: COLORS.card, borderRadius: '20px 20px 0 0',
         padding: '0 0 40px',
         animation: ANIMATION.slideUp,
       }}>
@@ -91,7 +91,7 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
           <div style={{ fontWeight: 900, fontSize: 18, color: COLORS.textPrimary }}>
             {initial ? '✏️ Editar producto' : '🧸 Nuevo producto'}
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#9CA3AF' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: COLORS.textMuted }}>✕</button>
         </div>
 
         <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -102,13 +102,13 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
               <StyledLabel>Emoji</StyledLabel>
               <button onClick={() => setEmojiOpen(e => !e)} style={{
                 width: 52, height: 44, borderRadius: 10,
-                border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB',
+                border: `1.5px solid ${COLORS.border}`, backgroundColor: COLORS.surface2,
                 fontSize: 24, cursor: 'pointer',
               }}>{form.emoji}</button>
               {emojiOpen && (
                 <div style={{
                   position: 'absolute', zIndex: 10,
-                  backgroundColor: '#fff', borderRadius: 14,
+                  backgroundColor: COLORS.card, borderRadius: 14,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
                   padding: 10, display: 'flex', flexWrap: 'wrap', gap: 4, maxWidth: 220,
                 }}>
@@ -137,9 +137,9 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
                   padding: '7px 14px', borderRadius: 99,
                   border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
                   fontWeight: 700, fontSize: 13,
-                  backgroundColor: form.categoria === c.id ? COLORS.header : '#F9FAFB',
-                  borderColor: form.categoria === c.id ? COLORS.header : '#E5E7EB',
-                  color: form.categoria === c.id ? '#fff' : COLORS.textSecondary,
+                  backgroundColor: form.categoria === c.id ? COLORS.accent : COLORS.surface2,
+                  borderColor: form.categoria === c.id ? COLORS.accent : COLORS.border,
+                  color: form.categoria === c.id ? COLORS.onAccent : COLORS.textSecondary,
                 }}>{c.emoji} {c.label}</button>
               ))}
             </div>
@@ -189,9 +189,9 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
                   padding: '7px 12px', borderRadius: 99,
                   border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
                   fontWeight: 700, fontSize: 12,
-                  backgroundColor: form.estado_catalogo === c.id ? COLORS.header : '#F9FAFB',
-                  borderColor: form.estado_catalogo === c.id ? COLORS.header : '#E5E7EB',
-                  color: form.estado_catalogo === c.id ? '#fff' : COLORS.textSecondary,
+                  backgroundColor: form.estado_catalogo === c.id ? COLORS.accent : COLORS.surface2,
+                  borderColor: form.estado_catalogo === c.id ? COLORS.accent : COLORS.border,
+                  color: form.estado_catalogo === c.id ? COLORS.onAccent : COLORS.textSecondary,
                 }}>{c.label}</button>
               ))}
             </div>
@@ -210,7 +210,7 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
               {COLORS_PALETTE.map(c => (
                 <button key={c} onClick={() => set('color_hex', c)} style={{
                   width: 30, height: 30, borderRadius: 15, backgroundColor: c,
-                  border: form.color_hex === c ? '3px solid #1A1A2E' : '2px solid #E5E7EB',
+                  border: form.color_hex === c ? `3px solid ${COLORS.accent}` : `2px solid ${COLORS.border}`,
                   cursor: 'pointer',
                 }} />
               ))}
@@ -243,13 +243,13 @@ export default function StoreProductModal({ visible, initial, patterns = [], con
           <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
             <button onClick={onClose} style={{
               flex: 1, padding: 14, borderRadius: 12,
-              border: '2px solid #E5E7EB', background: 'transparent',
-              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14,
+              border: `2px solid ${COLORS.border}`, background: 'transparent',
+              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, color: COLORS.textSecondary,
             }}>Cancelar</button>
             <button onClick={handleSave} disabled={saving} style={{
               flex: 2, padding: 14, borderRadius: 12,
-              backgroundColor: '#1A1A2E', border: 'none',
-              color: '#fff', fontWeight: 800, cursor: 'pointer',
+              backgroundColor: COLORS.accent, border: 'none',
+              color: COLORS.onAccent, fontWeight: 800, cursor: 'pointer',
               fontFamily: 'inherit', fontSize: 14, opacity: saving ? 0.7 : 1,
             }}>{saving ? 'Guardando…' : initial ? 'Guardar cambios' : '+ Agregar producto'}</button>
           </div>

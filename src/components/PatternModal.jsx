@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { YARN_COLORS, DIFICULTADES, ESTADOS, Z_INDEX, ANIMATION } from '../lib/constants';
+import { YARN_COLORS, DIFICULTADES, ESTADOS, COLORS, Z_INDEX, ANIMATION } from '../lib/constants';
 import { StyledInput, StyledLabel, StyledTextarea } from './FormFields';
 
 const BLANK = {
@@ -84,7 +84,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
       onClick={e => e.target === e.currentTarget && onClose()}
     >
       <div style={{
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.card,
         borderRadius: '24px 24px 0 0',
         width: '100%', maxWidth: 640,
         maxHeight: '92vh',
@@ -105,7 +105,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
               fontSize: 32, backgroundColor: 'rgba(255,255,255,0.35)',
               border: 'none', borderRadius: 10, width: 54,
               textAlign: 'center', padding: 4, cursor: 'text',
-              fontFamily: 'inherit',
+              color: COLORS.onAccent, fontFamily: 'inherit',
             }}
           />
           <input
@@ -113,7 +113,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
             onChange={e => upd('nombre', e.target.value)}
             placeholder="Nombre del amigurumi"
             style={{
-              flex: 1, fontSize: 20, fontWeight: 900, color: '#1A1A2E',
+              flex: 1, fontSize: 20, fontWeight: 900, color: COLORS.onAccent,
               background: 'transparent', border: 'none', outline: 'none',
               fontFamily: 'inherit',
             }}
@@ -121,7 +121,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           <button onClick={onClose} style={{
             background: 'rgba(255,255,255,0.35)', border: 'none',
             borderRadius: 10, width: 36, height: 36,
-            cursor: 'pointer', fontSize: 18, color: '#1A1A2E',
+            cursor: 'pointer', fontSize: 18, color: COLORS.onAccent,
           }}>×</button>
         </div>
 
@@ -137,7 +137,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
                 onClick={() => upd('color', c)}
                 style={{
                   width: 28, height: 28, borderRadius: 14,
-                  backgroundColor: c, border: `2.5px solid ${f.color === c ? '#1A1A2E' : 'transparent'}`,
+                  backgroundColor: c, border: `2.5px solid ${f.color === c ? COLORS.onAccent : 'transparent'}`,
                   cursor: 'pointer', padding: 0,
                 }}
               />
@@ -153,9 +153,9 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
                   <button key={d} onClick={() => upd('dificultad', d)} style={{
                     padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     border: '1.5px solid', fontFamily: 'inherit',
-                    backgroundColor: f.dificultad === d ? '#1A1A2E' : '#FAFAFA',
-                    borderColor: f.dificultad === d ? '#1A1A2E' : '#E5E7EB',
-                    color: f.dificultad === d ? '#fff' : '#6B7280',
+                    backgroundColor: f.dificultad === d ? COLORS.accent : COLORS.surface2,
+                    borderColor: f.dificultad === d ? COLORS.accent : COLORS.border,
+                    color: f.dificultad === d ? COLORS.onAccent : COLORS.textSecondary,
                   }}>{d}</button>
                 ))}
               </div>
@@ -167,9 +167,9 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
                   <button key={s} onClick={() => upd('estado', s)} style={{
                     padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 700, cursor: 'pointer',
                     border: '1.5px solid', fontFamily: 'inherit',
-                    backgroundColor: f.estado === s ? '#1A1A2E' : '#FAFAFA',
-                    borderColor: f.estado === s ? '#1A1A2E' : '#E5E7EB',
-                    color: f.estado === s ? '#fff' : '#6B7280',
+                    backgroundColor: f.estado === s ? COLORS.accent : COLORS.surface2,
+                    borderColor: f.estado === s ? COLORS.accent : COLORS.border,
+                    color: f.estado === s ? COLORS.onAccent : COLORS.textSecondary,
                   }}>{s}</button>
                 ))}
               </div>
@@ -202,7 +202,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
               style={{ flex: 1 }}
             />
             <button onClick={addHilo} style={{
-              backgroundColor: '#1A1A2E', color: '#fff', border: 'none',
+              backgroundColor: COLORS.accent, color: COLORS.onAccent, border: 'none',
               borderRadius: 10, width: 44, fontSize: 22, fontWeight: 900,
               cursor: 'pointer',
             }}>+</button>
@@ -210,13 +210,13 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
             {f.hilos.map((h, i) => (
               <span key={i} style={{
-                backgroundColor: '#F3F4F6', borderRadius: 99,
-                padding: '4px 10px', fontSize: 13,
+                backgroundColor: COLORS.surface2, borderRadius: 99,
+                padding: '4px 10px', fontSize: 13, color: COLORS.textPrimary,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}>
                 🧵 {h}
                 <button onClick={() => upd('hilos', f.hilos.filter((_, j) => j !== i))}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: 16, padding: 0, fontWeight: 900 }}>
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted, fontSize: 16, padding: 0, fontWeight: 900 }}>
                   ×
                 </button>
               </span>
@@ -240,7 +240,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
               style={{ flex: 1 }}
             />
             <button onClick={addPaso} style={{
-              backgroundColor: '#1A1A2E', color: '#fff', border: 'none',
+              backgroundColor: COLORS.accent, color: COLORS.onAccent, border: 'none',
               borderRadius: 10, width: 44, fontSize: 22, fontWeight: 900, cursor: 'pointer',
             }}>+</button>
           </div>
@@ -248,11 +248,11 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
             {f.pasos.map((p, i) => (
               <div key={p.id} style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: 10, backgroundColor: '#FAFAFA',
-                borderRadius: 10, border: '1px solid #E5E7EB',
+                padding: 10, backgroundColor: COLORS.surface2,
+                borderRadius: 10, border: `1px solid ${COLORS.border}`,
               }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#D1D5DB', minWidth: 20 }}>{i + 1}.</span>
-                <span style={{ flex: 1, fontSize: 13, color: '#374151' }}>{p.texto}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: COLORS.textMuted, minWidth: 20 }}>{i + 1}.</span>
+                <span style={{ flex: 1, fontSize: 13, color: COLORS.textSecondary }}>{p.texto}</span>
                 <button onClick={() => movePaso(p.id, -1)} disabled={i === 0}
                   style={{ background: 'none', border: 'none', cursor: i === 0 ? 'default' : 'pointer', fontSize: 16, opacity: i === 0 ? 0.2 : 1 }}>↑</button>
                 <button onClick={() => movePaso(p.id, 1)} disabled={i === f.pasos.length - 1}
@@ -277,9 +277,9 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
             style={{ display: 'none' }} onChange={handleImageFile}
           />
           <button onClick={() => fileRef.current?.click()} disabled={imgLoading} style={{
-            border: '1.5px dashed #E5E7EB', borderRadius: 10,
+            border: `1.5px dashed ${COLORS.border}`, borderRadius: 10,
             padding: 12, width: '100%', backgroundColor: 'transparent',
-            color: '#6B7280', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+            color: COLORS.textSecondary, fontWeight: 700, fontSize: 14, cursor: 'pointer',
             fontFamily: 'inherit',
           }}>
             {imgLoading ? '⏳ Subiendo...' : f.imagen_url ? '🔄 Cambiar imagen' : '+ Agregar imagen'}
@@ -288,7 +288,7 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
             <div style={{ marginTop: 8 }}>
               <img src={f.imagen_url} alt="Preview" style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 12 }} />
               <button onClick={() => upd('imagen_url', null)} style={{
-                background: 'none', border: 'none', color: '#EF4444',
+                background: 'none', border: 'none', color: COLORS.danger.fg,
                 fontSize: 13, fontWeight: 700, cursor: 'pointer', marginTop: 4,
               }}>× Quitar imagen</button>
             </div>
@@ -298,14 +298,14 @@ export default function PatternModal({ visible, initial, onClose, onSave, onUplo
           <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
             <button onClick={onClose} style={{
               flex: 1, padding: 14, borderRadius: 12,
-              border: '2px solid #E5E7EB', backgroundColor: 'transparent',
-              fontWeight: 800, fontSize: 14, color: '#6B7280',
+              border: `2px solid ${COLORS.border}`, backgroundColor: 'transparent',
+              fontWeight: 800, fontSize: 14, color: COLORS.textSecondary,
               cursor: 'pointer', fontFamily: 'inherit',
             }}>Cancelar</button>
             <button onClick={handleSave} disabled={saving} style={{
               flex: 2, padding: 14, borderRadius: 12,
-              backgroundColor: '#1A1A2E', border: 'none',
-              color: '#fff', fontWeight: 900, fontSize: 14,
+              backgroundColor: COLORS.accent, border: 'none',
+              color: COLORS.onAccent, fontWeight: 900, fontSize: 14,
               cursor: saving ? 'wait' : 'pointer', fontFamily: 'inherit',
             }}>
               {saving ? '⏳ Guardando...' : '💾 Guardar'}

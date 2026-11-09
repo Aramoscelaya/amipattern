@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { calcPrecio } from '../lib/pricing';
-import { Z_INDEX, ANIMATION } from '../lib/constants';
+import { Z_INDEX, ANIMATION, COLORS } from '../lib/constants';
 import { StyledInput, StyledLabel, StyledTextarea } from './FormFields';
 
 const ESTADOS = [
-  { id:'pendiente',  label:'⏳ Pendiente',   color:'#FEF3C7', fg:'#92400E' },
-  { id:'en_proceso', label:'🪡 En proceso',  color:'#EFF6FF', fg:'#1D4ED8' },
-  { id:'listo',      label:'✅ Listo',       color:'#D1FAE5', fg:'#065F46' },
-  { id:'entregado',  label:'📦 Entregado',   color:'#F3F4F6', fg:'#374151' },
-  { id:'cancelado',  label:'❌ Cancelado',   color:'#FEE2E2', fg:'#991B1B' },
+  { id:'pendiente',  label:'⏳ Pendiente',   color:COLORS.warning.bg, fg:COLORS.warning.fg },
+  { id:'en_proceso', label:'🪡 En proceso',  color:COLORS.info.bg,    fg:COLORS.info.fg },
+  { id:'listo',      label:'✅ Listo',       color:COLORS.success.bg, fg:COLORS.success.fg },
+  { id:'entregado',  label:'📦 Entregado',   color:COLORS.surface2,   fg:COLORS.textSecondary },
+  { id:'cancelado',  label:'❌ Cancelado',   color:COLORS.danger.bg,  fg:COLORS.danger.fg },
 ];
 
 const EMOJIS = ['🧶','🐻','🐰','🐱','🐶','🦊','🐸','🦋','🌸','⭐','🎀','🐙','🦄','🌵','🍄'];
@@ -109,7 +109,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
     }} onClick={e => e.target === e.currentTarget && onClose()}>
 
       <div style={{
-        backgroundColor:'#fff', borderRadius:'24px 24px 0 0',
+        backgroundColor:COLORS.card, borderRadius:'24px 24px 0 0',
         width:'100%', maxWidth:640, maxHeight:'95vh',
         display:'flex', flexDirection:'column',
         animation: ANIMATION.slideUp,
@@ -117,7 +117,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
 
         {/* Hero */}
         <div style={{
-          background:'linear-gradient(135deg, #1A1A2E 0%, #2D2D4E 100%)',
+          background:`linear-gradient(135deg, ${COLORS.header} 0%, ${COLORS.surface2} 100%)`,
           padding:'18px 20px 14px', borderRadius:'24px 24px 0 0',
           display:'flex', alignItems:'center', gap:12,
         }}>
@@ -142,7 +142,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
             onChange={e=>upd('patron_nombre',e.target.value)}
             placeholder="Nombre del amigurumi"
             style={{
-              flex:1, fontSize:18, fontWeight:900, color:'#FAD2E1',
+              flex:1, fontSize:18, fontWeight:900, color:COLORS.accent,
               background:'transparent', border:'none', outline:'none', fontFamily:'inherit',
             }}
           />
@@ -179,9 +179,9 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
               <button key={e.id} onClick={()=>upd('estado',e.id)} style={{
                 padding:'6px 12px', borderRadius:99, fontSize:12, fontWeight:700,
                 cursor:'pointer', border:'1.5px solid', fontFamily:'inherit',
-                backgroundColor: f.estado===e.id ? e.color : '#FAFAFA',
-                borderColor:     f.estado===e.id ? e.fg   : '#E5E7EB',
-                color:           f.estado===e.id ? e.fg   : '#6B7280',
+                backgroundColor: f.estado===e.id ? e.color : COLORS.surface2,
+                borderColor:     f.estado===e.id ? e.fg   : COLORS.border,
+                color:           f.estado===e.id ? e.fg   : COLORS.textSecondary,
               }}>{e.label}</button>
             ))}
           </div>
@@ -195,7 +195,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
             <div style={{ flex:1 }}>
               <StyledLabel>🔔 Fecha entrega</StyledLabel>
               <StyledInput type="date" value={f.fecha_entrega} onChange={e=>upd('fecha_entrega',e.target.value)}
-                style={{ borderColor: f.fecha_entrega ? '#2DD4BF' : '#E5E7EB' }}/>
+                style={{ borderColor: f.fecha_entrega ? COLORS.teal : COLORS.border }}/>
             </div>
           </div>
 
@@ -212,10 +212,10 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
             {showMats && matSearch && invDisp.length > 0 && (
               <div style={{
                 position:'absolute', top:'100%', left:0, right:0, zIndex:50,
-                backgroundColor:'#fff', borderRadius:12,
+                backgroundColor:COLORS.card, borderRadius:12,
                 boxShadow:'0 8px 24px rgba(0,0,0,0.12)',
                 maxHeight:180, overflowY:'auto',
-                border:'1.5px solid #E5E7EB', marginTop:4,
+                border:`1.5px solid ${COLORS.border}`, marginTop:4,
               }}>
                 {invDisp.slice(0,8).map(inv => {
                   const disp = inv.stock_inicial + inv.entradas - inv.stock_usado;
@@ -224,19 +224,19 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
                       disabled={disp <= 0}
                       style={{
                         width:'100%', padding:'10px 14px', border:'none',
-                        borderBottom:'1px solid #F9FAFB',
+                        borderBottom:`1px solid ${COLORS.border}`,
                         backgroundColor:'transparent', cursor: disp<=0 ? 'default':'pointer',
                         textAlign:'left', fontFamily:'inherit',
                         display:'flex', justifyContent:'space-between', alignItems:'center',
                         opacity: disp<=0 ? 0.4 : 1,
                       }}>
                       <div>
-                        <div style={{ fontWeight:700, fontSize:13, color:'#1A1A2E' }}>{inv.nombre}</div>
-                        <div style={{ fontSize:11, color:'#9CA3AF' }}>
+                        <div style={{ fontWeight:700, fontSize:13, color:COLORS.textPrimary }}>{inv.nombre}</div>
+                        <div style={{ fontSize:11, color:COLORS.textMuted }}>
                           {inv.marca} · ${inv.costo_unitario}/{inv.unidad==='g'?'g':'ud'}
                         </div>
                       </div>
-                      <div style={{ fontSize:11, color: disp<=0?'#EF4444':'#16A34A', fontWeight:700 }}>
+                      <div style={{ fontSize:11, color: disp<=0?COLORS.danger.fg:COLORS.success.fg, fontWeight:700 }}>
                         {disp<=0 ? 'Sin stock' : `${Math.max(0,disp).toFixed(0)} disp.`}
                       </div>
                     </button>
@@ -253,34 +253,34 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
               {f.materiales.map(m => (
                 <div key={m.inv_id} style={{
                   display:'flex', alignItems:'center', gap:8,
-                  backgroundColor:'#F9FAFB', borderRadius:10,
-                  padding:'8px 10px', border:'1px solid #F3F4F6',
+                  backgroundColor:COLORS.surface2, borderRadius:10,
+                  padding:'8px 10px', border:`1px solid ${COLORS.border}`,
                 }}>
-                  <span style={{ flex:1, fontSize:13, fontWeight:700, color:'#1A1A2E' }}>{m.nombre}</span>
-                  <span style={{ fontSize:11, color:'#9CA3AF' }}>
+                  <span style={{ flex:1, fontSize:13, fontWeight:700, color:COLORS.textPrimary }}>{m.nombre}</span>
+                  <span style={{ fontSize:11, color:COLORS.textMuted }}>
                     ${m.costo_unit}/{m.unidad==='g'?'g':'ud'}
                   </span>
                   <div style={{ display:'flex', alignItems:'center', gap:4 }}>
                     <button onClick={()=>updMat(m.inv_id, Math.max(0.1, m.cantidad-1))}
-                      style={{ width:22, height:22, borderRadius:6, border:'1px solid #E5E7EB',
-                        background:'#fff', cursor:'pointer', fontWeight:900, fontSize:14,
+                      style={{ width:22, height:22, borderRadius:6, border:`1px solid ${COLORS.border}`,
+                        background:COLORS.card, color:COLORS.textPrimary, cursor:'pointer', fontWeight:900, fontSize:14,
                         display:'flex', alignItems:'center', justifyContent:'center' }}>−</button>
                     <input type="number" min="0.1" value={m.cantidad}
                       onChange={e=>updMat(m.inv_id, e.target.value)}
-                      style={{ width:42, textAlign:'center', border:'1px solid #E5E7EB',
-                        borderRadius:6, padding:'2px 4px', fontSize:12,
-                        fontWeight:700, outline:'none', fontFamily:'inherit' }}/>
+                      style={{ width:42, textAlign:'center', border:`1px solid ${COLORS.border}`,
+                        borderRadius:6, padding:'2px 4px', fontSize:12, backgroundColor:COLORS.card,
+                        color:COLORS.textPrimary, fontWeight:700, outline:'none', fontFamily:'inherit' }}/>
                     <button onClick={()=>updMat(m.inv_id, m.cantidad+1)}
-                      style={{ width:22, height:22, borderRadius:6, border:'1px solid #E5E7EB',
-                        background:'#fff', cursor:'pointer', fontWeight:900, fontSize:14,
+                      style={{ width:22, height:22, borderRadius:6, border:`1px solid ${COLORS.border}`,
+                        background:COLORS.card, color:COLORS.textPrimary, cursor:'pointer', fontWeight:900, fontSize:14,
                         display:'flex', alignItems:'center', justifyContent:'center' }}>+</button>
                   </div>
-                  <span style={{ fontSize:11, fontWeight:700, color:'#1A1A2E', minWidth:44, textAlign:'right' }}>
+                  <span style={{ fontSize:11, fontWeight:700, color:COLORS.textPrimary, minWidth:44, textAlign:'right' }}>
                     ${(m.cantidad * m.costo_unit).toFixed(2)}
                   </span>
                   <button onClick={()=>removeMat(m.inv_id)}
                     style={{ background:'none', border:'none', cursor:'pointer',
-                      color:'#EF4444', fontSize:14, fontWeight:900, padding:0 }}>×</button>
+                      color:COLORS.danger.fg, fontSize:14, fontWeight:900, padding:0 }}>×</button>
                 </div>
               ))}
             </div>
@@ -318,38 +318,38 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
 
           {/* ── Desglose de costos en tiempo real ── */}
           <div style={{
-            backgroundColor:'#F9FAFB', borderRadius:14,
-            border:'1.5px solid #E5E7EB',
+            backgroundColor:COLORS.surface2, borderRadius:14,
+            border:`1.5px solid ${COLORS.border}`,
             padding:'14px 16px', marginTop:14,
           }}>
-            <div style={{ fontSize:11, fontWeight:800, color:'#6B7280',
+            <div style={{ fontSize:11, fontWeight:800, color:COLORS.textSecondary,
               textTransform:'uppercase', letterSpacing:0.5, marginBottom:12 }}>
               🧮 Desglose de costos
             </div>
             {[
-              { label:`Materiales (${f.materiales.length} items)`, val: calc.costoMateriales, color:'#374151' },
-              { label:`Mano de obra (${f.horas}h × $${f.costo_hora})`, val: calc.costoManoObra, color:'#374151' },
-              { label:'Subtotal',                                    val: calc.subtotal,   color:'#374151', border:true },
-              { label:`Overhead (${f.overhead_pct}%)`,              val: calc.conOverhead - calc.subtotal, color:'#6B7280' },
-              { label:`Ganancia (${f.margen_pct}%)`,                val: calc.precioFinal - calc.conOverhead, color:'#16A34A' },
+              { label:`Materiales (${f.materiales.length} items)`, val: calc.costoMateriales, color:COLORS.textPrimary },
+              { label:`Mano de obra (${f.horas}h × $${f.costo_hora})`, val: calc.costoManoObra, color:COLORS.textPrimary },
+              { label:'Subtotal',                                    val: calc.subtotal,   color:COLORS.textPrimary, border:true },
+              { label:`Overhead (${f.overhead_pct}%)`,              val: calc.conOverhead - calc.subtotal, color:COLORS.textSecondary },
+              { label:`Ganancia (${f.margen_pct}%)`,                val: calc.precioFinal - calc.conOverhead, color:COLORS.success.fg },
             ].map(r => (
               <div key={r.label} style={{
                 display:'flex', justifyContent:'space-between',
                 padding:'5px 0',
-                borderTop: r.border ? '1px solid #E5E7EB' : 'none',
+                borderTop: r.border ? `1px solid ${COLORS.border}` : 'none',
                 marginTop: r.border ? 4 : 0,
               }}>
-                <span style={{ fontSize:12, color:'#6B7280' }}>{r.label}</span>
+                <span style={{ fontSize:12, color:COLORS.textSecondary }}>{r.label}</span>
                 <span style={{ fontSize:12, fontWeight:700, color: r.color }}>${r.val.toFixed(2)}</span>
               </div>
             ))}
             {/* Precio final */}
             <div style={{
               display:'flex', justifyContent:'space-between', alignItems:'center',
-              borderTop:'2px solid #1A1A2E', marginTop:8, paddingTop:10,
+              borderTop:`2px solid ${COLORS.textPrimary}`, marginTop:8, paddingTop:10,
             }}>
-              <span style={{ fontSize:14, fontWeight:800, color:'#1A1A2E' }}>Precio sugerido</span>
-              <span style={{ fontSize:22, fontWeight:900, color:'#1A1A2E' }}>
+              <span style={{ fontSize:14, fontWeight:800, color:COLORS.textPrimary }}>Precio sugerido</span>
+              <span style={{ fontSize:22, fontWeight:900, color:COLORS.textPrimary }}>
                 ${calc.precioFinal.toFixed(2)}
               </span>
             </div>
@@ -364,9 +364,9 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
               style={{ flex:1, fontWeight:700, fontSize:16 }}/>
             {f.precio_manual && (
               <button onClick={()=>{ upd('precio_manual',false); }} style={{
-                padding:'8px 12px', borderRadius:10, border:'1.5px solid #E5E7EB',
-                backgroundColor:'#F9FAFB', cursor:'pointer', fontSize:12,
-                fontWeight:700, color:'#6B7280', fontFamily:'inherit', whiteSpace:'nowrap',
+                padding:'8px 12px', borderRadius:10, border:`1.5px solid ${COLORS.border}`,
+                backgroundColor:COLORS.surface2, cursor:'pointer', fontSize:12,
+                fontWeight:700, color:COLORS.textSecondary, fontFamily:'inherit', whiteSpace:'nowrap',
               }}>↺ Auto</button>
             )}
           </div>
@@ -381,7 +381,7 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
             const esIgual    = Math.abs(diferencia) < 0.01
 
             if (esIgual) return (
-              <div style={{ fontSize: 12, color: '#6B7280', marginTop: 4, fontWeight: 600 }}>
+              <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4, fontWeight: 600 }}>
                 Cobrando exactamente el precio sugerido
               </div>
             )
@@ -391,16 +391,16 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
                 marginTop: 6,
                 padding: '8px 12px',
                 borderRadius: 10,
-                backgroundColor: esMas ? '#F0FDF4' : '#FEF2F2',
-                border: `1.5px solid ${esMas ? '#BBF7D0' : '#FECACA'}`,
+                backgroundColor: esMas ? COLORS.success.bg : COLORS.danger.bg,
+                border: `1.5px solid ${esMas ? COLORS.success.border : COLORS.danger.border}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: esMas ? '#065F46' : '#991B1B' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: esMas ? COLORS.success.fg : COLORS.danger.fg }}>
                   {esMas ? 'Ganancia extra sobre sugerido' : 'Por debajo del sugerido'}
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 900, color: esMas ? '#059669' : '#EF4444' }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: esMas ? COLORS.success.fg : COLORS.danger.fg }}>
                   {esMas ? '+' : '-'}${Math.abs(diferencia).toFixed(2)}
                   {' '}({esMas ? '+' : ''}{pct}%)
                 </span>
@@ -413,9 +413,9 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           <StyledInput type="number" min="0"
             value={f.anticipo} onChange={e=>upd('anticipo',e.target.value)}/>
           {Number(f.precio_venta) > 0 && (
-            <div style={{ fontSize:12, color:'#6B7280', marginTop:4 }}>
+            <div style={{ fontSize:12, color:COLORS.textSecondary, marginTop:4 }}>
               Saldo pendiente:{' '}
-              <strong style={{ color: Number(f.anticipo) >= Number(f.precio_venta) ? '#16A34A' : '#EF4444' }}>
+              <strong style={{ color: Number(f.anticipo) >= Number(f.precio_venta) ? COLORS.success.fg : COLORS.danger.fg }}>
                 ${Math.max(0, Number(f.precio_venta) - Number(f.anticipo)).toFixed(2)}
               </strong>
             </div>
@@ -431,14 +431,14 @@ export default function OrderModal({ visible, initial, inventoryItems = [], onCl
           <div style={{ display:'flex', gap:10, marginTop:22 }}>
             <button onClick={onClose} style={{
               flex:1, padding:14, borderRadius:12,
-              border:'2px solid #E5E7EB', backgroundColor:'transparent',
-              fontWeight:800, fontSize:14, color:'#6B7280',
+              border:`2px solid ${COLORS.border}`, backgroundColor:'transparent',
+              fontWeight:800, fontSize:14, color:COLORS.textSecondary,
               cursor:'pointer', fontFamily:'inherit',
             }}>Cancelar</button>
             <button onClick={handleSave} disabled={saving} style={{
               flex:2, padding:14, borderRadius:12,
-              backgroundColor:'#1A1A2E', border:'none',
-              color:'#fff', fontWeight:900, fontSize:14,
+              backgroundColor:COLORS.accent, border:'none',
+              color:COLORS.onAccent, fontWeight:900, fontSize:14,
               cursor: saving ? 'wait':'pointer', fontFamily:'inherit',
             }}>{saving ? '⏳ Guardando…' : '💾 Guardar pedido'}</button>
           </div>

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import WhatsAppCotizacionModal from './WhatsAppCotizacionModal';
 import { buildWhatsAppLink, mensajeEstado } from '../lib/whatsapp';
+import { COLORS } from '../lib/constants';
 
 const ESTADO_CFG = {
-  pendiente:  { label:'⏳ Pendiente',  bg:'#FEF3C7', fg:'#92400E' },
-  en_proceso: { label:'🪡 En proceso', bg:'#EFF6FF', fg:'#1D4ED8' },
-  listo:      { label:'✅ Listo',      bg:'#D1FAE5', fg:'#065F46' },
-  entregado:  { label:'📦 Entregado',  bg:'#F3F4F6', fg:'#374151' },
-  cancelado:  { label:'❌ Cancelado',  bg:'#FEE2E2', fg:'#991B1B' },
+  pendiente:  { label:'⏳ Pendiente',  ...COLORS.warning },
+  en_proceso: { label:'🪡 En proceso', ...COLORS.info },
+  listo:      { label:'✅ Listo',      ...COLORS.success },
+  entregado:  { label:'📦 Entregado',  bg:COLORS.surface2, fg:COLORS.textSecondary },
+  cancelado:  { label:'❌ Cancelado',  ...COLORS.danger },
 };
 
 export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
@@ -48,18 +49,18 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
 
   return (
     <div style={{
-      backgroundColor:'#fff', borderRadius:16,
+      backgroundColor:COLORS.card, borderRadius:16,
       boxShadow: urgente
         ? '0 2px 16px rgba(239,68,68,0.18)'
         : '0 2px 10px rgba(0,0,0,0.06)',
-      border: urgente ? '1.5px solid #FECACA' : '1.5px solid transparent',
+      border: urgente ? `1.5px solid ${COLORS.danger.border}` : '1.5px solid transparent',
       overflow:'hidden',
     }}>
       {/* Header */}
       <div style={{
         background: urgente
-          ? 'linear-gradient(135deg,#FEF2F2,#FEE2E2)'
-          : 'linear-gradient(135deg,#1A1A2E,#2D2D4E)',
+          ? `linear-gradient(135deg,${COLORS.danger.bg},${COLORS.surface2})`
+          : `linear-gradient(135deg,${COLORS.header},${COLORS.surface2})`,
         padding:'12px 14px',
         display:'flex', alignItems:'flex-start', justifyContent:'space-between',
       }}>
@@ -68,10 +69,10 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
           <div>
             <div style={{
               fontWeight:800, fontSize:13,
-              color: urgente ? '#991B1B' : '#FAD2E1',
+              color: urgente ? COLORS.danger.fg : COLORS.accent,
               lineHeight:1.2,
             }}>{order.patron_nombre}</div>
-            <div style={{ fontSize:11, color: urgente ? '#B91C1C' : '#6B7280', marginTop:1 }}>
+            <div style={{ fontSize:11, color: urgente ? COLORS.danger.fg : COLORS.textMuted, marginTop:1 }}>
               👤 {order.cliente_nombre}
             </div>
           </div>
@@ -98,7 +99,7 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
           }}>{cfg.label}</span>
           {urgente && (
             <span style={{
-              backgroundColor:'#FEE2E2', color:'#EF4444',
+              backgroundColor:COLORS.danger.bg, color:COLORS.danger.fg,
               borderRadius:99, padding:'3px 10px', fontSize:10, fontWeight:800,
             }}>
               {diasHasta === 0 ? '🔴 Hoy' : diasHasta === 1 ? '🟠 Mañana' : `🟡 ${diasHasta}d`}
@@ -108,21 +109,21 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
 
         {/* Precio y saldo */}
         <div style={{
-          backgroundColor:'#F9FAFB', borderRadius:10,
+          backgroundColor:COLORS.surface2, borderRadius:10,
           padding:'8px 10px', marginBottom:8,
           display:'flex', justifyContent:'space-between', alignItems:'center',
         }}>
           <div>
-            <div style={{ fontSize:10, color:'#9CA3AF', fontWeight:800, textTransform:'uppercase' }}>Precio</div>
-            <div style={{ fontSize:18, fontWeight:900, color:'#1A1A2E' }}>
+            <div style={{ fontSize:10, color:COLORS.textMuted, fontWeight:800, textTransform:'uppercase' }}>Precio</div>
+            <div style={{ fontSize:18, fontWeight:900, color:COLORS.textPrimary }}>
               ${(order.precio_venta||0).toFixed(2)}
             </div>
           </div>
           <div style={{ textAlign:'right' }}>
-            <div style={{ fontSize:10, color:'#9CA3AF', fontWeight:800, textTransform:'uppercase' }}>Saldo</div>
+            <div style={{ fontSize:10, color:COLORS.textMuted, fontWeight:800, textTransform:'uppercase' }}>Saldo</div>
             <div style={{
               fontSize:15, fontWeight:800,
-              color: saldo <= 0 ? '#16A34A' : '#EF4444',
+              color: saldo <= 0 ? COLORS.success.fg : COLORS.danger.fg,
             }}>
               {saldo <= 0 ? '✅ Pagado' : `$${saldo.toFixed(2)}`}
             </div>
@@ -136,15 +137,15 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
             alignItems: 'center',
             gap: 3,
             backgroundColor: diferencia > 0.5
-              ? '#D1FAE5'
+              ? COLORS.success.bg
               : diferencia < -0.5
-                ? '#FEE2E2'
-                : '#F3F4F6',
+                ? COLORS.danger.bg
+                : COLORS.surface2,
             color: diferencia > 0.5
-              ? '#065F46'
+              ? COLORS.success.fg
               : diferencia < -0.5
-                ? '#991B1B'
-                : '#6B7280',
+                ? COLORS.danger.fg
+                : COLORS.textSecondary,
             borderRadius: 99,
             padding: '2px 8px',
             fontSize: 11,
@@ -162,12 +163,12 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
 
         {/* Fecha entrega */}
         {order.fecha_entrega && (
-          <div style={{ fontSize:11, color:'#6B7280', marginBottom:8 }}>
+          <div style={{ fontSize:11, color:COLORS.textSecondary, marginBottom:8 }}>
             📅 Entrega: <strong>{order.fecha_entrega}</strong>
             {order.cliente_telefono && (
               <a href={`https://wa.me/${order.cliente_telefono.replace(/\D/g,'')}`}
                 target="_blank" rel="noreferrer"
-                style={{ marginLeft:8, color:'#25D366', fontWeight:700, textDecoration:'none' }}>
+                style={{ marginLeft:8, color:COLORS.whatsapp, fontWeight:700, textDecoration:'none' }}>
                 WhatsApp ↗
               </a>
             )}
@@ -178,8 +179,8 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
         {nextEstado && (
           <button onClick={()=>onEstado(order.id, nextEstado)} style={{
             width:'100%', padding:'8px 0', borderRadius:10,
-            border:'1.5px solid #E5E7EB', backgroundColor:'#F9FAFB',
-            fontWeight:700, fontSize:12, color:'#374151',
+            border:`1.5px solid ${COLORS.border}`, backgroundColor:COLORS.surface2,
+            fontWeight:700, fontSize:12, color:COLORS.textSecondary,
             cursor:'pointer', fontFamily:'inherit',
           }}>
             Marcar como {ESTADO_CFG[nextEstado]?.label} →
@@ -197,8 +198,8 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
             title={hasPhone ? '' : 'Agrega el teléfono del cliente'}
             style={{
               flex:1, padding:'8px 0', borderRadius:10,
-              border:'1.5px solid #E5E7EB', backgroundColor:'#F9FAFB',
-              fontWeight:700, fontSize:12, color:'#1D4ED8',
+              border:`1.5px solid ${COLORS.border}`, backgroundColor:COLORS.surface2,
+              fontWeight:700, fontSize:12, color:COLORS.info.fg,
               cursor: hasPhone ? 'pointer' : 'not-allowed', fontFamily:'inherit',
               opacity: hasPhone ? 1 : 0.4,
             }}
@@ -209,8 +210,8 @@ export default function OrderCard({ order, onEdit, onDelete, onEstado }) {
             title={hasPhone ? '' : 'Agrega el teléfono del cliente'}
             style={{
               flex:1, padding:'8px 0', borderRadius:10,
-              border:'1.5px solid #E5E7EB', backgroundColor:'#F9FAFB',
-              fontWeight:700, fontSize:12, color:'#16A34A',
+              border:`1.5px solid ${COLORS.border}`, backgroundColor:COLORS.surface2,
+              fontWeight:700, fontSize:12, color:COLORS.success.fg,
               cursor: hasPhone ? 'pointer' : 'not-allowed', fontFamily:'inherit',
               opacity: hasPhone ? 1 : 0.4,
             }}

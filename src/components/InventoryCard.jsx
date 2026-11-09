@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { COLORS } from '../lib/constants';
 
 const SUBTIPO_EMOJI = {
   chenille:'🧶', acrílico:'🧶', algodón:'🧶', lana:'🧶', amigurumi:'🧶',
@@ -20,7 +21,7 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
   const agotado   = disponible <= 0;
   const unidad    = item.unidad === 'g' ? 'g' : 'uds';
   const emoji     = SUBTIPO_EMOJI[(item.subtipo || '').toLowerCase()] || '📦';
-  const barColor  = agotado ? '#EF4444' : stockBajo ? '#F97316' : '#2DD4BF';
+  const barColor  = agotado ? COLORS.dangerSolid : stockBajo ? COLORS.warningSolid : COLORS.teal;
 
   const handleConfirm = async () => {
     const n = Number(cantidad);
@@ -50,12 +51,12 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
 
   return (
     <div style={{
-      backgroundColor:'#fff', borderRadius:16,
+      backgroundColor: COLORS.card, borderRadius:16,
       overflow:'hidden',
       boxShadow: stockBajo
         ? '0 2px 12px rgba(239,68,68,0.12)'
         : '0 2px 10px rgba(0,0,0,0.06)',
-      border: stockBajo ? '1.5px solid #FECACA' : '1.5px solid transparent',
+      border: stockBajo ? `1.5px solid ${COLORS.danger.border}` : '1.5px solid transparent',
       position:'relative',
     }}>
 
@@ -63,7 +64,7 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
       {stockBajo && (
         <div style={{
           position:'absolute', top:8, right:8, zIndex:2,
-          backgroundColor: agotado ? '#EF4444' : '#F97316',
+          backgroundColor: agotado ? COLORS.dangerSolid : COLORS.warningSolid,
           color:'#fff', borderRadius:99, padding:'2px 8px',
           fontSize:10, fontWeight:800,
         }}>
@@ -93,18 +94,18 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
       <div style={{ padding:'10px 12px 12px' }}>
         {/* Nombre */}
         <div style={{
-          fontWeight:800, fontSize:13, color:'#1A1A2E',
+          fontWeight:800, fontSize:13, color:COLORS.textPrimary,
           marginBottom:2, lineHeight:1.3,
           whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
         }}>{item.nombre}</div>
 
         {/* Marca + color */}
-        <div style={{ fontSize:11, color:'#9CA3AF', marginBottom:8 }}>
+        <div style={{ fontSize:11, color:COLORS.textMuted, marginBottom:8 }}>
           {[item.marca, item.color].filter(Boolean).join(' · ') || '—'}
         </div>
 
         {/* Barra de stock */}
-        <div style={{ height:5, backgroundColor:'#F3F4F6', borderRadius:99, overflow:'hidden', marginBottom:4 }}>
+        <div style={{ height:5, backgroundColor:COLORS.surface2, borderRadius:99, overflow:'hidden', marginBottom:4 }}>
           <div style={{
             height:'100%', width:`${pct}%`,
             backgroundColor: barColor, borderRadius:99,
@@ -114,16 +115,16 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
 
         {/* Números */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:2 }}>
-          <span style={{ fontSize:11, fontWeight:800, color: stockBajo ? '#EF4444' : '#6B7280' }}>
+          <span style={{ fontSize:11, fontWeight:800, color: stockBajo ? COLORS.danger.fg : COLORS.textSecondary }}>
             {Math.max(0, disponible)}{unidad} disp.
           </span>
-          <span style={{ fontSize:10, color:'#D1D5DB' }}>
+          <span style={{ fontSize:10, color:COLORS.textMuted }}>
             / {item.stock_inicial + item.entradas}{unidad}
           </span>
         </div>
 
         {/* Desglose compacto */}
-        <div style={{ fontSize:10, color:'#C4C9D4', marginBottom:6, display:'flex', gap:8 }}>
+        <div style={{ fontSize:10, color:COLORS.textMuted, marginBottom:6, display:'flex', gap:8 }}>
           <span>📥 +{item.entradas}{unidad}</span>
           <span>📤 -{item.stock_usado}{unidad}</span>
         </div>
@@ -131,18 +132,18 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
         {/* Costo */}
         {item.costo_unitario > 0 && (
           <div style={{
-            fontSize:11, color:'#9CA3AF',
-            borderTop:'1px solid #F9FAFB', paddingTop:6, marginBottom:6,
+            fontSize:11, color:COLORS.textSecondary,
+            borderTop:`1px solid ${COLORS.border}`, paddingTop:6, marginBottom:6,
           }}>
             💰 ${item.costo_unitario}/{item.unidad==='g'?'g':'ud'} ·{' '}
-            <strong style={{color:'#1A1A2E'}}>
+            <strong style={{color:COLORS.textPrimary}}>
               ${(item.costo_unitario * Math.max(0, disponible)).toFixed(2)}
             </strong> en stock
           </div>
         )}
 
         {/* ── Acciones rápidas ── */}
-        <div style={{ borderTop:'1px solid #F3F4F6', paddingTop:8 }}>
+        <div style={{ borderTop:`1px solid ${COLORS.border}`, paddingTop:8 }}>
 
           {/* Modo: botones iniciales */}
           {!modo && (
@@ -150,11 +151,11 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
               <BtnPill
                 onClick={() => { setModo('salida'); setCantidad(1); }}
                 disabled={agotado}
-                bg='#FEF2F2' border='#FECACA' color='#DC2626'
+                bg={COLORS.danger.bg} border={COLORS.danger.border} color={COLORS.danger.fg}
               >📤 Usar</BtnPill>
               <BtnPill
                 onClick={() => { setModo('entrada'); setCantidad(1); }}
-                bg='#F0FDF4' border='#BBF7D0' color='#16A34A'
+                bg={COLORS.success.bg} border={COLORS.success.border} color={COLORS.success.fg}
               >📥 Reponer</BtnPill>
             </div>
           )}
@@ -163,7 +164,7 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
           {modo && (
             <div>
               <div style={{
-                fontSize:10, fontWeight:800, color: modo==='salida' ? '#DC2626' : '#16A34A',
+                fontSize:10, fontWeight:800, color: modo==='salida' ? COLORS.danger.fg : COLORS.success.fg,
                 textTransform:'uppercase', letterSpacing:0.5, marginBottom:5,
               }}>
                 {modo === 'salida' ? '📤 ¿Cuánto usaste?' : '📥 ¿Cuánto repones?'}
@@ -172,8 +173,8 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
                 <button
                   onClick={() => setCantidad(c => Math.max(1, Number(c) - 1))}
                   style={{
-                    width:26, height:26, borderRadius:6, border:'1px solid #E5E7EB',
-                    background:'#F9FAFB', cursor:'pointer', fontSize:14, fontWeight:800,
+                    width:26, height:26, borderRadius:6, border:`1px solid ${COLORS.border}`,
+                    background:COLORS.surface2, color:COLORS.textPrimary, cursor:'pointer', fontSize:14, fontWeight:800,
                     display:'flex', alignItems:'center', justifyContent:'center',
                   }}>−</button>
                 <input
@@ -183,17 +184,17 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
                   onChange={e => setCantidad(e.target.value)}
                   style={{
                     flex:1, textAlign:'center',
-                    border:`1px solid ${modo==='salida' ? '#FECACA' : '#BBF7D0'}`,
-                    borderRadius:6, padding:'3px 4px',
-                    fontSize:12, fontWeight:700, color:'#1A1A2E',
+                    border:`1px solid ${modo==='salida' ? COLORS.danger.border : COLORS.success.border}`,
+                    borderRadius:6, padding:'3px 4px', backgroundColor:COLORS.surface2,
+                    fontSize:12, fontWeight:700, color:COLORS.textPrimary,
                     outline:'none', width:0,
                   }}
                 />
                 <button
                   onClick={() => setCantidad(c => Number(c) + 1)}
                   style={{
-                    width:26, height:26, borderRadius:6, border:'1px solid #E5E7EB',
-                    background:'#F9FAFB', cursor:'pointer', fontSize:14, fontWeight:800,
+                    width:26, height:26, borderRadius:6, border:`1px solid ${COLORS.border}`,
+                    background:COLORS.surface2, color:COLORS.textPrimary, cursor:'pointer', fontSize:14, fontWeight:800,
                     display:'flex', alignItems:'center', justifyContent:'center',
                   }}>+</button>
                 <button
@@ -202,8 +203,8 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
                     || (modo==='salida' && Number(cantidad) > disponible)}
                   style={{
                     width:26, height:26, borderRadius:6, border:'none',
-                    backgroundColor: cargando ? '#93C5FD'
-                      : modo==='salida' ? '#DC2626' : '#16A34A',
+                    backgroundColor: cargando ? COLORS.infoSolid
+                      : modo==='salida' ? COLORS.dangerSolid : COLORS.successSolid,
                     color:'#fff', cursor:'pointer', fontSize:13,
                     display:'flex', alignItems:'center', justifyContent:'center',
                   }}>{cargando ? '…' : '✓'}</button>
@@ -211,12 +212,12 @@ export default function InventoryCard({ item, onEdit, onDelete, onUse, onEntrada
                   onClick={() => setModo(null)}
                   style={{
                     width:26, height:26, borderRadius:6, border:'none',
-                    background:'#F3F4F6', cursor:'pointer', fontSize:12,
+                    background:COLORS.surface2, color:COLORS.textPrimary, cursor:'pointer', fontSize:12,
                     display:'flex', alignItems:'center', justifyContent:'center',
                   }}>✕</button>
               </div>
               {modo === 'salida' && Number(cantidad) > disponible && (
-                <div style={{ fontSize:10, color:'#DC2626', marginTop:4 }}>
+                <div style={{ fontSize:10, color:COLORS.danger.fg, marginTop:4 }}>
                   Máximo disponible: {disponible}{unidad}
                 </div>
               )}

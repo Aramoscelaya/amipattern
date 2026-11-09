@@ -185,8 +185,14 @@ ESTADOS_PEDIDO = ['pendiente', 'en_proceso', 'completado', 'entregado', 'cancela
 // Badge colors map
 BADGE_COLORS = { /* status/difficulty → color hex */ }
 
-// UI Palette
-COLORS = { primary: '#1A1A2E', background: '#F5F0EB', ... }
+// UI Palette (tema oscuro permanente)
+COLORS = {
+  bg: '#14141C', card: '#1E1E2B', surface2: '#272738', border: '#363650',
+  header: '#4A3628', headerAccent: '#D9B08C', accent: '#FAD2E1', onAccent: '#1A1A2E',
+  textPrimary: '#F2F2F7', textSecondary: '#B4B4C7', textMuted: '#8A8AA3',
+  success/danger/warning/info: { bg, fg, border },
+  successSolid/dangerSolid/warningSolid/infoSolid, whatsapp,
+}
 
 // Pricing defaults
 PRICING_DEFAULTS = { pago_por_hora: 60, margen_boutique: 0.35, margen_propio: 0.20 }

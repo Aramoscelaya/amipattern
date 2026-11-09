@@ -30,7 +30,7 @@ export default function StoreEventModal({ visible, initial, onClose, onSave }) {
     <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '88vh', overflowY: 'auto',
-        backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
+        backgroundColor: COLORS.card, borderRadius: '20px 20px 0 0',
         padding: '0 0 40px',
         animation: ANIMATION.slideUp,
       }}>
@@ -38,7 +38,7 @@ export default function StoreEventModal({ visible, initial, onClose, onSave }) {
           <div style={{ fontWeight: 900, fontSize: 18, color: COLORS.textPrimary }}>
             {initial ? '✏️ Editar evento' : '🏪 Nuevo lugar / evento'}
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#9CA3AF' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: COLORS.textMuted }}>✕</button>
         </div>
 
         <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -59,9 +59,9 @@ export default function StoreEventModal({ visible, initial, onClose, onSave }) {
                   padding: '7px 12px', borderRadius: 99,
                   border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
                   fontWeight: 700, fontSize: 12,
-                  backgroundColor: form.tipo === t.id ? '#1A1A2E' : '#F9FAFB',
-                  borderColor: form.tipo === t.id ? '#1A1A2E' : '#E5E7EB',
-                  color: form.tipo === t.id ? '#fff' : COLORS.textSecondary,
+                  backgroundColor: form.tipo === t.id ? COLORS.accent : COLORS.surface2,
+                  borderColor: form.tipo === t.id ? COLORS.accent : COLORS.border,
+                  color: form.tipo === t.id ? COLORS.onAccent : COLORS.textSecondary,
                 }}>{t.emoji} {t.label}</button>
               ))}
             </div>
@@ -91,13 +91,13 @@ export default function StoreEventModal({ visible, initial, onClose, onSave }) {
           <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
             <button onClick={onClose} style={{
               flex: 1, padding: 14, borderRadius: 12,
-              border: '2px solid #E5E7EB', background: 'transparent',
-              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14,
+              border: `2px solid ${COLORS.border}`, background: 'transparent',
+              fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, color: COLORS.textSecondary,
             }}>Cancelar</button>
             <button onClick={handleSave} disabled={saving} style={{
               flex: 2, padding: 14, borderRadius: 12,
-              backgroundColor: '#1A1A2E', border: 'none',
-              color: '#fff', fontWeight: 800, cursor: 'pointer',
+              backgroundColor: COLORS.accent, border: 'none',
+              color: COLORS.onAccent, fontWeight: 800, cursor: 'pointer',
               fontFamily: 'inherit', fontSize: 14, opacity: saving ? 0.7 : 1,
             }}>{saving ? 'Guardando…' : initial ? 'Guardar cambios' : '+ Crear evento'}</button>
           </div>

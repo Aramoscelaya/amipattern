@@ -148,9 +148,31 @@ function AppInner() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+        :root { color-scheme: dark; }
         * { box-sizing: border-box; }
-        body { margin: 0; background-color: ${COLORS.bg}; }
-        input:focus, textarea:focus { border-color: #1A1A2E !important; }
+        html { background-color: ${COLORS.bg}; }
+        body { margin: 0; background-color: ${COLORS.bg}; color: ${COLORS.textPrimary}; }
+        input:focus, textarea:focus, select:focus { border-color: ${COLORS.accent} !important; }
+        ::placeholder { color: ${COLORS.textMuted}; }
+        ::selection { background: ${COLORS.accent}; color: ${COLORS.onAccent}; }
+        select option { background-color: ${COLORS.card}; color: ${COLORS.textPrimary}; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: ${COLORS.bg}; }
+        ::-webkit-scrollbar-thumb { background: ${COLORS.border}; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${COLORS.textMuted}; }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        select:-webkit-autofill {
+          -webkit-text-fill-color: ${COLORS.textPrimary};
+          -webkit-box-shadow: 0 0 0 1000px ${COLORS.surface2} inset;
+          caret-color: ${COLORS.textPrimary};
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          filter: invert(1); opacity: 0.7; cursor: pointer;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
         @keyframes slideUp {
           from { transform: translateY(100%); }
           to   { transform: translateY(0); }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { COLORS } from '../lib/constants';
 
 export default function LoginScreen() {
   const { signInWithGoogle } = useAuth();
@@ -14,7 +15,7 @@ export default function LoginScreen() {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#F5F0EB',
+      backgroundColor: COLORS.bg,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -22,7 +23,7 @@ export default function LoginScreen() {
       fontFamily: "'Nunito', 'Segoe UI', sans-serif",
     }}>
       <div style={{
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.card,
         borderRadius: 28,
         padding: '48px 40px',
         maxWidth: 400,
@@ -33,7 +34,7 @@ export default function LoginScreen() {
         {/* Logo */}
         <div style={{
           width: 80, height: 80, borderRadius: 24,
-          backgroundColor: '#FAD2E1',
+          backgroundColor: COLORS.accent,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 42, margin: '0 auto 24px',
           boxShadow: '0 4px 16px rgba(250,210,225,0.6)',
@@ -42,13 +43,13 @@ export default function LoginScreen() {
         </div>
 
         <h1 style={{
-          fontSize: 28, fontWeight: 900, color: '#1A1A2E',
+          fontSize: 28, fontWeight: 900, color: COLORS.textPrimary,
           margin: '0 0 8px',
         }}>
           AmiPattern
         </h1>
         <p style={{
-          color: '#6B7280', fontSize: 15, margin: '0 0 36px',
+          color: COLORS.textSecondary, fontSize: 15, margin: '0 0 36px',
           lineHeight: 1.5,
         }}>
           Tu colección personal de patrones de amigurumi
@@ -60,17 +61,17 @@ export default function LoginScreen() {
           disabled={loading}
           style={{
             width: '100%', padding: '14px 20px',
-            borderRadius: 14, border: '2px solid #E5E7EB',
-            backgroundColor: loading ? '#F9FAFB' : '#fff',
+            borderRadius: 14, border: `2px solid ${COLORS.border}`,
+            backgroundColor: loading ? COLORS.surface2 : COLORS.card,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: 12, cursor: loading ? 'wait' : 'pointer',
-            fontSize: 15, fontWeight: 800, color: '#1A1A2E',
+            fontSize: 15, fontWeight: 800, color: COLORS.textPrimary,
             fontFamily: 'inherit',
             transition: 'all 0.18s ease',
             boxShadow: loading ? 'none' : '0 2px 8px rgba(0,0,0,0.06)',
           }}
-          onMouseEnter={e => { if (!loading) e.currentTarget.style.borderColor = '#1A1A2E'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.borderColor = COLORS.accent; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = COLORS.border; }}
         >
           {loading ? (
             <span style={{ fontSize: 20 }}>⏳</span>
@@ -81,7 +82,7 @@ export default function LoginScreen() {
         </button>
 
         <p style={{
-          marginTop: 24, fontSize: 12, color: '#9CA3AF', lineHeight: 1.6,
+          marginTop: 24, fontSize: 12, color: COLORS.textMuted, lineHeight: 1.6,
         }}>
           Al continuar aceptas que tus patrones se guardan de forma privada, visibles solo para ti.
         </p>

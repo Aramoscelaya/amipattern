@@ -26,7 +26,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
     <div style={{ position: 'fixed', inset: 0, zIndex: Z_INDEX.modal, backgroundColor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'flex-end' }}>
       <div style={{
         width: '100%', maxHeight: '88vh', overflowY: 'auto',
-        backgroundColor: '#fff', borderRadius: '20px 20px 0 0',
+        backgroundColor: COLORS.card, borderRadius: '20px 20px 0 0',
         padding: '0 0 32px',
         animation: ANIMATION.slideUp,
       }}>
@@ -37,7 +37,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
               {canal ? `${canal.emoji || '🏪'} ${canal.nombre}` : 'Sin canal seleccionado'}
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#9CA3AF' }}>✕</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: COLORS.textMuted }}>✕</button>
         </div>
 
         {items.length === 0 ? (
@@ -50,8 +50,8 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
             {items.map(item => (
               <div key={item.product.id} style={{
                 display: 'flex', alignItems: 'center', gap: 10,
-                backgroundColor: '#F9FAFB', borderRadius: 12,
-                padding: '10px 12px', border: '1px solid #F3F4F6',
+                backgroundColor: COLORS.surface2, borderRadius: 12,
+                padding: '10px 12px', border: `1px solid ${COLORS.border}`,
               }}>
                 <div style={{
                   width: 34, height: 34, borderRadius: 9, flexShrink: 0,
@@ -64,16 +64,16 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <button onClick={() => onChangeQty(item.product.id, item.cantidad - 1)} style={{
-                    width: 26, height: 26, borderRadius: 7, border: '1px solid #E5E7EB',
-                    background: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: 14,
+                    width: 26, height: 26, borderRadius: 7, border: `1px solid ${COLORS.border}`,
+                    background: COLORS.surface2, color: COLORS.textPrimary, cursor: 'pointer', fontWeight: 900, fontSize: 14,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>−</button>
                   <input type="number" min="1" value={item.cantidad}
                     onChange={e => onChangeQty(item.product.id, Number(e.target.value))}
-                    style={{ width: 42, textAlign: 'center', border: '1px solid #E5E7EB', borderRadius: 7, padding: '4px 2px', fontSize: 13, fontWeight: 800, outline: 'none', fontFamily: 'inherit' }} />
+                    style={{ width: 42, textAlign: 'center', border: `1px solid ${COLORS.border}`, borderRadius: 7, padding: '4px 2px', fontSize: 13, fontWeight: 800, outline: 'none', fontFamily: 'inherit', backgroundColor: COLORS.surface2, color: COLORS.textPrimary }} />
                   <button onClick={() => onChangeQty(item.product.id, item.cantidad + 1)} style={{
-                    width: 26, height: 26, borderRadius: 7, border: '1px solid #E5E7EB',
-                    background: '#fff', cursor: 'pointer', fontWeight: 900, fontSize: 14,
+                    width: 26, height: 26, borderRadius: 7, border: `1px solid ${COLORS.border}`,
+                    background: COLORS.surface2, color: COLORS.textPrimary, cursor: 'pointer', fontWeight: 900, fontSize: 14,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>+</button>
                 </div>
@@ -82,7 +82,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
                 </span>
                 <button onClick={() => onRemove(item.product.id)} style={{
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#EF4444', fontSize: 16, fontWeight: 900, padding: 0, flexShrink: 0,
+                  color: COLORS.danger.fg, fontSize: 16, fontWeight: 900, padding: 0, flexShrink: 0,
                 }}>×</button>
               </div>
             ))}
@@ -90,7 +90,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
             {/* Total */}
             <div style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              borderTop: '2px solid #1A1A2E', marginTop: 6, paddingTop: 10,
+              borderTop: `2px solid ${COLORS.border}`, marginTop: 6, paddingTop: 10,
             }}>
               <span style={{ fontWeight: 800, fontSize: 13, color: COLORS.textPrimary }}>
                 Total ({piezas} pieza{piezas !== 1 ? 's' : ''})
@@ -102,7 +102,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
 
             {/* Método de pago */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>💳 Método de pago</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>💳 Método de pago</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 {[
                   { id: 'efectivo',      label: '💵 Efectivo' },
@@ -112,9 +112,9 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
                     flex: 1, padding: '10px 0', borderRadius: 10,
                     border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
                     fontWeight: 700, fontSize: 13,
-                    backgroundColor: metodoPago === m.id ? '#1A1A2E' : '#F9FAFB',
-                    borderColor: metodoPago === m.id ? '#1A1A2E' : '#E5E7EB',
-                    color: metodoPago === m.id ? '#FAD2E1' : COLORS.textSecondary,
+                    backgroundColor: metodoPago === m.id ? COLORS.accent : COLORS.surface2,
+                    borderColor: metodoPago === m.id ? COLORS.accent : COLORS.border,
+                    color: metodoPago === m.id ? COLORS.onAccent : COLORS.textSecondary,
                   }}>{m.label}</button>
                 ))}
               </div>
@@ -122,7 +122,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
 
             {/* Notas */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>📝 Notas (opcional)</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>📝 Notas (opcional)</div>
               <StyledTextarea value={notas} onChange={e => setNotas(e.target.value)}
                 placeholder="Detalles de la venta…" style={{ minHeight: 56 }} />
             </div>
@@ -130,7 +130,7 @@ export default function CarritoPanel({ visible = true, items, onChangeQty, onRem
             {/* Botón cobrar */}
             <button onClick={handleCobrar} disabled={cobrando} style={{
               width: '100%', padding: 14, borderRadius: 12,
-              backgroundColor: cobrando ? '#9CA3AF' : '#059669', border: 'none',
+              backgroundColor: cobrando ? COLORS.textMuted : COLORS.successSolid, border: 'none',
               color: '#fff', fontWeight: 900, fontSize: 15,
               cursor: cobrando ? 'wait' : 'pointer', fontFamily: 'inherit',
             }}>
